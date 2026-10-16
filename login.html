@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Painel Admin FUTSTATS</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="login-screen">
+  <div class="login-box">
+    <div class="login-brand"><span class="dot"></span>FUT<span class="accent">STATS</span></div>
+    <div class="login-sub">PAINEL ADMINISTRATIVO</div>
+
+    <form id="form-login">
+      <div class="field">
+        <label for="usuario">Usuário</label>
+        <input type="text" id="usuario" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" autocomplete="current-password" required>
+      </div>
+      <div class="field-error" id="erro-login">Usuário ou senha inválidos.</div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">Entrar</button>
+    </form>
+
+    <div class="login-hint">Acesso de demonstração: <strong>admin</strong> / <strong>futstats2026</strong></div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

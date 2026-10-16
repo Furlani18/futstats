@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chaveamento — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+
+<main class="page">
+  <div class="breadcrumb"><a href="index.html">Início</a> / <span>Chaveamento</span></div>
+  <div class="section-eyebrow">Mata-mata — pela 1ª vez com 32avos de final</div>
+  <h1 class="section-title">Chaveamento — 32avos à Final</h1>
+
+  <div class="notice-banner">
+    32avos: 8 jogos são cruzamentos fixos entre 1ºs/2ºs colocados; outros 8 colocam um 1º colocado contra o melhor
+    3º dentre um grupo fixo de 5 possíveis grupos (mesma lógica do regulamento oficial). Confrontos em
+    <em>itálico/tracejado</em> ainda são projeções — tornam-se definitivos quando o jogo anterior termina.
+  </div>
+
+  <div class="panel" style="margin-bottom:24px;">
+    <div class="panel-header"><span class="panel-title">Final e disputa de 3º lugar</span></div>
+    <div class="panel-body" style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;" id="bloco-final"></div>
+      <div style="flex:1;min-width:220px;" id="bloco-terceiro"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">32avos → Semifinal</span></div>
+    <div class="panel-body">
+      <div class="bracket-wrap">
+        <div class="bracket" id="bracket"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/chaveamento.js"></script>
+</body>
+</html>

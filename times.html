@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seleções — Painel Admin FUTSTATS</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+  <div id="sidebar-mount"></div>
+
+  <div class="admin-main">
+    <div id="topbar-mount"></div>
+
+    <div class="admin-content">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <span class="admin-panel-title">Seleções cadastradas</span>
+          <div style="display:flex;gap:10px;">
+            <input type="text" class="search-input" id="busca" placeholder="Buscar seleção...">
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Seleção</th><th>Grupo</th><th>Confederação</th><th>Ranking FIFA</th><th>Jogadores</th><th></th></tr>
+          </thead>
+          <tbody id="tbody-times"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/admin-ui.js"></script>
+<script src="js/times.js"></script>
+</body>
+</html>

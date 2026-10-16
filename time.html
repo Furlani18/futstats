@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Time — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+
+<main class="page">
+  <div class="breadcrumb"><a href="index.html">Início</a> / <span id="breadcrumb-nome">Time</span></div>
+
+  <div class="team-header">
+    <div id="crest-mount"></div>
+    <div>
+      <h1 class="section-title" style="margin-bottom:4px;" id="nome-time">Carregando...</h1>
+      <div style="color:var(--text-dim);font-weight:600;font-size:14px;" id="meta-time"></div>
+    </div>
+  </div>
+
+  <div class="layout-grid" style="grid-template-columns: 1fr 340px;">
+    <section>
+      <div class="section-eyebrow">Elenco</div>
+      <h2 class="section-title" style="font-size:22px;">Jogadores</h2>
+      <div class="player-grid" id="grid-jogadores"></div>
+    </section>
+
+    <aside>
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header"><span class="panel-title">Grupo</span></div>
+        <div class="panel-body">
+          <table class="standings-table" id="tabela-grupo-time">
+            <thead><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Jogos</span></div>
+        <div id="jogos-time"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/time.js"></script>
+</body>
+</html>

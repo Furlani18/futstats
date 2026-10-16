@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogos — Painel Admin FUTSTATS</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+  <div id="sidebar-mount"></div>
+
+  <div class="admin-main">
+    <div id="topbar-mount"></div>
+
+    <div class="admin-content">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <span class="admin-panel-title">Jogos da Copa 2026</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <select class="search-input" id="filtro-fase" style="min-width:170px;"></select>
+            <select class="search-input" id="filtro-grupo" style="min-width:130px;"></select>
+            <select class="search-input" id="filtro-status" style="min-width:150px;">
+              <option value="">Todos os status</option>
+              <option value="agendado">Agendado</option>
+              <option value="ao_vivo">Ao vivo</option>
+              <option value="encerrado">Encerrado</option>
+              <option value="adiado">Adiado</option>
+            </select>
+            <button class="btn btn-ghost" id="btn-sincronizar">Atualizar chaveamento</button>
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Data / Hora</th><th>Fase</th><th>Confronto</th><th>Placar</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="tbody-jogos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin-ui.js"></script>
+<script src="js/jogos.js"></script>
+</body>
+</html>

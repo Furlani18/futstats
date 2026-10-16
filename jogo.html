@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Jogo — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+
+<section class="hero-match">
+  <div class="container">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="hero-match-inner" id="hero-jogo"></div>
+    <div class="match-nav" id="nav-jogo"></div>
+  </div>
+</section>
+
+<main class="page">
+  <div class="layout-grid" style="grid-template-columns: 1fr 340px;">
+    <section>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Detalhes da partida</span></div>
+        <div class="panel-body" id="detalhes-jogo"></div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="panel" id="painel-lateral">
+        <div class="panel-header"><span class="panel-title" id="titulo-mini-classificacao">Classificação</span></div>
+        <div class="panel-body" id="corpo-lateral">
+          <table class="standings-table" id="tabela-mini">
+            <thead><tr><th>#</th><th>Time</th><th>P</th><th>SG</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/jogo.js"></script>
+</body>
+</html>

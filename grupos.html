@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupos — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+
+<main class="page">
+  <div class="breadcrumb"><a href="index.html">Início</a> / <span>Grupos</span></div>
+  <div class="section-eyebrow">Copa do Mundo FIFA 2026</div>
+  <h1 class="section-title">Fase de grupos — 12 grupos de 4 seleções</h1>
+
+  <div class="notice-banner">
+    Critério de desempate oficial: pontos → saldo de gols → gols pró (calculados primeiro entre os times empatados,
+    reaplicado ao subgrupo remanescente) → saldo de gols geral → gols pró geral → conduta (fair play) → ranking FIFA.
+  </div>
+
+  <div class="groups-grid" id="grid-grupos"></div>
+
+  <div style="margin-top:40px;">
+    <div class="section-eyebrow">Vagas dos 32avos</div>
+    <h2 class="section-title" style="font-size:26px;">Melhores terceiros colocados</h2>
+    <p style="color:var(--text-dim);font-size:13.5px;margin-top:-14px;margin-bottom:16px;">
+      Os 8 melhores terceiros colocados (dentre os 12 grupos) avançam junto com os 1ºs e 2ºs colocados.
+    </p>
+    <div class="panel">
+      <div class="panel-body">
+        <table class="standings-table" id="tabela-terceiros">
+          <thead>
+            <tr><th>#</th><th>Time</th><th>Grupo</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th><th>GP</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/grupos.js"></script>
+</body>
+</html>
