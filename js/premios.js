@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     l => `${l.semSofrer}<small>sem sofrer</small>`,
     l => `${l.jogos} jogo${l.jogos === 1 ? '' : 's'}`,
     'Sem escalações de goleiros ainda');
+  // Sem datas de nascimento (elencos de clubes) não dá para saber quem é jovem.
+  if (!DB.Jogadores.all().some(j => j.nascimento)) document.getElementById('lista-jovem').closest('.panel').hidden = true;
   document.getElementById('lista-jovem').innerHTML = lista(jovem,
     l => `${l.participacoes}<small>G+A</small>`,
     l => `${l.jogador.idade ?? ''} anos · ${l.gols}G ${l.assistencias}A`,
@@ -38,11 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let atual = (comJogos[comJogos.length - 1] || rodadas[0]).id;
 
   function render() {
-    document.getElementById('chips-rodada').innerHTML = rodadas.map(r => {
-      const tem = comJogos.includes(r);
-      return `<button type="button" class="chip${r.id === atual ? ' active' : ''}" data-r="${r.id}" ${tem ? '' : 'disabled style="opacity:.4;cursor:default"'}>${r.label}</button>`;
-    }).join('');
-    document.querySelectorAll('#chips-rodada .chip:not([disabled])').forEach(b => b.addEventListener('click', () => { atual = b.dataset.r; render(); }));
+    // Com muitas rodadas (ligas de 38), um seletor no lugar dos botões.
+    if (rodadas.length > 10) {
+      document.getElementById('chips-rodada').innerHTML = `<label class="chip" style="display:inline-flex;align-items:center;gap:8px;cursor:default;">Rodada
+        <select id="sel-rodada" class="chip-select">${rodadas.map(r => `<option value="${r.id}" ${r.id === atual ? 'selected' : ''} ${comJogos.includes(r) ? '' : 'disabled'}>${r.label}</option>`).join('')}</select></label>`;
+      document.getElementById('sel-rodada').addEventListener('change', e => { atual = e.target.value; render(); });
+    } else {
+      document.getElementById('chips-rodada').innerHTML = rodadas.map(r => {
+        const tem = comJogos.includes(r);
+        return `<button type="button" class="chip${r.id === atual ? ' active' : ''}" data-r="${r.id}" ${tem ? '' : 'disabled style="opacity:.4;cursor:default"'}>${r.label}</button>`;
+      }).join('');
+      document.querySelectorAll('#chips-rodada .chip:not([disabled])').forEach(b => b.addEventListener('click', () => { atual = b.dataset.r; render(); }));
+    }
 
     const sel = DB.Estatisticas.selecaoDaRodada(atual);
     document.getElementById('titulo-rodada').textContent = `Seleção da rodada · ${sel.rodada.label}`;

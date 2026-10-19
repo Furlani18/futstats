@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.montarTopbar();
   UI.montarTicker();
 
+  if (!DB.Contexto.ehCopa()) { mataMataClubes(); UI.montarFooter(); return; }
   const chave = DB.MataMata.sincronizar();
 
   // Árvore clássica: metade esquerda → final ← metade direita (espelhada).
@@ -76,4 +77,27 @@ function cartaoHtml(item, classeExtra = '', compacto = true) {
   return jogo
     ? `<a class="${classes}" href="jogo.html?id=${jogo.id}">${corpo}</a>`
     : `<div class="${classes}${item.projetado ? '' : ' projetado'}">${corpo}</div>`;
+}
+
+// Mata-mata dos clubes: uma coluna por fase, com os confrontos (ida e volta + agregado).
+function mataMataClubes() {
+  const comp = DB.Contexto.get();
+  if (comp.tipo === 'liga') { window.location.replace('grupos.html'); return; }
+  document.getElementById('painel-arvore').hidden = true;
+  document.getElementById('painel-terceiro').hidden = true;
+  document.getElementById('eyebrow').textContent = `${comp.curto} · mata-mata`;
+  const unico = comp.jogoUnico || [];
+  document.getElementById('lead').textContent = `Confrontos em ida e volta${unico.length ? ` (${unico.map(f => DB.Util.faseLabel(f).toLowerCase()).join(', ')} em jogo único)` : ''}. O placar ao lado de cada clube é o agregado.`;
+  const caixa = document.getElementById('fases-clubes');
+  caixa.hidden = false;
+  caixa.innerHTML = (comp.fases || []).map(fase => {
+    const confrontos = DB.MataMata.confrontos(fase);
+    return `<section class="panel fase-col">
+      <div class="panel-header"><span class="panel-title">${DB.Util.faseLabel(fase)}</span><span class="group-status">${confrontos.length ? `${confrontos.filter(c => c.encerrado).length}/${confrontos.length} definidos` : ''}</span></div>
+      <div class="panel-body"><div class="stack">${confrontos.length
+        ? confrontos.map(UI.cartaoConfronto).join('')
+        : '<div class="bracket-match projetado"><div class="bracket-team"><span class="nome">A definir</span></div><div class="bracket-team"><span class="nome">A definir</span></div></div>'}
+      </div></div>
+    </section>`;
+  }).join('');
 }

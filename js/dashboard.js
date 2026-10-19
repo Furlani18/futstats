@@ -6,10 +6,14 @@ AdminUI.registrar('dashboard', () => {
   const totalJogadores = DB.Jogadores.all().length;
   const aoVivo = DB.Jogos.aoVivo();
 
+  const resumo = DB.Estatisticas.resumo();
+  const letras = DB.Grupos.letras;
   document.getElementById('kpi-grid').innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">Fase atual</div><div class="kpi-value" style="font-size:22px;">${DB.Util.faseLabel(DB.Torneio.faseAtual())}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Grupos encerrados</div><div class="kpi-value">${gruposEncerrados}/12</div></div>
-    <div class="kpi-card"><div class="kpi-label">Seleções · Jogadores</div><div class="kpi-value">${totalTimes} · ${totalJogadores}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Fase atual</div><div class="kpi-value" style="font-size:22px;">${DB.Util.escapar(DB.Torneio.descricaoFase())}</div></div>
+    ${letras.length
+      ? `<div class="kpi-card"><div class="kpi-label">Grupos encerrados</div><div class="kpi-value">${gruposEncerrados}/${letras.length}</div></div>`
+      : `<div class="kpi-card"><div class="kpi-label">Jogos encerrados</div><div class="kpi-value">${resumo.jogos}/${resumo.totalJogos}</div></div>`}
+    <div class="kpi-card"><div class="kpi-label">${UI.rotuloTimes()} · Jogadores</div><div class="kpi-value">${totalTimes} · ${totalJogadores}</div></div>
     <div class="kpi-card"><div class="kpi-label">Jogos ao vivo</div><div class="kpi-value">${aoVivo.length}</div></div>`;
 
   document.getElementById('tbody-ao-vivo').innerHTML = aoVivo.length

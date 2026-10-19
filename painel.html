@@ -50,14 +50,14 @@
 <template id="tpl-times">
   <div class="admin-panel">
     <div class="admin-panel-header">
-      <span class="admin-panel-title">Seleções cadastradas</span>
+      <span class="admin-panel-title" id="titulo-times">Seleções cadastradas</span>
       <div style="display:flex;gap:10px;">
-        <input type="text" class="search-input" id="busca" placeholder="Buscar seleção...">
+        <input type="text" class="search-input" id="busca" placeholder="Buscar...">
       </div>
     </div>
     <table class="admin-table">
       <thead>
-        <tr><th>Seleção</th><th>Grupo</th><th>Confederação</th><th>Técnico</th><th>Ranking FIFA</th><th>Jogadores</th><th></th></tr>
+        <tr id="cabecalho-times"><th>Seleção</th><th>Grupo</th><th>Confederação</th><th>Técnico</th><th>Ranking FIFA</th><th>Jogadores</th><th></th></tr>
       </thead>
       <tbody id="tbody-times"></tbody>
     </table>
@@ -90,10 +90,11 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-primary" id="btn-novo">+ Novo jogo</button>
         <button class="btn btn-ghost" id="btn-importar">Importar calendário oficial</button>
+        <button class="btn btn-ghost" id="btn-gerar" hidden>Gerar rodadas</button>
         <button class="btn btn-ghost" id="btn-sincronizar">Atualizar chaveamento</button>
       </div>
     </div>
-    <div class="admin-toolbar-hint">
+    <div class="admin-toolbar-hint" id="dica-jogos">
       Cadastre os jogos da fase de grupos (ou importe o calendário oficial, sem placares) e lance placar, gols, assistências e cartões em <strong>Editar</strong>.
       Os jogos do mata-mata são criados sozinhos quando os 12 grupos terminam.
     </div>
@@ -146,6 +147,8 @@
 </template>
 
 <script src="js/elencos.js"></script>
+<script src="js/clubes.js"></script>
+<script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/calendario.js"></script>
 <script src="js/db.js"></script>

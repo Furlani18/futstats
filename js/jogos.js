@@ -5,6 +5,19 @@ const TIPOS_CARTAO = { amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', verme
 
 AdminUI.registrar('jogos', () => {
   DB.MataMata.sincronizar();
+  const comp = DB.Contexto.get();
+  const ehCopa = comp.tipo === 'copa_mundo';
+  // Fases em que se cadastra jogo à mão (na Copa o mata-mata nasce sozinho).
+  const FASES_NOVO = {
+    copa_mundo: ['grupos'], liga: ['liga'], champions: ['liga', ...(comp.fases || [])],
+    grupos_mata: ['grupos', ...(comp.fases || [])], mata_mata: [...(comp.fases || [])],
+  }[comp.tipo];
+  const rodadasDaFase = fase => {
+    if (fase === 'grupos') return ehCopa ? 3 : 6;
+    if (fase === 'liga') return comp.tipo === 'champions' ? (comp.rodadasLiga || 8) : (DB.Times.all().length - 1) * 2;
+    return 0;
+  };
+  const idaEVolta = fase => !['liga', 'grupos'].includes(fase) && !(comp.jogoUnico || []).includes(fase);
 
   const esc = DB.Util.escapar;
   const esc_ = esc; // nome alternativo onde `esc` é a escalação
@@ -13,9 +26,25 @@ AdminUI.registrar('jogos', () => {
   const filtroStatus = document.getElementById('filtro-status');
 
   filtroFase.innerHTML = '<option value="">Todas as fases</option>' +
-    FASES_FILTRO.map(f => `<option value="${f}">${DB.Util.faseLabel(f)}</option>`).join('');
+    (ehCopa ? FASES_FILTRO : FASES_NOVO).map(f => `<option value="${f}">${DB.Util.faseLabel(f)}</option>`).join('');
+  filtroFase.hidden = !ehCopa && FASES_NOVO.length < 2;
   filtroGrupo.innerHTML = '<option value="">Todos os grupos</option>' +
     DB.Grupos.letras.map(l => `<option value="${l}">Grupo ${l}</option>`).join('');
+  filtroGrupo.hidden = !DB.Grupos.letras.length;
+
+  // Botões e dica conforme o formato do campeonato.
+  document.getElementById('btn-importar').hidden = !ehCopa;
+  document.getElementById('btn-sincronizar').hidden = !ehCopa;
+  const podeGerar = comp.tipo === 'liga' || comp.tipo === 'grupos_mata';
+  document.getElementById('btn-gerar').hidden = !podeGerar;
+  if (!ehCopa) {
+    document.getElementById('dica-jogos').innerHTML = {
+      liga: 'Use <strong>Gerar rodadas</strong> para criar o turno e o returno completos (datas semanais aproximadas, editáveis) ou cadastre jogo a jogo em <strong>+ Novo jogo</strong>. Depois, lance placar, gols, assistências, cartões e escalações em <strong>Editar</strong>.',
+      champions: 'Cadastre os 8 jogos de cada clube na fase de liga (sorteio da UEFA) e, depois, os confrontos do mata-mata com <strong>ida</strong> e <strong>volta</strong> — o agregado é calculado sozinho.',
+      grupos_mata: 'Use <strong>Gerar rodadas</strong> para criar os 6 jogos de cada grupo; o mata-mata (ida e volta) você cadastra em <strong>+ Novo jogo</strong> conforme o sorteio.',
+      mata_mata: 'Cadastre cada confronto com o jogo de <strong>ida</strong> e o de <strong>volta</strong>; o agregado e o classificado são calculados sozinhos.',
+    }[comp.tipo];
+  }
 
   function nomeTime(id) {
     const t = DB.Times.get(id);
@@ -46,7 +75,7 @@ AdminUI.registrar('jogos', () => {
       <td>${AdminUI.badge(jogo.status, LABELS_STATUS_JOGO)}</td>
       <td class="row-actions">
         <button class="btn btn-ghost btn-sm" data-editar="${jogo.id}">Editar</button>
-        ${jogo.fase === 'grupos' ? `<button class="btn btn-danger btn-sm" data-excluir="${jogo.id}">Excluir</button>` : ''}
+        ${!ehCopa || jogo.fase === 'grupos' ? `<button class="btn btn-danger btn-sm" data-excluir="${jogo.id}">Excluir</button>` : ''}
       </td>
     </tr>`;
   }
@@ -54,7 +83,7 @@ AdminUI.registrar('jogos', () => {
   function linhaVazia() {
     const vazio = !DB.Jogos.all().length;
     return `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">
-      ${vazio ? 'Nenhum jogo cadastrado ainda. Use <strong>+ Novo jogo</strong> ou <strong>Importar calendário oficial</strong>.' : 'Nenhum jogo encontrado com esses filtros.'}
+      ${vazio ? `Nenhum jogo cadastrado ainda. Use <strong>+ Novo jogo</strong>${ehCopa ? ' ou <strong>Importar calendário oficial</strong>' : document.getElementById('btn-gerar').hidden ? '' : ' ou <strong>Gerar rodadas</strong>'}.` : 'Nenhum jogo encontrado com esses filtros.'}
     </td></tr>`;
   }
 
@@ -70,7 +99,7 @@ AdminUI.registrar('jogos', () => {
   function abrirFormulario(id) {
     const existente = id ? DB.Jogos.get(id) : null;
     const novo = !existente;
-    const eliminatoria = existente && existente.fase !== 'grupos';
+    const eliminatoria = existente && !['grupos', 'liga'].includes(existente.fase);
     const estado = {
       mandanteId: existente ? existente.mandanteId : '',
       visitanteId: existente ? existente.visitanteId : '',
@@ -84,16 +113,21 @@ AdminUI.registrar('jogos', () => {
 
     const camposNovo = novo ? `
       <div class="field-row">
-        <div class="field"><label>Grupo</label>
-          <select name="grupo" id="f-grupo" required>${DB.Grupos.letras.map(l => `<option value="${l}">Grupo ${l}</option>`).join('')}</select></div>
-        <div class="field"><label>Rodada</label>
-          <select name="rodada">${[1, 2, 3].map(r => `<option value="${r}">${r}ª rodada</option>`).join('')}</select></div>
+        <div class="field" id="campo-fase" ${FASES_NOVO.length < 2 ? 'hidden' : ''}><label>Fase</label>
+          <select name="fase" id="f-fase">${FASES_NOVO.map(f => `<option value="${f}">${DB.Util.faseLabel(f)}</option>`).join('')}</select></div>
+        <div class="field" id="campo-grupo"><label>Grupo</label>
+          <select name="grupo" id="f-grupo">${DB.Grupos.letras.map(l => `<option value="${l}">Grupo ${l}</option>`).join('')}</select></div>
+        <div class="field" id="campo-rodada"><label>Rodada</label><select name="rodada" id="f-rodada"></select></div>
+        <div class="field" id="campo-perna"><label>Jogo</label>
+          <select name="perna" id="f-perna"><option value="1">Ida</option><option value="2">Volta</option></select></div>
+      </div>
+      <div class="field-row">
         <div class="field"><label>Mandante</label><select name="mandanteId" id="f-mandante" required></select></div>
         <div class="field"><label>Visitante</label><select name="visitanteId" id="f-visitante" required></select></div>
       </div>` : '';
 
     const titulo = novo
-      ? 'Novo jogo — fase de grupos'
+      ? `Novo jogo — ${comp.curto}`
       : `${nomeTime(existente.mandanteId)} x ${nomeTime(existente.visitanteId)} — ${UI.rotuloJogo(existente)}`;
 
     AdminUI.abrirModal({
@@ -166,10 +200,22 @@ AdminUI.registrar('jogos', () => {
     // ----- Seleção de times (só para jogo novo) -----
     if (novo) {
       const fGrupo = document.getElementById('f-grupo');
+      const fFase = document.getElementById('f-fase');
+      const fRodada = document.getElementById('f-rodada');
       const fM = document.getElementById('f-mandante');
       const fV = document.getElementById('f-visitante');
+      const ajustarFase = () => {
+        const fase = fFase.value;
+        document.getElementById('campo-grupo').hidden = fase !== 'grupos';
+        const n = rodadasDaFase(fase);
+        document.getElementById('campo-rodada').hidden = !n;
+        fRodada.innerHTML = Array.from({ length: n }, (_, i) => `<option value="${i + 1}">${i + 1}ª rodada</option>`).join('');
+        document.getElementById('campo-perna').hidden = !idaEVolta(fase);
+        preencherTimes();
+      };
       const preencherTimes = () => {
-        const times = DB.Grupos.times(fGrupo.value);
+        const times = (fFase.value === 'grupos' ? DB.Grupos.times(fGrupo.value) : DB.Times.all())
+          .slice().sort((a, b) => (fFase.value === 'grupos' ? 0 : a.nome.localeCompare(b.nome)));
         const opts = times.map(t => `<option value="${t.id}">${esc(t.nome)}</option>`).join('');
         fM.innerHTML = opts;
         fV.innerHTML = opts;
@@ -186,9 +232,10 @@ AdminUI.registrar('jogos', () => {
         renderLances();
       };
       fGrupo.addEventListener('change', preencherTimes);
+      fFase.addEventListener('change', ajustarFase);
       fM.addEventListener('change', trocarTimes);
       fV.addEventListener('change', trocarTimes);
-      preencherTimes();
+      ajustarFase();
     }
 
     function atualizarRotulos() {
@@ -371,12 +418,19 @@ AdminUI.registrar('jogos', () => {
 
     // ----- Validação e gravação -----
     function validar(dados) {
-      if (!estado.mandanteId || !estado.visitanteId) return 'Escolha as duas seleções.';
-      if (estado.mandanteId === estado.visitanteId) return 'Mandante e visitante precisam ser seleções diferentes.';
+      if (!estado.mandanteId || !estado.visitanteId) return 'Escolha os dois times.';
+      if (estado.mandanteId === estado.visitanteId) return 'Mandante e visitante precisam ser times diferentes.';
       if (novo) {
-        const chave = [estado.mandanteId, estado.visitanteId].sort().join('|');
-        const repetido = DB.Jogos.porGrupo(dados.get('grupo')).some(j => [j.mandanteId, j.visitanteId].sort().join('|') === chave);
-        if (repetido) return 'Esse confronto já está cadastrado neste grupo.';
+        const fase = dados.get('fase');
+        const mesmoPar = j => [j.mandanteId, j.visitanteId].sort().join('|') === [estado.mandanteId, estado.visitanteId].sort().join('|');
+        const mesmoMando = j => j.mandanteId === estado.mandanteId && j.visitanteId === estado.visitanteId;
+        const daFase = DB.Jogos.all().filter(j => j.fase === fase && (fase !== 'grupos' || j.grupo === dados.get('grupo')));
+        // Copa: um jogo por par no grupo. Ligas/grupos de clubes: turno e returno (um jogo por mando).
+        // Mata-mata: um jogo por perna.
+        if (ehCopa && daFase.some(mesmoPar)) return 'Esse confronto já está cadastrado neste grupo.';
+        if (!ehCopa && ['liga', 'grupos'].includes(fase) && daFase.some(mesmoMando)) return 'Esse jogo (com esse mando) já está cadastrado.';
+        if (idaEVolta(fase) && daFase.some(j => mesmoPar(j) && String(j.perna) === dados.get('perna'))) return 'Esse jogo do confronto já está cadastrado.';
+        if (!idaEVolta(fase) && !['liga', 'grupos'].includes(fase) && daFase.some(mesmoPar)) return 'Esse confronto já está cadastrado.';
       }
       const status = dados.get('status');
       const gm = dados.get('golsMandante'), gv = dados.get('golsVisitante');
@@ -418,8 +472,12 @@ AdminUI.registrar('jogos', () => {
         payload.prorrogacao = dados.get('prorrogacao') === '1';
       }
       if (novo) {
-        const criado = DB.Jogos.criarJogoDeGrupo({
-          grupo: dados.get('grupo'), rodada: Number(dados.get('rodada')),
+        const fase = dados.get('fase');
+        const criado = DB.Jogos.criar({
+          fase,
+          grupo: fase === 'grupos' ? dados.get('grupo') : null,
+          rodada: rodadasDaFase(fase) ? Number(dados.get('rodada')) : null,
+          perna: idaEVolta(fase) ? Number(dados.get('perna')) : null,
           mandanteId: estado.mandanteId, visitanteId: estado.visitanteId,
           data: payload.data, local: payload.local,
         });
@@ -446,6 +504,22 @@ AdminUI.registrar('jogos', () => {
     if (!confirm('Importar os 72 jogos da fase de grupos com datas, horários e estádios oficiais? Nenhum placar é importado, e confrontos já cadastrados são mantidos.')) return;
     const criados = DB.Jogos.importarCalendario(CALENDARIO_GRUPOS_2026);
     alert(criados ? `${criados} jogos importados.` : 'Todos os confrontos da fase de grupos já estavam cadastrados.');
+    renderTabela();
+  });
+  document.getElementById('btn-gerar').addEventListener('click', () => {
+    const msg = comp.tipo === 'liga'
+      ? `Criar o turno e o returno completos (${(DB.Times.all().length - 1) * 2} rodadas) com datas semanais a partir de ${DB.Util.formatarData(`${comp.inicio}T12:00`)}? As datas são aproximadas e podem ser editadas; jogos já cadastrados são mantidos.`
+      : 'Criar os 6 jogos de cada grupo (turno e returno) com datas semanais aproximadas? Jogos já cadastrados são mantidos.';
+    if (!confirm(msg)) return;
+    let criados = 0;
+    if (comp.tipo === 'liga') {
+      criados = DB.Jogos.gerarTurnoReturno({ ids: DB.Times.all().map(t => t.id), fase: 'liga', inicio: comp.inicio || '2026-08-15' });
+    } else {
+      DB.Grupos.letras.forEach(letra => {
+        criados += DB.Jogos.gerarTurnoReturno({ ids: DB.Grupos.times(letra).map(t => t.id), fase: 'grupos', grupo: letra, inicio: comp.inicio || '2026-04-07' });
+      });
+    }
+    alert(criados ? `${criados} jogos criados.` : 'Todos os jogos já estavam cadastrados.');
     renderTabela();
   });
   document.getElementById('btn-sincronizar').addEventListener('click', () => {

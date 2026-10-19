@@ -1,32 +1,55 @@
 const DB = (() => {
-  const SEED_VERSION = 'wc2026-2';
+  const SEED_VERSION = 'multi-1';
+
+  // Cache em memória do que foi lido do localStorage: com milhares de jogadores,
+  // reler e reconverter o JSON a cada consulta deixaria o site lento.
+  const memoria = {};
 
   function ler(chave) {
-    const raw = localStorage.getItem(chave);
-    return raw ? JSON.parse(raw) : null;
+    if (!(chave in memoria)) {
+      const raw = localStorage.getItem(chave);
+      memoria[chave] = { valor: raw ? JSON.parse(raw) : null, indice: null };
+    }
+    return memoria[chave].valor;
   }
 
   function gravar(chave, valor) {
     localStorage.setItem(chave, JSON.stringify(valor));
+    memoria[chave] = { valor, indice: null };
+  }
+
+  function indicePorId(chave) {
+    ler(chave);
+    const m = memoria[chave];
+    if (!m.indice) m.indice = new Map((m.valor || []).map(item => [item.id, item]));
+    return m.indice;
+  }
+
+  // Outra aba gravou algo: descarta o cache.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', e => { if (e.key) delete memoria[e.key]; else Object.keys(memoria).forEach(k => delete memoria[k]); });
   }
 
   function uid(prefixo) {
     return `${prefixo}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
   }
 
-  function makeStore(chave, prefixo) {
+  // `escopo` filtra o que pertence ao campeonato selecionado (all); `todos` ignora o filtro.
+  // `carimbo` acrescenta campos a todo item criado (ex.: o campeonato do jogo).
+  function makeStore(chave, prefixo, escopo, carimbo) {
     return {
-      all() { return ler(chave) || []; },
-      get(id) { return this.all().find(item => item.id === id) || null; },
+      todos() { return [...(ler(chave) || [])]; },
+      all() { const itens = this.todos(); return escopo ? escopo(itens) : itens; },
+      get(id) { return indicePorId(chave).get(id) || null; },
       create(dados) {
-        const itens = this.all();
-        const item = { id: uid(prefixo), ...dados };
+        const itens = this.todos();
+        const item = { id: uid(prefixo), ...(carimbo ? carimbo() : {}), ...dados };
         itens.push(item);
         gravar(chave, itens);
         return item;
       },
       update(id, patch) {
-        const itens = this.all();
+        const itens = this.todos();
         const indice = itens.findIndex(item => item.id === id);
         if (indice === -1) return null;
         itens[indice] = { ...itens[indice], ...patch };
@@ -34,7 +57,7 @@ const DB = (() => {
         return itens[indice];
       },
       remove(id) {
-        gravar(chave, this.all().filter(item => item.id !== id));
+        gravar(chave, this.todos().filter(item => item.id !== id));
       },
     };
   }
@@ -179,6 +202,11 @@ const DB = (() => {
   const HORARIOS = ['13:00', '16:00', '19:00', '22:00'];
 
   const FASES_LABELS = {
+    liga: 'Fase de liga',
+    playoff: 'Playoff',
+    oitavas: 'Oitavas de final',
+    quartas: 'Quartas de final',
+    semi: 'Semifinal',
     grupos: 'Fase de grupos',
     r32: '32avos de final',
     r16: 'Oitavas de final',
@@ -197,26 +225,137 @@ const DB = (() => {
     periodo: '11 de junho – 19 de julho de 2026',
   };
 
-  // Versão 2: elencos oficiais no lugar dos jogadores fictícios e fim dos
-  // resultados simulados — os jogos passam a ser cadastrados no painel.
+  // ==========================================================================
+  // Clubes (js/clubes.js) — times e elencos das competições de clubes.
+  // ==========================================================================
+  const CLUBES = typeof CLUBES_2026 !== 'undefined' ? CLUBES_2026 : {};
+  const COMP_CLUBES = typeof COMPETICOES_CLUBES !== 'undefined' ? COMPETICOES_CLUBES : {};
+  const idClube = slug => `c_${slug}`;
+
+  const CLUBES_SEED = Object.entries(CLUBES).map(([slug, c]) => ({
+    id: idClube(slug), tipo: 'clube', nome: c.nome, codigo: c.sigla, iso: c.pais || null,
+    cores: c.cores, tecnico: c.tecnico || '', estadio: c.estadio || '',
+  }));
+
+  const JOGADORES_CLUBES_SEED = Object.entries(CLUBES).flatMap(([slug, c]) => c.jogadores.map((j, i) => ({
+    id: `p_${idClube(slug)}_${i + 1}`, timeId: idClube(slug), numero: j.n, nome: j.nome, posicao: j.p,
+    nacionalidade: j.nat || null, capitao: !!j.cap, status: 'ativo', idade: null,
+  })));
+
+  // Garante que todos os clubes e elencos existam (sem mexer no que já foi editado).
+  function garantirClubes() {
+    if (!CLUBES_SEED.length) return;
+    const times = ler('fs_times') || [];
+    const idsTimes = new Set(times.map(t => t.id));
+    const novosTimes = CLUBES_SEED.filter(t => !idsTimes.has(t.id));
+    if (novosTimes.length) gravar('fs_times', [...times, ...novosTimes]);
+    const jogadores = ler('fs_jogadores') || [];
+    const comElenco = new Set(jogadores.map(j => j.timeId));
+    const novos = JOGADORES_CLUBES_SEED.filter(j => !comElenco.has(j.timeId));
+    if (novos.length) gravar('fs_jogadores', [...jogadores, ...novos]);
+  }
+
+  // Versão multi-1: chegam os clubes. Quem já tinha a versão da Copa (wc2026-2)
+  // mantém jogos, gols e edições — só ganha os clubes e o campo competicaoId.
   function inicializarSeed() {
-    if (localStorage.getItem('fs_seed_version') === SEED_VERSION) return;
-    if (!JOGADORES_SEED.length) return; // elencos.js não carregado nesta página
-    gravar('fs_times', TIMES_SEED);
-    gravar('fs_jogadores', JOGADORES_SEED);
-    gravar('fs_jogos', []);
+    const versao = localStorage.getItem('fs_seed_version');
+    if (versao === SEED_VERSION) return;
+    if (!JOGADORES_SEED.length || !CLUBES_SEED.length) return; // elencos.js/clubes.js não carregados nesta página
+    if (versao === 'wc2026-2') {
+      garantirClubes();
+      gravar('fs_jogos', (ler('fs_jogos') || []).map(j => (j.competicaoId ? j : { ...j, competicaoId: 'copa2026' })));
+    } else {
+      gravar('fs_times', [...TIMES_SEED, ...CLUBES_SEED]);
+      gravar('fs_jogadores', [...JOGADORES_SEED, ...JOGADORES_CLUBES_SEED]);
+      gravar('fs_jogos', []);
+      localStorage.removeItem('fs_dados_publicados');
+    }
     gravar('fs_torneio', TORNEIO_SEED);
     localStorage.setItem('fs_seed_version', SEED_VERSION);
-    localStorage.removeItem('fs_dados_publicados');
   }
 
   inicializarSeed();
 
-  const Times = makeStore('fs_times', 't');
-  const Jogadores = makeStore('fs_jogadores', 'p');
+  // ==========================================================================
+  // Contexto — o campeonato selecionado. Vem de ?c= na URL (links compartilháveis)
+  // ou da última escolha salva; todas as consultas "all()" ficam restritas a ele.
+  // ==========================================================================
+  const COMPS = typeof COMPETICOES !== 'undefined' ? COMPETICOES
+    : [{ id: 'copa2026', tipo: 'copa_mundo', nome: 'Copa do Mundo FIFA 2026', curto: 'Copa do Mundo', temporada: '2026', totalJogos: 104 }];
+  const PADRAO = 'copa2026';
+
+  function compValida(id) {
+    return COMPS.some(c => c.id === id);
+  }
+
+  let compAtual = (() => {
+    let id = null;
+    try {
+      const daUrl = new URLSearchParams(window.location.search).get('c');
+      if (compValida(daUrl)) { id = daUrl; localStorage.setItem('fs_comp', id); }
+    } catch (e) { /* fora do navegador */ }
+    if (!id) {
+      const salvo = localStorage.getItem('fs_comp');
+      id = compValida(salvo) ? salvo : PADRAO;
+    }
+    return id;
+  })();
+
+  const cacheIds = {};
+  function idsTimesDe(compId) {
+    if (cacheIds[compId]) return cacheIds[compId];
+    const comp = COMPS.find(c => c.id === compId);
+    let ids;
+    if (!comp || comp.tipo === 'copa_mundo') ids = TIMES_SEED.map(t => t.id);
+    else ids = ((COMP_CLUBES[compId] || {}).clubes || []).map(idClube);
+    cacheIds[compId] = ids;
+    return ids;
+  }
+
+  const Contexto = {
+    lista: COMPS,
+    id: () => compAtual,
+    get: () => COMPS.find(c => c.id === compAtual) || COMPS[0],
+    tipo: () => (COMPS.find(c => c.id === compAtual) || COMPS[0]).tipo,
+    ehCopa: () => Contexto.tipo() === 'copa_mundo',
+    definir(id) {
+      if (!compValida(id)) return false;
+      compAtual = id;
+      try { localStorage.setItem('fs_comp', id); } catch (e) { /* sem armazenamento */ }
+      return true;
+    },
+    idsTimes: (compId = compAtual) => idsTimesDe(compId),
+    competicoesDoTime: timeId => COMPS.filter(c => idsTimesDe(c.id).includes(timeId)),
+    // Abre o campeonato do item visitado (jogo ou time) se ele não for do atual.
+    ajustarPara({ jogo, timeId }) {
+      if (jogo) { this.definir(jogo.competicaoId || PADRAO); return; }
+      if (timeId && !idsTimesDe(compAtual).includes(timeId)) {
+        const primeira = this.competicoesDoTime(timeId)[0];
+        if (primeira) this.definir(primeira.id);
+      }
+    },
+    gruposClubes: (compId = compAtual) => {
+      const g = (COMP_CLUBES[compId] || {}).grupos || {};
+      return Object.fromEntries(Object.entries(g).map(([letra, slugs]) => [letra, slugs.map(idClube)]));
+    },
+  };
+
+  const noEscopoTimes = itens => {
+    const ids = idsTimesDe(compAtual);
+    const ordem = new Map(ids.map((id, i) => [id, i]));
+    return itens.filter(t => ordem.has(t.id)).sort((a, b) => ordem.get(a.id) - ordem.get(b.id));
+  };
+  const noEscopoJogadores = itens => {
+    const ids = new Set(idsTimesDe(compAtual));
+    return itens.filter(j => ids.has(j.timeId));
+  };
+  const noEscopoJogos = itens => itens.filter(j => (j.competicaoId || PADRAO) === compAtual);
+
+  const Times = makeStore('fs_times', 't', noEscopoTimes);
+  const Jogadores = makeStore('fs_jogadores', 'p', noEscopoJogadores);
 
   const Jogos = {
-    ...makeStore('fs_jogos', 'j'),
+    ...makeStore('fs_jogos', 'j', noEscopoJogos, () => ({ competicaoId: compAtual })),
     aoVivo() {
       return this.all().filter(j => j.status === 'ao_vivo');
     },
@@ -239,6 +378,45 @@ const DB = (() => {
     },
     comPlacar() {
       return this.all().filter(j => j.status === 'encerrado' || j.status === 'ao_vivo');
+    },
+    // Jogo de qualquer fase (liga, grupos ou mata-mata com perna 1/2).
+    criar({ fase, rodada = null, grupo = null, perna = null, mandanteId, visitanteId, data, local }) {
+      return this.create({
+        fase, rodada, grupo, perna, mandanteId, visitanteId, data, local: local || '',
+        status: 'agendado',
+        golsMandante: null, golsVisitante: null, penaltisMandante: null, penaltisVisitante: null,
+        gols: [], cartoes: [],
+      });
+    },
+    // Turno e returno (método do círculo). `ids` = times; cria só confrontos que ainda não existem.
+    gerarTurnoReturno({ ids, fase, grupo = null, inicio, intervaloDias = 7, rodadaInicial = 1 }) {
+      const lista = ids.length % 2 ? [...ids, null] : [...ids];
+      const n = lista.length;
+      const turno = [];
+      for (let r = 0; r < n - 1; r++) {
+        const jogos = [];
+        for (let i = 0; i < n / 2; i++) {
+          const a = lista[i], b = lista[n - 1 - i];
+          if (a && b) jogos.push(r % 2 === 0 ? [a, b] : [b, a]);
+        }
+        turno.push(jogos);
+        lista.splice(1, 0, lista.pop());
+      }
+      const rodadas = [...turno, ...turno.map(js => js.map(([a, b]) => [b, a]))];
+      const existentes = new Set(this.all().filter(j => j.fase === fase).map(j => `${j.mandanteId}>${j.visitanteId}`));
+      const base = new Date(`${inicio}T16:00`);
+      let criados = 0;
+      rodadas.forEach((jogos, r) => {
+        const dia = new Date(base.getTime() + r * intervaloDias * 864e5);
+        const data = `${dia.getFullYear()}-${String(dia.getMonth() + 1).padStart(2, '0')}-${String(dia.getDate()).padStart(2, '0')}T16:00`;
+        jogos.forEach(([m, v]) => {
+          if (existentes.has(`${m}>${v}`)) return;
+          const casa = Times.get(m);
+          this.criar({ fase, grupo, rodada: rodadaInicial + r, mandanteId: m, visitanteId: v, data, local: casa ? casa.estadio || '' : '' });
+          criados++;
+        });
+      });
+      return criados;
     },
     criarJogoDeGrupo({ grupo, rodada, mandanteId, visitanteId, data, local }) {
       return this.create({
@@ -272,13 +450,26 @@ const DB = (() => {
   };
 
   const Grupos = {
-    letras: LETRAS_GRUPOS,
+    get letras() {
+      if (Contexto.ehCopa()) return LETRAS_GRUPOS;
+      return Object.keys(Contexto.gruposClubes());
+    },
     times(letra) {
+      if (!Contexto.ehCopa()) return (Contexto.gruposClubes()[letra] || []).map(id => Times.get(id)).filter(Boolean);
       return Times.all().filter(t => t.grupo === letra).sort((a, b) => a.posicaoPote - b.posicaoPote);
+    },
+    deTime(timeId) {
+      if (Contexto.ehCopa()) return (Times.get(timeId) || {}).grupo || null;
+      return Object.entries(Contexto.gruposClubes()).find(([, ids]) => ids.includes(timeId))?.[0] || null;
+    },
+    // Jogos previstos no grupo: turno único na Copa (6), turno e returno nos clubes (12).
+    jogosPrevistos(letra) {
+      const n = Grupos.times(letra).length;
+      return Contexto.ehCopa() ? (n * (n - 1)) / 2 : n * (n - 1);
     },
     completo(letra) {
       const jogos = Jogos.porGrupo(letra);
-      return jogos.length === 6 && jogos.every(j => j.status === 'encerrado');
+      return jogos.length >= Grupos.jogosPrevistos(letra) && jogos.length > 0 && jogos.every(j => j.status === 'encerrado');
     },
     todosCompletos() {
       return LETRAS_GRUPOS.every(letra => Grupos.completo(letra));
@@ -361,6 +552,10 @@ const DB = (() => {
     return resultado.map((t, idx) => ({ ...t, posicao: idx + 1 }));
   }
 
+  function zonaDe(posicao, zonas) {
+    return (zonas || []).find(z => posicao >= z.de && posicao <= z.ate) || null;
+  }
+
   // Pontos de conduta do regulamento: amarelo −1, vermelho por 2º amarelo −3, vermelho direto −4.
   const PONTOS_FAIR_PLAY = { amarelo: 1, segundo_amarelo: 3, vermelho: 4 };
 
@@ -376,7 +571,7 @@ const DB = (() => {
       const base = {};
       times.forEach(t => {
         base[t.id] = {
-          timeId: t.id, nome: t.nome, grupo: letra, rankingFifa: t.rankingFifa,
+          timeId: t.id, nome: t.nome, grupo: letra, rankingFifa: t.rankingFifa || 999,
           P: 0, J: 0, V: 0, E: 0, D: 0, GP: 0, GC: 0, SG: 0, CA: 0, CV: 0, fairPlay: 0,
         };
       });
@@ -403,7 +598,39 @@ const DB = (() => {
       return ordenarComDesempate(lista, jogos);
     },
 
+    // Tabela única (pontos corridos ou fase de liga da Champions) com zonas do campeonato.
+    liga(fonte) {
+      const comp = Contexto.get();
+      const base = {};
+      Times.all().forEach(t => {
+        base[t.id] = { timeId: t.id, nome: t.nome, P: 0, J: 0, V: 0, E: 0, D: 0, GP: 0, GC: 0, SG: 0, CA: 0, CV: 0, ultimos: [] };
+      });
+      const jogos = (fonte || Jogos.all())
+        .filter(j => j.fase === 'liga' && j.status === 'encerrado' && j.golsMandante != null && j.golsVisitante != null)
+        .sort((a, b) => new Date(a.data) - new Date(b.data));
+      jogos.forEach(j => {
+        const m = base[j.mandanteId], v = base[j.visitanteId];
+        if (!m || !v) return;
+        m.J++; v.J++;
+        m.GP += j.golsMandante; m.GC += j.golsVisitante;
+        v.GP += j.golsVisitante; v.GC += j.golsMandante;
+        (j.cartoes || []).forEach(c => { const alvo = base[c.timeId]; if (alvo) { if (c.tipo === 'amarelo') alvo.CA++; else alvo.CV++; } });
+        if (j.golsMandante > j.golsVisitante) { m.V++; m.P += 3; v.D++; }
+        else if (j.golsMandante < j.golsVisitante) { v.V++; v.P += 3; m.D++; }
+        else { m.E++; v.E++; m.P++; v.P++; }
+      });
+      const criterios = comp.desempate || ['P', 'SG', 'GP'];
+      const lista = Object.values(base);
+      lista.forEach(t => { t.SG = t.GP - t.GC; t.aproveitamento = t.J ? Math.round((t.P / (t.J * 3)) * 100) : 0; });
+      lista.sort((a, b) => {
+        for (const c of criterios) if (b[c] !== a[c]) return b[c] - a[c];
+        return a.CV - b.CV || a.CA - b.CA || a.nome.localeCompare(b.nome);
+      });
+      return lista.map((t, i) => ({ ...t, posicao: i + 1, zona: zonaDe(i + 1, comp.zonas) }));
+    },
+
     terceiros(fonte) {
+      if (!Contexto.ehCopa()) return [];
       const linhas = LETRAS_GRUPOS.map(letra => {
         const tabela = Classificacao.grupo(letra, fonte);
         return tabela[2];
@@ -506,7 +733,7 @@ const DB = (() => {
       return Jogos.update(id, { mandanteId, visitanteId, projetado, ...(mudou ? { gols: [], cartoes: [] } : {}) });
     }
     const registro = {
-      id, fase, numero, mandanteId, visitanteId, projetado,
+      id, competicaoId: PADRAO, fase, numero, mandanteId, visitanteId, projetado,
       ...(fase === 'r32' ? { matchNum: numero } : {}),
       data: dataChave(fase, numero), local: sedeChave(fase, numero),
       golsMandante: null, golsVisitante: null, penaltisMandante: null, penaltisVisitante: null,
@@ -635,7 +862,43 @@ const DB = (() => {
     projetarR32: fonte => montarR32(fonte),
     vencedor: vencedorId,
     perdedor: perdedorId,
+    // Confrontos de uma fase de clubes: agrupa ida e volta e calcula o agregado.
+    confrontos(fase, fonte) {
+      const comp = Contexto.get();
+      const unico = (comp.jogoUnico || []).includes(fase);
+      const porChave = new Map();
+      (fonte || Jogos.all()).filter(j => j.fase === fase)
+        .sort((a, b) => (a.perna || 1) - (b.perna || 1) || new Date(a.data) - new Date(b.data))
+        .forEach(j => {
+          const chave = [j.mandanteId, j.visitanteId].sort().join('|');
+          if (!porChave.has(chave)) porChave.set(chave, []);
+          porChave.get(chave).push(j);
+        });
+      return [...porChave.values()].map(jogos => {
+        const a = jogos[0].mandanteId, b = jogos[0].visitanteId;
+        let golsA = 0, golsB = 0, comPlacar = 0;
+        jogos.forEach(j => {
+          if (j.golsMandante == null || j.golsVisitante == null || (j.status !== 'encerrado' && j.status !== 'ao_vivo')) return;
+          comPlacar++;
+          if (j.mandanteId === a) { golsA += j.golsMandante; golsB += j.golsVisitante; }
+          else { golsA += j.golsVisitante; golsB += j.golsMandante; }
+        });
+        const pernas = unico ? 1 : 2;
+        const ultimo = jogos[jogos.length - 1];
+        const encerrado = jogos.length >= pernas && jogos.slice(0, pernas).every(j => j.status === 'encerrado');
+        let vencedor = null, penaltis = null;
+        if (encerrado) {
+          if (golsA !== golsB) vencedor = golsA > golsB ? a : b;
+          else if (ultimo.penaltisMandante != null && ultimo.penaltisVisitante != null && ultimo.penaltisMandante !== ultimo.penaltisVisitante) {
+            vencedor = ultimo.penaltisMandante > ultimo.penaltisVisitante ? ultimo.mandanteId : ultimo.visitanteId;
+            penaltis = ultimo.mandanteId === a ? [ultimo.penaltisMandante, ultimo.penaltisVisitante] : [ultimo.penaltisVisitante, ultimo.penaltisMandante];
+          }
+        }
+        return { fase, jogos, timeA: a, timeB: b, golsA, golsB, comPlacar: comPlacar > 0, encerrado, vencedor, penaltis, pernas };
+      });
+    },
     sincronizar() {
+      if (!Contexto.ehCopa()) return null;
       const r32Slots = montarR32();
       if (!Grupos.todosCompletos()) {
         // Grupos reabertos (jogo apagado/editado): descarta 32avos ainda não disputados.
@@ -724,7 +987,25 @@ const DB = (() => {
     return !!(jogo.escalacoes && jogo.escalacoes[timeId] && (jogo.escalacoes[timeId].titulares || []).length);
   }
 
-  // Rodadas para a "seleção da rodada": 3 da fase de grupos + cada fase do mata-mata.
+  // Rodadas para a "seleção da rodada", conforme o formato do campeonato.
+  function rodadasDoCampeonato() {
+    const comp = Contexto.get();
+    const fases = (comp.fases || []).map(f => ({ id: f, label: (FASES_LABELS[f] || f).replace(' de final', ''), filtro: j => j.fase === f }));
+    if (comp.tipo === 'liga') {
+      const n = idsTimesDe(comp.id).length;
+      const total = (n - (n % 2 ? 0 : 1)) * 2;
+      return Array.from({ length: total }, (_, i) => ({ id: `r${i + 1}`, label: `${i + 1}ª rodada`, filtro: j => j.fase === 'liga' && j.rodada === i + 1 }));
+    }
+    if (comp.tipo === 'champions') {
+      return [...Array.from({ length: comp.rodadasLiga || 8 }, (_, i) => ({ id: `r${i + 1}`, label: `${i + 1}ª rodada`, filtro: j => j.fase === 'liga' && j.rodada === i + 1 })), ...fases];
+    }
+    if (comp.tipo === 'grupos_mata') {
+      return [...Array.from({ length: 6 }, (_, i) => ({ id: `g${i + 1}`, label: `${i + 1}ª rodada`, filtro: j => j.fase === 'grupos' && j.rodada === i + 1 })), ...fases];
+    }
+    if (comp.tipo === 'mata_mata') return fases;
+    return RODADAS;
+  }
+
   const RODADAS = [
     { id: 'g1', label: '1ª rodada', filtro: j => j.fase === 'grupos' && j.rodada === 1 },
     { id: 'g2', label: '2ª rodada', filtro: j => j.fase === 'grupos' && j.rodada === 2 },
@@ -786,7 +1067,7 @@ const DB = (() => {
 
     minutosNoJogo,
     temEscalacao,
-    rodadas: RODADAS,
+    get rodadas() { return rodadasDoCampeonato(); },
 
     // Chuteira de Ouro (critério FIFA: gols → assistências → menos minutos),
     // Luva de Ouro (jogos sem sofrer gol como goleiro titular que jogou até o fim)
@@ -825,7 +1106,7 @@ const DB = (() => {
     // Seleção da rodada no 4-3-3, por uma pontuação simples:
     // jogou +2 · gol +4 · assistência +3 · sem sofrer gol (GOL/DEF titular) +3 · vitória +1 · amarelo −1 · vermelho −3.
     selecaoDaRodada(rodadaId) {
-      const rodada = RODADAS.find(r => r.id === rodadaId);
+      const rodada = rodadasDoCampeonato().find(r => r.id === rodadaId);
       if (!rodada) return null;
       const jogos = Jogos.all().filter(j => j.status === 'encerrado' && rodada.filtro(j));
       const pontos = {};
@@ -954,9 +1235,9 @@ const DB = (() => {
         formato: 'futstats',
         versao: SEED_VERSION,
         geradoEm: new Date().toISOString(),
-        times: Times.all(),
-        jogadores: Jogadores.all(),
-        jogos: Jogos.all(),
+        times: Times.todos(),
+        jogadores: Jogadores.todos(),
+        jogos: Jogos.todos(),
       };
     },
     validar(dados) {
@@ -969,7 +1250,8 @@ const DB = (() => {
       if (erro) throw new Error(erro);
       gravar('fs_times', dados.times);
       gravar('fs_jogadores', dados.jogadores);
-      gravar('fs_jogos', dados.jogos);
+      gravar('fs_jogos', dados.jogos.map(j => (j.competicaoId ? j : { ...j, competicaoId: PADRAO })));
+      garantirClubes();
       if (dados.geradoEm) localStorage.setItem('fs_dados_publicados', dados.geradoEm);
     },
     // Conteúdo do arquivo js/dados.js para publicar no repositório.
@@ -994,7 +1276,25 @@ const DB = (() => {
   carregarDadosPublicados();
 
   const Torneio = {
-    ...TORNEIO_SEED,
+    get nome() { return Contexto.get().nome; },
+    get sede() { return Contexto.get().sede || ''; },
+    get periodo() { return Contexto.get().periodo || ''; },
+    // Texto da fase em andamento: "12ª rodada", "Oitavas de final"…
+    descricaoFase() {
+      const comp = Contexto.get();
+      if (comp.tipo === 'copa_mundo') {
+        const f = this.faseAtual();
+        return f === 'encerrado' ? 'Torneio encerrado' : FASES_LABELS[f];
+      }
+      const jogos = Jogos.all();
+      if (!jogos.length) return 'Aguardando jogos';
+      const pendentes = jogos.filter(j => j.status !== 'encerrado').sort((a, b) => new Date(a.data) - new Date(b.data));
+      if (!pendentes.length) return 'Encerrado';
+      const j = pendentes[0];
+      if (j.fase === 'liga' && comp.tipo === 'liga') return `${j.rodada || '?'}ª rodada`;
+      if (j.fase === 'liga' || j.fase === 'grupos') return `${FASES_LABELS[j.fase]} · ${j.rodada || '?'}ª rodada`;
+      return FASES_LABELS[j.fase] || j.fase;
+    },
     faseAtual() {
       const ordem = ['grupos', 'r32', 'r16', 'qf', 'sf', 'terceiro', 'final'];
       const jogos = Jogos.all();
@@ -1051,7 +1351,7 @@ const DB = (() => {
 
   const Util = {
     coresTime(time) {
-      const [primaria, secundaria] = (time && CORES_SELECAO[time.codigo]) || ['#5d667b', '#8f98ad'];
+      const [primaria, secundaria] = (time && time.cores) || (time && CORES_SELECAO[time.codigo]) || ['#5d667b', '#8f98ad'];
       return { primaria, secundaria, texto: luminancia(primaria) > 0.35 ? '#0b0f1a' : '#ffffff' };
     },
     minutoNumero,
@@ -1093,5 +1393,5 @@ const DB = (() => {
     },
   };
 
-  return { Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Util };
+  return { Contexto, Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Util };
 })();

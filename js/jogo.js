@@ -1,9 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  UI.montarTopbar();
-  DB.MataMata.sincronizar();
-
   const esc = DB.Util.escapar;
   const jogo = DB.Jogos.get(new URLSearchParams(window.location.search).get('id'));
+  if (jogo) DB.Contexto.ajustarPara({ jogo });
+  UI.montarTopbar();
+  DB.MataMata.sincronizar();
+  const comp = DB.Contexto.get();
 
   if (!jogo) {
     document.getElementById('hero-jogo').innerHTML = '<p style="grid-column:1/-1;text-align:center;">Jogo não encontrado.</p>';
@@ -15,10 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const visitante = DB.Times.get(jogo.visitanteId);
   const nome = t => (t ? t.nome : 'A definir');
   const rotuloFase = UI.rotuloJogo(jogo);
-  const linkFase = jogo.fase === 'grupos' ? `grupos.html#grupo-${jogo.grupo}` : 'chaveamento.html';
+  const linkFase = jogo.fase === 'grupos' ? `grupos.html#grupo-${jogo.grupo}` : jogo.fase === 'liga' ? 'grupos.html' : 'chaveamento.html';
+  const rotuloMigalha = jogo.fase === 'grupos' ? `Grupo ${jogo.grupo}` : jogo.fase === 'liga' ? 'Classificação' : DB.Util.faseLabel(jogo.fase);
 
-  document.getElementById('page-title').textContent = `${nome(mandante)} x ${nome(visitante)} — Copa 2026 — FUTSTATS`;
-  document.getElementById('breadcrumb').innerHTML = `<a href="index.html">Início</a> / <a href="partidas.html">Partidas</a> / <a href="${linkFase}">${jogo.fase === 'grupos' ? `Grupo ${jogo.grupo}` : DB.Util.faseLabel(jogo.fase)}</a>`;
+  document.getElementById('page-title').textContent = `${nome(mandante)} x ${nome(visitante)} — ${comp.curto} ${comp.temporada} — FUTSTATS`;
+  document.getElementById('breadcrumb').innerHTML = `<a href="index.html">${esc(comp.curto)}</a> / <a href="partidas.html">Partidas</a> / <a href="${linkFase}">${rotuloMigalha}</a>`;
   document.getElementById('meta-jogo').innerHTML = `${rotuloFase} · ${DB.Util.formatarDiaLongo(jogo.data)} · ${DB.Util.formatarHora(jogo.data)}`;
 
   // ---------- Placar ----------
@@ -160,6 +162,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---------- Agregado (mata-mata de ida e volta) ----------
+  const confrontoDoJogo = !DB.Contexto.ehCopa() && !['liga', 'grupos'].includes(jogo.fase)
+    ? DB.MataMata.confrontos(jogo.fase).find(c => c.jogos.some(j => j.id === jogo.id)) : null;
+  const agregado = confrontoDoJogo && confrontoDoJogo.pernas === 2 && confrontoDoJogo.comPlacar
+    ? `${DB.Times.get(confrontoDoJogo.timeA).codigo} ${confrontoDoJogo.golsA}–${confrontoDoJogo.golsB} ${DB.Times.get(confrontoDoJogo.timeB).codigo}${
+      confrontoDoJogo.vencedor ? ` · classificado: ${esc(DB.Times.get(confrontoDoJogo.vencedor).nome)}` : ''}`
+    : '';
+
   // ---------- Informações ----------
   const cartoesDe = (timeId, tipo) => (jogo.cartoes || []).filter(c => c.timeId === timeId && (tipo === 'amarelo' ? c.tipo === 'amarelo' : c.tipo !== 'amarelo')).length;
   const linha = (rotulo, valor) => `<li><span>${rotulo}</span><span>${valor}</span></li>`;
@@ -170,10 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
     linha('Estádio', esc(jogo.local || '—')),
     (jogo.cartoes || []).length ? linha('Cartões', `${mandante ? mandante.codigo : ''} ${cartoesDe(jogo.mandanteId, 'amarelo')}🟨 ${cartoesDe(jogo.mandanteId, 'vermelho')}🟥 · ${visitante ? visitante.codigo : ''} ${cartoesDe(jogo.visitanteId, 'amarelo')}🟨 ${cartoesDe(jogo.visitanteId, 'vermelho')}🟥`) : '',
     jogo.projetado ? linha('Confronto', 'Projetado — pode mudar') : '',
+    agregado ? linha('Agregado', agregado) : '',
   ].join('');
 
   // ---------- Lateral ----------
-  if (jogo.fase === 'grupos') {
+  if (jogo.fase === 'liga') {
+    document.getElementById('titulo-lateral').textContent = 'Classificação';
+    document.getElementById('link-lateral').href = 'grupos.html';
+    document.getElementById('corpo-lateral').innerHTML = UI.tabelaLiga({ compacta: true, limite: comp.tipo === 'champions' ? 36 : 20 });
+  } else if (confrontoDoJogo) {
+    document.getElementById('titulo-lateral').textContent = DB.Util.faseLabel(jogo.fase);
+    document.getElementById('link-lateral').href = 'chaveamento.html';
+    document.getElementById('corpo-lateral').innerHTML = `<div style="padding:14px 18px;">${UI.cartaoConfronto(confrontoDoJogo)}</div>`;
+  } else if (jogo.fase === 'grupos') {
     document.getElementById('titulo-lateral').textContent = `Grupo ${jogo.grupo}`;
     document.getElementById('link-lateral').href = `grupos.html#grupo-${jogo.grupo}`;
     document.getElementById('corpo-lateral').innerHTML = UI.tabelaGrupo(jogo.grupo, { compacta: true });
@@ -184,7 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- Navegação entre jogos da mesma fase/grupo ----------
-  const relacionados = (jogo.fase === 'grupos' ? DB.Jogos.porGrupo(jogo.grupo) : DB.Jogos.porFase(jogo.fase))
+  const relacionados = (jogo.fase === 'grupos' ? DB.Jogos.porGrupo(jogo.grupo)
+    : jogo.fase === 'liga' ? DB.Jogos.all().filter(j => j.fase === 'liga' && j.rodada === jogo.rodada) : DB.Jogos.porFase(jogo.fase))
     .sort((a, b) => new Date(a.data) - new Date(b.data));
   const i = relacionados.findIndex(j => j.id === jogo.id);
   const anterior = relacionados[i - 1], proximo = relacionados[i + 1];

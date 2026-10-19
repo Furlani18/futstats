@@ -55,10 +55,24 @@ const AdminUI = (() => {
           <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle">☰</button>
           <span class="admin-topbar-title" id="admin-titulo"></span>
         </div>
-        <div class="admin-user"><span class="avatar"></span>${DB.Util.escapar(usuario)}</div>
+        <div class="admin-topbar-left">
+          <label class="admin-comp">Campeonato
+            <select class="search-input" id="admin-comp">
+              ${[...new Set(DB.Contexto.lista.map(c => c.regiao))].map(r => `<optgroup label="${DB.Util.escapar(r)}">
+                ${DB.Contexto.lista.filter(c => c.regiao === r).map(c => `<option value="${c.id}" ${c.id === DB.Contexto.id() ? 'selected' : ''}>${DB.Util.escapar(c.curto)} ${DB.Util.escapar(c.temporada)}</option>`).join('')}
+              </optgroup>`).join('')}
+            </select>
+          </label>
+          <div class="admin-user"><span class="avatar"></span>${DB.Util.escapar(usuario)}</div>
+        </div>
       </div>`;
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
       document.querySelector('.sidebar')?.classList.toggle('open');
+    });
+    // Troca o campeonato e redesenha a seção aberta (sem recarregar a página).
+    document.getElementById('admin-comp').addEventListener('change', e => {
+      DB.Contexto.definir(e.target.value);
+      abrirSecao();
     });
   }
 
@@ -67,7 +81,7 @@ const AdminUI = (() => {
     fecharModal();
     const conteudo = document.getElementById('admin-content');
     conteudo.replaceChildren(document.getElementById(`tpl-${id}`).content.cloneNode(true));
-    document.getElementById('admin-titulo').textContent = SECOES[id];
+    document.getElementById('admin-titulo').textContent = `${SECOES[id]} · ${DB.Contexto.get().curto}`;
     document.title = `${SECOES[id]} — Painel Admin FUTSTATS`;
     document.querySelectorAll('.sidebar-link').forEach(link => link.classList.toggle('active', link.dataset.secao === id));
     document.querySelector('.sidebar')?.classList.remove('open');

@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('')
     : `<tr><td colspan="13">${UI.vazio('Nenhum lance cadastrado ainda', 'Gols, assistências e cartões aparecem aqui conforme forem lançados nos jogos.')}</td></tr>`;
 
-  // ---------- Seleções ----------
+  // ---------- Seleções / clubes ----------
+  document.getElementById('titulo-secao-times').textContent = UI.rotuloTimes();
   const times = DB.Estatisticas.porTime()
     .sort((a, b) => b.GP - a.GP || b.SG - a.SG || a.GC - b.GC || a.time.nome.localeCompare(b.time.nome));
   document.querySelector('#tabela-times tbody').innerHTML = times.map((t, i) => `

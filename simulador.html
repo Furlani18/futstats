@@ -29,7 +29,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Simulador</span></div>
     <div class="section-eyebrow">E se…?</div>
-    <h1 class="section-title">Simulador da fase de grupos</h1>
+    <h1 class="section-title" id="sim-titulo">Simulador da fase de grupos</h1>
     <p class="lead">Dê seus palpites para os jogos que faltam e veja na hora como ficam os grupos, os melhores terceiros e os confrontos dos 32avos. Os resultados reais não podem ser alterados, e seus palpites ficam salvos só neste navegador.</p>
   </div>
 </section>
@@ -50,13 +50,14 @@
     <div class="panel">
       <div class="panel-header"><span class="panel-title" id="titulo-tabela">Classificação</span></div>
       <div id="sim-tabela"></div>
-      <div class="legend">
+      <div id="sim-legenda"><div class="legend">
         <span><i style="background:var(--accent)"></i>Classificado</span>
         <span><i style="background:var(--blue)"></i>Entre os 8 melhores 3ºs</span>
-      </div>
+      </div></div>
     </div>
   </div>
 
+  <div id="sim-extras-copa">
   <div class="section-head">
     <div>
       <div class="section-eyebrow">Com os seus palpites</div>
@@ -72,11 +73,14 @@
     </div>
   </div>
   <div class="panel"><div id="sim-r32"></div></div>
+  </div>
 </main>
 
 <div id="footer-mount"></div>
 
 <script src="js/elencos.js"></script>
+<script src="js/clubes.js"></script>
+<script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/calendario.js"></script>
 <script src="js/db.js"></script>

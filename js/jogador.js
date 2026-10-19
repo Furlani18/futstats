@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const esc = DB.Util.escapar;
+  const params = new URLSearchParams(window.location.search);
+  const jogador = DB.Jogadores.get(params.get('id'));
+  if (jogador && !params.get('c')) DB.Contexto.ajustarPara({ timeId: jogador.timeId });
   UI.montarTopbar();
   UI.montarTicker();
-
-  const esc = DB.Util.escapar;
-  const jogador = DB.Jogadores.get(new URLSearchParams(window.location.search).get('id'));
+  const comp = DB.Contexto.get();
   if (!jogador) {
     document.getElementById('nome-jogador').textContent = 'Jogador não encontrado';
     UI.montarFooter();
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   pintarTopo(time);
 
-  document.getElementById('page-title').textContent = `${jogador.nome} — Copa 2026 — FUTSTATS`;
+  document.getElementById('page-title').textContent = `${jogador.nome} — ${comp.curto} ${comp.temporada} — FUTSTATS`;
   document.getElementById('breadcrumb').innerHTML = `<a href="index.html">Início</a> / <a href="time.html?id=${time.id}">${esc(time.nome)}</a> / <span>${esc(jogador.nome)}</span>`;
   document.getElementById('avatar-mount').innerHTML = `<span class="avatar" style="width:96px;height:96px;font-size:38px;${UI.estiloCores(jogador.timeId)}">${esc(DB.Util.iniciais(jogador.nome))}
     <span class="shirt-num" style="min-width:30px;height:30px;font-size:14px;border-radius:15px;">${jogador.numero ?? '–'}</span></span>`;
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fatos-jogador').innerHTML = `
     <a class="fact" href="time.html?id=${time.id}">${UI.bandeira(time, 'sm')} <strong>${esc(time.nome)}</strong></a>
     ${jogador.clube ? `<span class="fact">${UI.bandeiraClube(jogador.clubePais)} <strong>${esc(jogador.clube)}</strong></span>` : ''}
+    ${jogador.nacionalidade ? `<span class="fact">${UI.bandeiraPais(jogador.nacionalidade)} <strong>${esc(UI.nomePais(jogador.nacionalidade))}</strong></span>` : ''}
     ${jogador.idade != null ? `<span class="fact">Idade <strong>${jogador.idade}</strong></span>` : ''}`;
 
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
@@ -71,11 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('info-jogador').innerHTML = [
     linha('Número', jogador.numero ?? '—'),
     linha('Posição', esc(jogador.posicao)),
-    linha('Nascimento', jogador.nascimento ? DB.Util.formatarData(`${jogador.nascimento}T12:00`) : '—'),
-    linha('Jogos pela seleção*', jogador.jogosSelecao ?? '—'),
-    linha('Gols pela seleção*', jogador.golsSelecao ?? '—'),
+    jogador.nascimento ? linha('Nascimento', DB.Util.formatarData(`${jogador.nascimento}T12:00`)) : '',
+    jogador.nacionalidade ? linha('Nacionalidade', `${UI.bandeiraPais(jogador.nacionalidade)} ${esc(UI.nomePais(jogador.nacionalidade))}`) : '',
+    time.tipo !== 'clube' ? linha('Jogos pela seleção*', jogador.jogosSelecao ?? '—') : '',
+    time.tipo !== 'clube' ? linha('Gols pela seleção*', jogador.golsSelecao ?? '—') : '',
     linha('Técnico', esc(time.tecnico || '—')),
-  ].join('') + '<li><span style="font-size:11.5px;">* até a convocação final (02/06/2026)</span><span></span></li>';
+  ].join('') + (time.tipo !== 'clube' ? '<li><span style="font-size:11.5px;">* até a convocação final (02/06/2026)</span><span></span></li>' : '');
 
   UI.montarFooter();
 });

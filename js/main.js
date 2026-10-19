@@ -3,8 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.montarTicker();
   DB.MataMata.sincronizar();
 
-  const fase = DB.Torneio.faseAtual();
-  document.getElementById('hero-fase').textContent = fase === 'encerrado' ? 'Torneio encerrado' : `Em disputa: ${DB.Util.faseLabel(fase)}`;
+  const comp = DB.Contexto.get();
+  const ehCopa = DB.Contexto.ehCopa();
+  const esc = DB.Util.escapar;
+  const nTimes = DB.Times.all().length;
+  const descricao = DB.Torneio.descricaoFase();
+  document.getElementById('hero-fase').textContent = /encerrad|aguardando/i.test(descricao) ? descricao : `Em disputa: ${descricao}`;
+  if (!ehCopa) {
+    document.title = `${comp.curto} ${comp.temporada} — FUTSTATS`;
+    document.getElementById('hero-titulo').innerHTML = `${esc(comp.curto)}<br><span class="gold">${esc(comp.temporada)}</span>`;
+    document.getElementById('hero-sub').innerHTML = `<strong>${esc(comp.sede)}</strong> · ${esc(comp.periodo)} · ${nTimes} clubes`;
+  }
 
   // ---------- KPIs ----------
   const r = DB.Estatisticas.resumo();
@@ -16,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${valor}</div><div class="kpi-note">${nota || '&nbsp;'}</div></div>`;
   const conta = (valor, decimais = 0) => `<span data-contar="${valor}" data-decimais="${decimais}">${Number(valor).toFixed(decimais).replace('.', ',')}</span>`;
   document.getElementById('kpis').innerHTML = [
-    kpi('Jogos disputados', `${conta(r.jogos)}<span style="font-size:18px;color:var(--text-faint)">/104</span>`, `${r.totalJogos} cadastrados`),
+    kpi('Jogos disputados', `${conta(r.jogos)}<span style="font-size:18px;color:var(--text-faint)">/${totalPrevisto()}</span>`, `${r.totalJogos} cadastrados`),
     kpi('Gols', conta(r.gols), `${r.penaltis} de pênalti · ${r.golsContra} contra`),
     kpi('Média por jogo', conta(r.media, 2)),
     kpi('Artilheiro', artilheiro ? conta(artilheiro.gols) : '—', artilheiro ? DB.Util.escapar(artilheiro.jogador.nome) : 'sem gols cadastrados'),
@@ -45,14 +54,31 @@ document.addEventListener('DOMContentLoaded', () => {
     lista.innerHTML = UI.vazio('Nenhuma partida cadastrada ainda', 'Os jogos aparecem aqui assim que forem cadastrados no painel.');
   }
 
-  // ---------- Mini-tabelas dos grupos ----------
-  document.getElementById('mini-grupos').innerHTML = DB.Grupos.letras.map(letra => `
+  // ---------- Tabela / grupos / confrontos, conforme o formato ----------
+  const tipo = comp.tipo;
+  const miniGrupos = document.getElementById('mini-grupos');
+  if (tipo === 'liga' || tipo === 'champions') {
+    document.getElementById('titulo-tabela').textContent = tipo === 'champions' ? 'Fase de liga' : 'Classificação';
+    miniGrupos.classList.remove('grid-2');
+    miniGrupos.innerHTML = UI.tabelaLiga({ compacta: true, forma: true });
+    document.getElementById('legenda-grupos').innerHTML = UI.legendaZonas(comp.zonas);
+  } else if (tipo === 'mata_mata') {
+    document.getElementById('titulo-tabela').textContent = 'Confrontos';
+    document.querySelector('#titulo-tabela + a').href = 'chaveamento.html';
+    document.querySelector('#titulo-tabela + a').textContent = 'Chaveamento →';
+    miniGrupos.classList.remove('grid-2');
+    const fases = (comp.fases || []).map(f => [f, DB.MataMata.confrontos(f)]).filter(([, cs]) => cs.length);
+    const [fase, confrontos] = fases.find(([, cs]) => cs.some(c => !c.encerrado)) || fases[fases.length - 1] || [];
+    miniGrupos.innerHTML = confrontos
+      ? `<div class="bracket-round-title" style="padding:12px 18px 0;text-align:left;">${DB.Util.faseLabel(fase)}</div><div class="confrontos-grid">${confrontos.map(UI.cartaoConfronto).join('')}</div>`
+      : UI.vazio('Nenhum confronto cadastrado', 'Os jogos aparecem aqui assim que forem cadastrados no painel.');
+  } else miniGrupos.innerHTML = DB.Grupos.letras.map(letra => `
     <div style="border-bottom:1px solid var(--border);border-right:1px solid var(--border-soft);">
       <div style="padding:10px 18px 0;" class="group-title"><span class="group-letter" style="width:24px;height:24px;font-size:15px;">${letra}</span>
         <a href="grupos.html#grupo-${letra}" style="font-weight:800;font-size:13px;color:var(--text-dim);">GRUPO ${letra}</a></div>
       ${UI.tabelaGrupo(letra, { compacta: true })}
     </div>`).join('');
-  document.getElementById('legenda-grupos').innerHTML = UI.legendaZonas();
+  if (tipo === 'copa_mundo' || tipo === 'grupos_mata') document.getElementById('legenda-grupos').innerHTML = UI.legendaZonas();
 
   // ---------- Rankings ----------
   document.getElementById('top-artilheiros').innerHTML = UI.listaLideres('gols', 5, 'gols', 'Nenhum gol cadastrado ainda.');
@@ -64,15 +90,22 @@ document.addEventListener('DOMContentLoaded', () => {
     <ol class="leader-list">${ataques.map((t, i) => `
       <li><a class="leader" href="time.html?id=${t.time.id}">
         <span class="rank">${i + 1}</span>${UI.bandeira(t.time)}
-        <span class="info"><span class="nome">${t.time.nome}</span><span class="sub">${t.J} jogos · ${t.GC} sofridos</span></span>
+        <span class="info"><span class="nome">${esc(t.time.nome)}</span><span class="sub">${t.J} jogos · ${t.GC} sofridos</span></span>
         <span class="valor">${t.GP}<small>gols</small></span>
       </a></li>`).join('')}</ol>` : UI.vazio('Sem jogos disputados', '');
 
-  // ---------- Seleções ----------
+  // ---------- Seleções / clubes ----------
+  if (!ehCopa) {
+    document.getElementById('eyebrow-times').textContent = `${nTimes} clubes${DB.Grupos.letras.length ? ` · ${DB.Grupos.letras.length} grupos` : ''}`;
+    document.getElementById('titulo-times').textContent = 'Clubes';
+    document.getElementById('link-times').textContent = 'Ver todos →';
+  }
   document.getElementById('grid-times').innerHTML = DB.Times.all().map(t => `
     <a class="team-card" href="time.html?id=${t.id}">
       ${UI.bandeira(t, 'lg')}
-      <span><span class="nome">${t.nome}</span><br><span class="meta">Grupo ${t.grupo} · ${t.confederacao}</span></span>
+      <span><span class="nome">${esc(t.nome)}</span><br><span class="meta">${t.tipo === 'clube'
+        ? esc([DB.Grupos.deTime(t.id) && `Grupo ${DB.Grupos.deTime(t.id)}`, t.tecnico].filter(Boolean).join(' · '))
+        : `Grupo ${t.grupo} · ${t.confederacao}`}</span></span>
     </a>`).join('');
 
   UI.montarFooter();
@@ -121,4 +154,12 @@ function montarDestaque() {
     };
     tick();
   }
+}
+
+// Total de jogos previstos no campeonato (para o "x/104").
+function totalPrevisto() {
+  const comp = DB.Contexto.get();
+  if (comp.totalJogos) return comp.totalJogos;
+  const n = DB.Times.all().length;
+  return comp.tipo === 'liga' ? n * (n - 1) : DB.Jogos.all().length;
 }

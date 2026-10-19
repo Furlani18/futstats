@@ -3,6 +3,29 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.montarTicker();
   DB.MataMata.sincronizar();
 
+  const comp = DB.Contexto.get();
+  const texto = (id, valor) => { document.getElementById(id).textContent = valor; };
+  if (comp.tipo === 'liga' || comp.tipo === 'champions') {
+    // Tabela única: pontos corridos ou fase de liga da Champions.
+    texto('migalha', 'Classificação');
+    texto('eyebrow', comp.tipo === 'champions' ? 'Fase de liga · 36 clubes · 8 rodadas' : `${DB.Times.all().length} clubes · pontos corridos`);
+    texto('titulo', `Classificação · ${comp.curto}`);
+    texto('lead', `Desempate: ${(comp.desempate || ['P', 'SG', 'GP']).map(c => ({ P: 'pontos', V: 'vitórias', SG: 'saldo de gols', GP: 'gols marcados' }[c])).join(' → ')}.`);
+    document.getElementById('painel-liga').hidden = false;
+    document.getElementById('tabela-liga').innerHTML = UI.tabelaLiga({ forma: true });
+    document.getElementById('legenda-liga').innerHTML = UI.legendaZonas(comp.zonas);
+    document.getElementById('secao-terceiros').hidden = true;
+    UI.montarFooter();
+    return;
+  }
+  if (comp.tipo === 'mata_mata') { window.location.replace('chaveamento.html'); return; }
+  if (comp.tipo === 'grupos_mata') {
+    texto('eyebrow', 'Fase de grupos');
+    texto('titulo', `${DB.Grupos.letras.length} grupos · ${DB.Times.all().length} clubes`);
+    texto('lead', 'Os dois primeiros de cada grupo vão às oitavas de final; o terceiro disputa o playoff da Sul-Americana.');
+    document.getElementById('secao-terceiros').hidden = true;
+  }
+
   document.getElementById('grid-grupos').innerHTML = DB.Grupos.letras.map(cardGrupo).join('');
 
   const algumJogo = DB.Jogos.porFase('grupos').some(j => j.status !== 'agendado');
@@ -33,7 +56,7 @@ function cardGrupo(letra) {
     <div class="panel" id="grupo-${letra}">
       <div class="panel-header">
         <span class="group-title"><span class="group-letter">${letra}</span><span class="panel-title">Grupo ${letra}</span></span>
-        <span class="group-status${completo ? ' done' : ''}">${completo ? 'Encerrado' : `${encerrados}/6 jogos`}</span>
+        <span class="group-status${completo ? ' done' : ''}">${completo ? 'Encerrado' : `${encerrados}/${DB.Grupos.jogosPrevistos(letra)} jogos`}</span>
       </div>
       ${UI.tabelaGrupo(letra, { forma: true })}
       ${UI.legendaZonas()}

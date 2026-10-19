@@ -16,9 +16,9 @@ AdminUI.registrar('dados', () => {
   }
 
   function resumo() {
-    const jogos = DB.Jogos.all();
+    const jogos = DB.Jogos.todos();
     const gols = jogos.reduce((n, j) => n + (j.gols || []).length, 0);
-    return `${jogos.length} jogos · ${gols} gols com autor · ${DB.Jogadores.all().length} jogadores`;
+    return `${jogos.length} jogos · ${gols} gols com autor · ${DB.Jogadores.todos().length} jogadores (todos os campeonatos)`;
   }
 
   avisar(`Neste navegador: ${resumo()}.`);

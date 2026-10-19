@@ -547,3 +547,7 @@ details.lances-box[open] > summary::after { content: '▴'; }
 .dados-status { padding: 0 20px 20px; font-size: 13px; color: var(--text-dim); }
 .dados-status.ok { color: var(--accent); }
 .dados-status.erro { color: var(--danger); }
+
+.admin-comp { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--text-dim); margin-right: 14px; }
+.admin-comp select { min-width: 190px; }
+@media (max-width: 640px) { .admin-comp { font-size: 0; margin-right: 6px; } .admin-comp select { min-width: 0; max-width: 150px; font-size: 13px; } }

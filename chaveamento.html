@@ -28,14 +28,16 @@
 <section class="page-hero">
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Mata-mata</span></div>
-    <div class="section-eyebrow">Pela primeira vez com 32avos de final</div>
+    <div class="section-eyebrow" id="eyebrow">Pela primeira vez com 32avos de final</div>
     <h1 class="section-title">Chaveamento</h1>
-    <p class="lead">Confrontos tracejados ainda são projeções pela classificação atual — viram definitivos quando a fase anterior termina.</p>
+    <p class="lead" id="lead">Confrontos tracejados ainda são projeções pela classificação atual — viram definitivos quando a fase anterior termina.</p>
   </div>
 </section>
 
 <main class="page">
-  <div class="panel">
+  <div class="fases-cols" id="fases-clubes" hidden></div>
+
+  <div class="panel" id="painel-arvore">
     <div class="panel-header"><span class="panel-title">32avos → Final</span><span class="group-status">Final · 19/07 · MetLife Stadium</span></div>
     <div class="panel-body">
       <div class="tree-hint">↔ Arraste para o lado para ver o chaveamento inteiro.</div>
@@ -45,7 +47,7 @@
     </div>
   </div>
 
-  <div class="panel" style="margin-top:20px;max-width:420px;">
+  <div class="panel" id="painel-terceiro" style="margin-top:20px;max-width:420px;">
     <div class="panel-header"><span class="panel-title">Disputa de 3º lugar</span><span class="group-status">18/07 · Miami</span></div>
     <div class="panel-body" id="bloco-terceiro"></div>
   </div>
@@ -54,6 +56,8 @@
 <div id="footer-mount"></div>
 
 <script src="js/elencos.js"></script>
+<script src="js/clubes.js"></script>
+<script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>

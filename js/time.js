@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-  UI.montarTopbar();
-  UI.montarTicker();
-  DB.MataMata.sincronizar();
-
   const esc = DB.Util.escapar;
   const params = new URLSearchParams(window.location.search);
   const time = DB.Times.get(params.get('id'));
+  // Abre no campeonato do time (um clube pode estar em mais de um).
+  if (time && !params.get('c')) DB.Contexto.ajustarPara({ timeId: time.id });
+  UI.montarTopbar();
+  UI.montarTicker();
+  DB.MataMata.sincronizar();
+  const comp = DB.Contexto.get();
+  const ehClube = time && time.tipo === 'clube';
 
   if (!time) {
     document.getElementById('nome-time').textContent = 'Seleção não encontrada';
@@ -13,10 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  document.getElementById('page-title').textContent = `${time.nome} na Copa 2026 — FUTSTATS`;
+  document.getElementById('page-title').textContent = `${time.nome} · ${comp.curto} ${comp.temporada} — FUTSTATS`;
+  document.querySelector('.breadcrumb a[href="selecoes.html"]').textContent = UI.rotuloTimes();
   document.getElementById('breadcrumb-nome').textContent = time.nome;
   document.getElementById('nome-time').textContent = time.nome;
-  document.getElementById('eyebrow-time').textContent = `${time.codigo} · ${time.confederacao}`;
+  document.getElementById('eyebrow-time').textContent = ehClube ? `${time.codigo} · ${comp.curto} ${comp.temporada}` : `${time.codigo} · ${time.confederacao}`;
   document.getElementById('flag-mount').innerHTML = UI.bandeira(time, 'xl');
   const pintarTopo = time => {
     const c = DB.Util.coresTime(time);
@@ -32,15 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const comIdade = elenco.filter(j => j.idade != null);
   const mediaIdade = comIdade.length ? comIdade.reduce((s, j) => s + j.idade, 0) / comIdade.length : null;
   const fato = (rotulo, valor) => (valor ? `<span class="fact">${rotulo} <strong>${esc(valor)}</strong></span>` : '');
+  const outrasComps = ehClube ? DB.Contexto.competicoesDoTime(time.id).filter(c => c.id !== comp.id) : [];
   document.getElementById('fatos-time').innerHTML = [
-    fato('Grupo', time.grupo),
+    fato('Grupo', DB.Grupos.deTime(time.id)),
     fato('Técnico', time.tecnico),
     fato('Capitão', capitao && capitao.nome),
-    fato('Ranking FIFA', `#${time.rankingFifa}`),
+    ehClube ? fato('Estádio', time.estadio) : fato('Ranking FIFA', `#${time.rankingFifa}`),
     fato('Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
+    ...outrasComps.map(c => `<a class="fact" href="time.html?id=${time.id}&c=${c.id}">${UI.iconeCampeonato(c)} <strong>${esc(c.curto)}</strong></a>`),
   ].join('');
 
-  // ---------- Números na Copa ----------
+  // ---------- Números no campeonato ----------
   const st = DB.Estatisticas.porTime().find(t => t.time.id === time.id);
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   document.getElementById('tiles-time').innerHTML = [
@@ -61,28 +67,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!doSetor.length) return '';
     return `
       <div class="squad-pos">${ROTULOS[pos] || pos}</div>
-      <div class="squad-row head"><span>Nº</span><span>Jogador</span><span class="club">Clube</span>
-        <span class="c col-extra" title="Jogos pela seleção antes da Copa">Jogos</span><span class="c col-extra" title="Gols pela seleção antes da Copa">Gols sel.</span>
-        <span class="c" title="Jogos na Copa">J</span>
-        <span class="c" title="Gols na Copa">G</span><span class="c" title="Assistências na Copa">A</span></div>
+      <div class="squad-row head${ehClube ? ' clube' : ''}"><span>Nº</span><span>Jogador</span><span class="club">${ehClube ? 'Nacionalidade' : 'Clube'}</span>
+        ${ehClube ? '' : '<span class="c col-extra" title="Jogos pela seleção antes da Copa">Jogos</span><span class="c col-extra" title="Gols pela seleção antes da Copa">Gols sel.</span>'}
+        <span class="c" title="Jogos no campeonato">J</span>
+        <span class="c" title="Gols no campeonato">G</span><span class="c" title="Assistências no campeonato">A</span></div>
       ${doSetor.map(j => {
         const s = stats[j.id] || {};
-        return `<a class="squad-row" href="jogador.html?id=${j.id}">
+        return `<a class="squad-row${ehClube ? ' clube' : ''}" href="jogador.html?id=${j.id}">
           <span class="n">${j.numero ?? '–'}</span>
           <span class="player"><span class="nome">${esc(j.nome)}${j.capitao ? '<span class="captain" title="Capitão">C</span>' : ''}</span>
             <span class="sub">${j.idade != null ? `${j.idade} anos` : ''}${j.status && j.status !== 'ativo' ? ` · ${j.status}` : ''}</span></span>
-          <span class="club">${UI.bandeiraClube(j.clubePais)}<span>${esc(j.clube || '—')}</span></span>
+          ${ehClube
+            ? `<span class="club">${UI.bandeiraPais(j.nacionalidade)}<span>${esc(UI.nomePais(j.nacionalidade))}</span></span>`
+            : `<span class="club">${UI.bandeiraClube(j.clubePais)}<span>${esc(j.clube || '—')}</span></span>
           <span class="c col-extra">${j.jogosSelecao ?? '–'}</span>
-          <span class="c col-extra">${j.golsSelecao ?? '–'}</span>
+          <span class="c col-extra">${j.golsSelecao ?? '–'}</span>`}
           ${celula(s.jogos)}${celula(s.gols, true)}${celula(s.assistencias, true)}
         </a>`;
       }).join('')}`;
   }).join('') : UI.vazio('Elenco não cadastrado', '');
 
   // ---------- Lateral ----------
-  document.getElementById('titulo-grupo').textContent = `Grupo ${time.grupo}`;
-  document.getElementById('link-grupo').href = `grupos.html#grupo-${time.grupo}`;
-  document.getElementById('tabela-grupo').innerHTML = UI.tabelaGrupo(time.grupo, { compacta: true });
+  const grupo = DB.Grupos.deTime(time.id);
+  if (comp.tipo === 'liga' || comp.tipo === 'champions') {
+    document.getElementById('titulo-grupo').textContent = 'Classificação';
+    document.getElementById('link-grupo').href = 'grupos.html';
+    document.getElementById('link-grupo').textContent = 'Ver tabela →';
+    document.getElementById('tabela-grupo').innerHTML = UI.tabelaLiga({ compacta: true, destaque: time.id });
+  } else if (grupo) {
+    document.getElementById('titulo-grupo').textContent = `Grupo ${grupo}`;
+    document.getElementById('link-grupo').href = `grupos.html#grupo-${grupo}`;
+    document.getElementById('tabela-grupo').innerHTML = UI.tabelaGrupo(grupo, { compacta: true, destaque: time.id });
+  } else {
+    document.getElementById('titulo-grupo').textContent = 'Mata-mata';
+    document.getElementById('link-grupo').href = 'chaveamento.html';
+    document.getElementById('link-grupo').textContent = 'Chaveamento →';
+    const confrontos = (comp.fases || []).flatMap(f => DB.MataMata.confrontos(f)).filter(c => c.timeA === time.id || c.timeB === time.id);
+    document.getElementById('tabela-grupo').innerHTML = confrontos.length
+      ? `<div class="stack" style="padding:14px 18px;gap:10px;">${confrontos.map(c => `<div class="bracket-round-title" style="text-align:left;margin:0;">${DB.Util.faseLabel(c.fase)}</div>${UI.cartaoConfronto(c)}`).join('')}</div>`
+      : UI.vazio('Sem confrontos cadastrados', '');
+  }
 
   const jogos = DB.Jogos.doTime(time.id);
   document.getElementById('jogos-time').innerHTML = jogos.length

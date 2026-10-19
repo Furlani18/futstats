@@ -30,8 +30,8 @@
     <div class="hero-grid">
       <div>
         <div class="section-eyebrow" id="hero-fase">Fase de grupos</div>
-        <h1 class="hero-title">Copa do Mundo<br><span class="gold">FIFA 2026</span></h1>
-        <p class="hero-sub" style="margin:0;"><strong>Estados Unidos, México e Canadá</strong> · 11 de junho a 19 de julho · 48 seleções · 104 jogos</p>
+        <h1 class="hero-title" id="hero-titulo">Copa do Mundo<br><span class="gold">FIFA 2026</span></h1>
+        <p class="hero-sub" id="hero-sub" style="margin:0;"><strong>Estados Unidos, México e Canadá</strong> · 11 de junho a 19 de julho · 48 seleções · 104 jogos</p>
       </div>
       <div id="destaque"></div>
     </div>
@@ -52,7 +52,7 @@
 
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">Grupos</span>
+          <span class="panel-title" id="titulo-tabela">Grupos</span>
           <a href="grupos.html">Classificação completa →</a>
         </div>
         <div class="grid-2" id="mini-grupos" style="gap:0;"></div>
@@ -78,10 +78,10 @@
 
   <div class="section-head">
     <div>
-      <div class="section-eyebrow">48 seleções · 12 grupos</div>
-      <h2 class="section-title">Seleções</h2>
+      <div class="section-eyebrow" id="eyebrow-times">48 seleções · 12 grupos</div>
+      <h2 class="section-title" id="titulo-times">Seleções</h2>
     </div>
-    <a class="link-more" href="selecoes.html">Ver por confederação →</a>
+    <a class="link-more" href="selecoes.html" id="link-times">Ver por confederação →</a>
   </div>
   <div class="team-grid" id="grid-times"></div>
 </main>
@@ -89,6 +89,8 @@
 <div id="footer-mount"></div>
 
 <script src="js/elencos.js"></script>
+<script src="js/clubes.js"></script>
+<script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>

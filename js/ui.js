@@ -16,16 +16,67 @@ const UI = (() => {
     'simulador.html': 'simulador',
   };
 
-  const NAV = [
-    ['inicio', 'index.html', 'Início'],
-    ['partidas', 'partidas.html', 'Partidas'],
-    ['grupos', 'grupos.html', 'Grupos'],
-    ['chaveamento', 'chaveamento.html', 'Mata-mata'],
-    ['estatisticas', 'estatisticas.html', 'Estatísticas'],
-    ['premios', 'premios.html', 'Prêmios'],
-    ['simulador', 'simulador.html', 'Simulador'],
-    ['selecoes', 'selecoes.html', 'Seleções'],
-  ];
+  // Itens do menu de cada formato de campeonato.
+  function navDoCampeonato() {
+    const tipo = DB.Contexto.tipo();
+    const tabela = { copa_mundo: 'Grupos', grupos_mata: 'Grupos', liga: 'Classificação', champions: 'Classificação' }[tipo];
+    const temMataMata = tipo !== 'liga';
+    const temSimulador = tipo !== 'mata_mata';
+    return [
+      ['inicio', 'index.html', 'Início'],
+      ['partidas', 'partidas.html', 'Partidas'],
+      tabela && ['grupos', 'grupos.html', tabela],
+      temMataMata && ['chaveamento', 'chaveamento.html', 'Mata-mata'],
+      ['estatisticas', 'estatisticas.html', 'Estatísticas'],
+      ['premios', 'premios.html', 'Prêmios'],
+      temSimulador && ['simulador', 'simulador.html', 'Simulador'],
+      ['selecoes', 'selecoes.html', rotuloTimes()],
+    ].filter(Boolean);
+  }
+
+  // "Seleções" na Copa, "Clubes" nos demais.
+  function rotuloTimes(singular = false) {
+    if (DB.Contexto.ehCopa()) return singular ? 'Seleção' : 'Seleções';
+    return singular ? 'Clube' : 'Clubes';
+  }
+
+  // ---------- Seletor de campeonato ----------
+  function iconeCampeonato(comp, tamanho = 'sm') {
+    if (comp.iso) return `<span class="flag flag-${tamanho}"><img src="${DB.Util.bandeiraUrl(comp.iso, 40)}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+    return `<span class="comp-icone" aria-hidden="true">${comp.icone || '🏆'}</span>`;
+  }
+
+  function seletorCampeonato() {
+    const atual = DB.Contexto.get();
+    const regioes = [...new Set(DB.Contexto.lista.map(c => c.regiao))];
+    return `
+      <details class="comp-select" id="comp-select">
+        <summary aria-label="Escolher campeonato">${iconeCampeonato(atual)}<span class="comp-nome">${esc(atual.curto)}</span><span class="comp-temp">${esc(atual.temporada)}</span><span class="comp-seta" aria-hidden="true">▾</span></summary>
+        <div class="comp-menu" role="menu">
+          ${regioes.map(r => `<div class="comp-grupo">${esc(r)}</div>
+            ${DB.Contexto.lista.filter(c => c.regiao === r).map(c => `
+              <button type="button" role="menuitem" class="comp-item${c.id === atual.id ? ' ativo' : ''}" data-comp="${c.id}">
+                ${iconeCampeonato(c)}<span><b>${esc(c.curto)}</b><small>${esc(c.temporada)}</small></span>
+              </button>`).join('')}`).join('')}
+        </div>
+      </details>`;
+  }
+
+  function ativarSeletor() {
+    const caixa = document.getElementById('comp-select');
+    if (!caixa) return;
+    caixa.querySelectorAll('[data-comp]').forEach(botao => botao.addEventListener('click', () => {
+      DB.Contexto.definir(botao.dataset.comp);
+      // Páginas de um item específico (jogo, time, jogador) não fazem sentido em outro campeonato.
+      const pagina = paginaAtual();
+      const especifica = ['jogo.html', 'time.html', 'jogador.html'].includes(pagina);
+      const semEssaPagina = (pagina === 'chaveamento.html' && DB.Contexto.tipo() === 'liga')
+        || (pagina === 'simulador.html' && DB.Contexto.tipo() === 'mata_mata')
+        || (pagina === 'grupos.html' && DB.Contexto.tipo() === 'mata_mata');
+      window.location.href = especifica || semEssaPagina ? 'index.html' : pagina;
+    }));
+    document.addEventListener('click', e => { if (!caixa.contains(e.target)) caixa.open = false; });
+  }
 
   // Pré-carrega a página do link ao passar o mouse/tocar: a troca de página fica instantânea
   // (navegadores sem suporte simplesmente ignoram).
@@ -51,8 +102,8 @@ const UI = (() => {
         <div class="topbar-inner">
           <a class="topbar-logo" href="index.html">
             <span class="logo-mark"><img src="favicon.svg" alt=""></span>FUT<span class="accent">STATS</span>
-            <span class="logo-tag">Copa 2026</span>
           </a>
+          ${seletorCampeonato()}
           <button type="button" class="search-btn" id="btn-busca" aria-label="Buscar jogador ou seleção" title="Buscar (Ctrl+K)">
             <span aria-hidden="true">⌕</span><span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
           </button>
@@ -60,12 +111,13 @@ const UI = (() => {
           <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
           <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menu">☰</label>
           <nav class="topbar-nav">
-            ${NAV.map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
+            ${navDoCampeonato().map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
             <a href="login.html" class="nav-admin">Painel</a>
           </nav>
         </div>
       </div>`;
     ativarBusca();
+    ativarSeletor();
     ativarTema();
     montarBarraInferior(secao);
     const principal = document.querySelector('main');
@@ -78,14 +130,14 @@ const UI = (() => {
   function buscar(termo) {
     const t = normalizar(termo).trim();
     if (t.length < 2) return [];
-    const times = DB.Times.all();
+    const times = DB.Times.todos();
     const porId = Object.fromEntries(times.map(x => [x.id, x]));
     const resultados = [];
     times.forEach(time => {
       const alvo = normalizar(`${time.nome} ${time.codigo}`);
       if (alvo.includes(t)) resultados.push({ tipo: 'time', peso: alvo.startsWith(t) ? 0 : 1, time });
     });
-    DB.Jogadores.all().forEach(jogador => {
+    DB.Jogadores.todos().forEach(jogador => {
       const nome = normalizar(jogador.nome);
       const clube = normalizar(jogador.clube);
       const casaNome = nome.includes(t);
@@ -99,7 +151,9 @@ const UI = (() => {
   function itemBusca(r, i) {
     if (r.tipo === 'time') {
       return `<a class="busca-item" href="time.html?id=${r.time.id}" data-i="${i}">
-        ${bandeira(r.time)}<span class="busca-txt"><b>${esc(r.time.nome)}</b><small>Seleção · Grupo ${r.time.grupo} · ${r.time.confederacao}</small></span></a>`;
+        ${bandeira(r.time)}<span class="busca-txt"><b>${esc(r.time.nome)}</b><small>${r.time.tipo === 'clube'
+          ? `Clube · ${esc(DB.Contexto.competicoesDoTime(r.time.id).map(c => c.curto).join(', '))}`
+          : `Seleção · Grupo ${r.time.grupo} · ${r.time.confederacao}`}</small></span></a>`;
     }
     return `<a class="busca-item" href="jogador.html?id=${r.jogador.id}" data-i="${i}">
       ${avatar(r.jogador)}<span class="busca-txt"><b>${esc(r.jogador.nome)}</b>
@@ -179,12 +233,15 @@ const UI = (() => {
     grupos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16"/>',
     estatisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
     mais: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+    chaveamento: '<path d="M4 5h5v6H4zM4 13h5v6H4zM9 8h4v8h-4M13 12h7"/>',
   };
   const icone = id => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES[id]}</svg>`;
 
   function montarBarraInferior(secao) {
     if (document.querySelector('.bottom-nav')) return;
-    const principais = [['inicio', 'index.html', 'Início'], ['partidas', 'partidas.html', 'Partidas'], ['grupos', 'grupos.html', 'Grupos'], ['estatisticas', 'estatisticas.html', 'Números']];
+    const tipo = DB.Contexto.tipo();
+    const terceiro = tipo === 'mata_mata' ? ['chaveamento', 'chaveamento.html', 'Chave'] : ['grupos', 'grupos.html', tipo === 'liga' || tipo === 'champions' ? 'Tabela' : 'Grupos'];
+    const principais = [['inicio', 'index.html', 'Início'], ['partidas', 'partidas.html', 'Partidas'], terceiro, ['estatisticas', 'estatisticas.html', 'Números']];
     const noMais = !principais.some(([id]) => id === secao) && secao;
     const barra = document.createElement('nav');
     barra.className = 'bottom-nav';
@@ -260,10 +317,29 @@ const UI = (() => {
   function bandeira(time, tamanho = '') {
     const classe = `flag${tamanho ? ` flag-${tamanho}` : ''}`;
     if (!time) return `<span class="${classe}"></span>`;
+    if (time.tipo === 'clube') {
+      // Sem escudos livres de direitos: um distintivo com a sigla nas cores do clube.
+      const c = DB.Util.coresTime(time);
+      return `<span class="${classe} crest" style="background:${c.primaria};color:${c.texto};box-shadow:inset 0 -3px 0 ${c.secundaria}, 0 0 0 1px var(--flag-ring);" title="${esc(time.nome)}">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
+    }
     const largura = { sm: 40, '': 40, lg: 80, xl: 160 }[tamanho] || 40;
     const url = DB.Util.bandeiraUrl(time.iso, largura);
     if (!url) return `<span class="${classe} flag-fallback">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
     return `<span class="${classe}"><img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+  }
+
+  // Nacionalidade (código ISO) → bandeira e nome do país em português.
+  const PAISES_ESPECIAIS = { 'gb-eng': 'Inglaterra', 'gb-sct': 'Escócia', 'gb-wls': 'País de Gales', 'gb-nir': 'Irlanda do Norte', xk: 'Kosovo' };
+  let nomesRegiao = null;
+  try { nomesRegiao = new Intl.DisplayNames(['pt-BR'], { type: 'region' }); } catch (e) { /* navegador antigo */ }
+  function nomePais(iso) {
+    if (!iso) return '—';
+    if (PAISES_ESPECIAIS[iso]) return PAISES_ESPECIAIS[iso];
+    try { return nomesRegiao ? nomesRegiao.of(iso.toUpperCase()) : iso.toUpperCase(); } catch (e) { return iso.toUpperCase(); }
+  }
+  function bandeiraPais(iso, tamanho = 'sm') {
+    const url = DB.Util.bandeiraUrl(iso, 40);
+    return url ? `<span class="flag flag-${tamanho}" title="${esc(nomePais(iso))}"><img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>` : '';
   }
 
   function bandeiraClube(codigoPais) {
@@ -300,7 +376,9 @@ const UI = (() => {
 
   function rotuloJogo(jogo) {
     if (jogo.fase === 'grupos') return `Grupo ${jogo.grupo}${jogo.rodada ? ` · ${jogo.rodada}ª rodada` : ''}`;
-    return DB.Util.faseLabel(jogo.fase);
+    if (jogo.fase === 'liga') return `${jogo.rodada || '?'}ª rodada`;
+    const perna = jogo.perna === 1 ? ' · ida' : jogo.perna === 2 ? ' · volta' : '';
+    return DB.Util.faseLabel(jogo.fase) + perna;
   }
 
   function temPlacar(jogo) {
@@ -394,13 +472,17 @@ const UI = (() => {
   // ---------- Classificação ----------
   function tabelaGrupo(letra, opts = {}) {
     const tabela = DB.Classificacao.grupo(letra);
-    const terceiros = new Set(DB.Classificacao.terceiros().filter(t => t.classificado).map(t => t.timeId));
+    const ehCopa = DB.Contexto.ehCopa();
+    const terceiros = new Set(ehCopa ? DB.Classificacao.terceiros().filter(t => t.classificado).map(t => t.timeId) : []);
+    const zonasGrupo = DB.Contexto.get().zonasGrupo || [];
     const algumJogo = tabela.some(t => t.J > 0);
     const completa = !opts.compacta;
     const linhas = tabela.map(t => {
       const time = DB.Times.get(t.timeId);
-      const zona = !algumJogo ? '' : t.posicao <= 2 ? `zona-${t.posicao}` : (t.posicao === 3 && terceiros.has(t.timeId)) ? 'zona-3' : '';
-      return `<tr class="${zona}">
+      let zona = '';
+      if (algumJogo && ehCopa) zona = t.posicao <= 2 ? `zona-${t.posicao}` : (t.posicao === 3 && terceiros.has(t.timeId)) ? 'zona-3' : '';
+      else if (algumJogo) { const z = zonasGrupo.find(x => t.posicao >= x.de && t.posicao <= x.ate); zona = z ? `zona-cor zona-${z.cor}` : ''; }
+      return `<tr class="${zona}${opts.destaque === t.timeId ? ' destaque-time' : ''}">
         <td class="pos">${t.posicao}</td>
         <td class="left">${timeLink(time)}</td>
         <td>${t.J}</td>
@@ -414,7 +496,7 @@ const UI = (() => {
       <div class="table-scroll">
         <table class="stats-table">
           <thead><tr>
-            <th>#</th><th class="left">Seleção</th><th>J</th>
+            <th>#</th><th class="left">${rotuloTimes(true)}</th><th>J</th>
             ${completa ? '<th>V</th><th>E</th><th>D</th><th>Gols</th>' : ''}
             <th>SG</th><th class="strong">Pts</th>
             ${opts.forma ? '<th>Últimos</th>' : ''}
@@ -424,10 +506,62 @@ const UI = (() => {
       </div>`;
   }
 
-  function legendaZonas() {
+  function legendaZonas(zonas) {
+    if (!zonas && !DB.Contexto.ehCopa()) zonas = DB.Contexto.get().zonasGrupo || DB.Contexto.get().zonas;
+    if (zonas) {
+      return `<div class="legend">${zonas.map(z => `<span><i style="background:var(--zona-${z.cor})"></i>${esc(z.rotulo)}</span>`).join('')}</div>`;
+    }
     return `<div class="legend">
       <span><i style="background:var(--accent)"></i>Classificado aos 32avos</span>
       <span><i style="background:var(--blue)"></i>Entre os 8 melhores 3ºs</span>
+    </div>`;
+  }
+
+  // Tabela de pontos corridos / fase de liga. opts: { compacta, limite, destaque (timeId), fonte, forma }
+  function tabelaLiga(opts = {}) {
+    let tabela = DB.Classificacao.liga(opts.fonte);
+    const algumJogo = tabela.some(t => t.J > 0);
+    if (opts.limite) tabela = tabela.slice(0, opts.limite);
+    const completa = !opts.compacta;
+    return `
+      <div class="table-scroll">
+        <table class="stats-table">
+          <thead><tr>
+            <th>#</th><th class="left">${rotuloTimes(true)}</th><th class="strong">Pts</th><th>J</th>
+            ${completa ? '<th>V</th><th>E</th><th>D</th><th>Gols</th>' : ''}
+            <th>SG</th>
+            ${completa ? '<th title="Aproveitamento">%</th>' : ''}
+            ${opts.forma ? '<th>Últimos</th>' : ''}
+          </tr></thead>
+          <tbody>${tabela.map(t => `
+            <tr class="${algumJogo && t.zona ? `zona-cor zona-${t.zona.cor}` : ''}${opts.destaque === t.timeId ? ' destaque-time' : ''}"${algumJogo && t.zona ? ` title="${esc(t.zona.rotulo)}"` : ''}>
+              <td class="pos">${t.posicao}</td>
+              <td class="left">${timeLink(DB.Times.get(t.timeId))}</td>
+              <td class="strong">${t.P}</td>
+              <td>${t.J}</td>
+              ${completa ? `<td>${t.V}</td><td>${t.E}</td><td>${t.D}</td><td class="dim">${t.GP}:${t.GC}</td>` : ''}
+              <td>${t.SG > 0 ? '+' : ''}${t.SG}</td>
+              ${completa ? `<td class="dim">${t.aproveitamento}</td>` : ''}
+              ${opts.forma ? `<td>${formaRecente(t.timeId, 5)}</td>` : ''}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  // Cartão de um confronto de mata-mata (ida e volta com agregado).
+  function cartaoConfronto(c) {
+    const a = DB.Times.get(c.timeA), b = DB.Times.get(c.timeB);
+    const classe = id => (!c.vencedor ? '' : c.vencedor === id ? 'vencedor' : 'perdedor');
+    const pernas = c.jogos.map(j => {
+      const m = DB.Times.get(j.mandanteId), v = DB.Times.get(j.visitanteId);
+      const placar = temPlacar(j) ? `${j.golsMandante}–${j.golsVisitante}` : DB.Util.formatarDataHora(j.data);
+      return `<a class="perna" href="jogo.html?id=${j.id}">${j.perna === 2 ? 'Volta' : j.perna === 1 ? 'Ida' : 'Jogo'}: ${m ? esc(m.codigo) : '?'} ${placar} ${v ? esc(v.codigo) : '?'}</a>`;
+    }).join('');
+    return `<div class="bracket-match confronto">
+      <div class="bracket-team ${classe(c.timeA)}">${bandeira(a, 'sm')}<span class="nome">${a ? esc(a.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsA : ''}</span></div>
+      <div class="bracket-team ${classe(c.timeB)}">${bandeira(b, 'sm')}<span class="nome">${b ? esc(b.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsB : ''}</span></div>
+      <div class="pernas">${pernas}${c.penaltis ? `<span class="perna">Pênaltis ${c.penaltis[0]}–${c.penaltis[1]}</span>` : ''}</div>
     </div>`;
   }
 
@@ -483,9 +617,9 @@ const UI = (() => {
 
   return {
     montarTopbar, montarTicker, montarFooter,
-    bandeira, bandeiraClube, crestHtml, timeLink, avatar,
+    bandeira, bandeiraClube, bandeiraPais, nomePais, crestHtml, timeLink, avatar,
     badge, rotuloJogo, temPlacar, placarHtml, linhaJogo, linhaJogoCompacta, listaPorDia, formaRecente,
-    tabelaGrupo, legendaZonas, listaLideres, vazio, campinho, nomeCurto,
+    tabelaGrupo, tabelaLiga, cartaoConfronto, legendaZonas, listaLideres, vazio, campinho, nomeCurto, rotuloTimes, iconeCampeonato,
     autoresResumo, animarNumeros, estiloCores,
   };
 })();
