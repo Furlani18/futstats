@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!ehCopa) {
     document.title = `${comp.curto} ${comp.temporada} — FUTSTATS`;
     document.getElementById('hero-titulo').innerHTML = `${esc(comp.curto)}<br><span class="gold">${esc(comp.temporada)}</span>`;
-    document.getElementById('hero-sub').innerHTML = `<strong>${esc(comp.sede)}</strong> · ${esc(comp.periodo)} · ${nTimes} clubes`;
+    document.getElementById('hero-sub').innerHTML = `<strong>${esc(comp.sede)}</strong> · ${esc(comp.periodo)}`;
   }
+  montarTopoCampeonato(comp, nTimes);
 
   // ---------- KPIs ----------
   const r = DB.Estatisticas.resumo();
@@ -120,7 +121,19 @@ function montarDestaque() {
     || jogos.find(j => j.status === 'agendado');
   const ultimo = [...jogos].reverse().find(j => j.status === 'encerrado');
   const jogo = aoVivo || proximo || ultimo;
-  if (!jogo) { mount.innerHTML = ''; return; }
+  if (!jogo) {
+    // Sem jogos: o card mostra o logo do campeonato em destaque.
+    const comp = DB.Contexto.get();
+    // Sem jogos: um mosaico com os escudos/bandeiras de todos os participantes.
+    const times = DB.Times.all();
+    mount.innerHTML = `
+      <div class="featured featured-vazio">
+        <div class="featured-label"><span>${times.length} ${DB.Contexto.ehCopa() ? 'seleções' : 'clubes'} na disputa</span><span>Temporada ${DB.Util.escapar(comp.temporada)}</span></div>
+        <div class="mosaico-escudos">${times.map(t => `<a href="time.html?id=${t.id}" title="${DB.Util.escapar(t.nome)}">${UI.bandeira(t, 'lg')}</a>`).join('')}</div>
+        <div class="featured-foot">Os jogos aparecem aqui assim que forem cadastrados no painel.</div>
+      </div>`;
+    return;
+  }
 
   const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
   const tipo = jogo === aoVivo ? 'vivo' : jogo === proximo ? 'proximo' : 'ultimo';
@@ -162,4 +175,34 @@ function totalPrevisto() {
   if (comp.totalJogos) return comp.totalJogos;
   const n = DB.Times.all().length;
   return comp.tipo === 'liga' ? n * (n - 1) : DB.Jogos.all().length;
+}
+
+// Logo, marca-d'água e chips de informação no topo da página inicial.
+function montarTopoCampeonato(comp, nTimes) {
+  const esc = DB.Util.escapar;
+  if (comp.logo) {
+    const placa = document.getElementById('hero-logo');
+    placa.innerHTML = `<img src="${comp.logo}" alt="${esc(comp.nome)}">`;
+    placa.hidden = false;
+    const marca = document.getElementById('hero-marca');
+    marca.src = comp.logo;
+    marca.hidden = false;
+    document.querySelector('.hero').classList.add('com-marca');
+  }
+  const chip = (icone, texto) => `<span class="hero-chip">${icone}<span>${texto}</span></span>`;
+  const n = DB.Times.all().length;
+  const rodadas = comp.tipo === 'liga' ? (n - 1) * 2 : comp.tipo === 'champions' ? comp.rodadasLiga : null;
+  const chips = [
+    comp.iso ? chip(UI.bandeiraPais(comp.iso), esc(comp.sede)) : chip('<span aria-hidden="true">🌍</span>', esc(comp.regiao)),
+    chip('<span aria-hidden="true">👕</span>', `${nTimes} ${DB.Contexto.ehCopa() ? 'seleções' : 'clubes'}`),
+    rodadas ? chip('<span aria-hidden="true">🗓️</span>', `${rodadas} rodadas`) : '',
+    DB.Grupos.letras.length ? chip('<span aria-hidden="true">🔠</span>', `${DB.Grupos.letras.length} grupos`) : '',
+    comp.totalJogos ? chip('<span aria-hidden="true">⚽</span>', `${comp.totalJogos} jogos`) : '',
+  ];
+  // Líder atual nas ligas e na fase de liga da Champions.
+  if (comp.tipo === 'liga' || comp.tipo === 'champions') {
+    const lider = DB.Classificacao.liga()[0];
+    if (lider && lider.J) chips.push(chip(UI.bandeira(DB.Times.get(lider.timeId), 'sm'), `Líder: <b>${esc(lider.nome)}</b> · ${lider.P} pts`));
+  }
+  document.getElementById('hero-chips').innerHTML = chips.filter(Boolean).join('');
 }

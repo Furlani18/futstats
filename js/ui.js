@@ -42,6 +42,7 @@ const UI = (() => {
 
   // ---------- Seletor de campeonato ----------
   function iconeCampeonato(comp, tamanho = 'sm') {
+    if (comp.logo) return `<span class="logo-plate logo-plate-${tamanho}"><img src="${comp.logo}" alt="" loading="lazy" onerror="this.parentNode.remove()"></span>`;
     if (comp.iso) return `<span class="flag flag-${tamanho}"><img src="${DB.Util.bandeiraUrl(comp.iso, 40)}" alt="" loading="lazy" onerror="this.remove()"></span>`;
     return `<span class="comp-icone" aria-hidden="true">${comp.icone || '🏆'}</span>`;
   }
@@ -109,6 +110,16 @@ const UI = (() => {
     try { localStorage.setItem('fs_cores', JSON.stringify(cores)); } catch (e) { /* sem armazenamento */ }
   }
 
+  // Logo do campeonato no topo das páginas internas (menos seleção/clube/jogador, que têm visual próprio).
+  function logoNoTopoDaPagina() {
+    const comp = DB.Contexto.get();
+    const topo = document.querySelector('.page-hero');
+    if (!comp.logo || !topo || ['time.html', 'jogador.html'].includes(paginaAtual())) return;
+    topo.classList.add('page-hero-comp');
+    const container = topo.querySelector('.container');
+    container.insertAdjacentHTML('beforeend', `<div class="page-hero-logo logo-plate logo-plate-lg" aria-hidden="true"><img src="${comp.logo}" alt=""></div>`);
+  }
+
   function montarTopbar() {
     const mount = document.getElementById('topbar-mount');
     if (!mount) return;
@@ -138,6 +149,7 @@ const UI = (() => {
       </div>`;
     ativarBusca();
     ativarSeletor();
+    logoNoTopoDaPagina();
     ativarTema();
     montarBarraInferior(secao);
     const principal = document.querySelector('main');
