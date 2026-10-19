@@ -1,8 +1,4 @@
-AdminUI.guardarAutenticacao();
-
-document.addEventListener('DOMContentLoaded', () => {
-  AdminUI.montarSidebar();
-  AdminUI.montarTopbar();
+AdminUI.registrar('dashboard', () => {
   DB.MataMata.sincronizar();
 
   const gruposEncerrados = DB.Grupos.letras.filter(letra => DB.Grupos.completo(letra)).length;

@@ -1,10 +1,6 @@
-AdminUI.guardarAutenticacao();
-
 const CONFEDERACOES_OPCOES = ['UEFA', 'CONMEBOL', 'CONCACAF', 'CAF', 'AFC', 'OFC'];
 
-document.addEventListener('DOMContentLoaded', () => {
-  AdminUI.montarSidebar();
-  AdminUI.montarTopbar();
+AdminUI.registrar('times', () => {
 
   const busca = document.getElementById('busca');
 

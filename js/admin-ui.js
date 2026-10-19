@@ -1,35 +1,37 @@
 const AdminUI = (() => {
-  function paginaAtual() {
-    return window.location.pathname.split('/').pop() || 'dashboard.html';
+  // O painel é uma página só (painel.html): cada seção é um <template> trocado
+  // pelo #hash da URL, sem recarregar. As seções se registram com registrar().
+  const SECOES = {
+    dashboard: 'Dashboard',
+    times: 'Seleções',
+    jogadores: 'Jogadores',
+    jogos: 'Jogos',
+  };
+  const inicializadores = {};
+
+  function registrar(id, init) {
+    inicializadores[id] = init;
+  }
+
+  function secaoAtual() {
+    const id = window.location.hash.slice(1);
+    return SECOES[id] ? id : 'dashboard';
   }
 
   function guardarAutenticacao() {
-    if (!DB.Auth.isLogged()) window.location.href = 'login.html';
+    if (DB.Auth.isLogged()) return true;
+    window.location.replace('login.html');
+    return false;
   }
-
-  const LINKS = [
-    { href: 'dashboard.html', label: 'Dashboard' },
-    { href: 'times.html', label: 'Seleções' },
-    { href: 'jogadores.html', label: 'Jogadores' },
-    { href: 'jogos.html', label: 'Jogos' },
-  ];
-
-  const TITULOS = {
-    'dashboard.html': 'Dashboard',
-    'times.html': 'Seleções',
-    'jogadores.html': 'Jogadores',
-    'jogos.html': 'Jogos',
-  };
 
   function montarSidebar() {
     const mount = document.getElementById('sidebar-mount');
     if (!mount) return;
-    const atual = paginaAtual();
     mount.innerHTML = `
       <div class="sidebar">
         <div class="sidebar-logo"><span class="dot"></span>FUT<span class="accent">STATS</span></div>
         <nav class="sidebar-nav">
-          ${LINKS.map(l => `<a class="sidebar-link${l.href === atual ? ' active' : ''}" href="${l.href}">${l.label}</a>`).join('')}
+          ${Object.entries(SECOES).map(([id, label]) => `<a class="sidebar-link" data-secao="${id}" href="#${id}">${label}</a>`).join('')}
         </nav>
         <div class="sidebar-footer">
           <a class="btn btn-ghost" style="width:100%;justify-content:center;" href="index.html" target="_blank" rel="noopener">Ver site</a>
@@ -45,23 +47,44 @@ const AdminUI = (() => {
   function montarTopbar() {
     const mount = document.getElementById('topbar-mount');
     if (!mount) return;
-    const atual = paginaAtual();
     const usuario = DB.Auth.usuarioAtual() || 'admin';
     mount.innerHTML = `
       <div class="admin-topbar">
         <div class="admin-topbar-left">
           <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle">☰</button>
-          <span class="admin-topbar-title">${TITULOS[atual] || ''}</span>
+          <span class="admin-topbar-title" id="admin-titulo"></span>
         </div>
-        <div class="admin-user"><span class="avatar"></span>${usuario}</div>
+        <div class="admin-user"><span class="avatar"></span>${DB.Util.escapar(usuario)}</div>
       </div>`;
-    const botaoToggle = document.getElementById('sidebar-toggle');
-    if (botaoToggle) {
-      botaoToggle.addEventListener('click', () => {
-        document.querySelector('.sidebar')?.classList.toggle('open');
-      });
-    }
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+      document.querySelector('.sidebar')?.classList.toggle('open');
+    });
   }
+
+  function abrirSecao() {
+    const id = secaoAtual();
+    fecharModal();
+    const conteudo = document.getElementById('admin-content');
+    conteudo.replaceChildren(document.getElementById(`tpl-${id}`).content.cloneNode(true));
+    document.getElementById('admin-titulo').textContent = SECOES[id];
+    document.title = `${SECOES[id]} — Painel Admin FUTSTATS`;
+    document.querySelectorAll('.sidebar-link').forEach(link => link.classList.toggle('active', link.dataset.secao === id));
+    document.querySelector('.sidebar')?.classList.remove('open');
+    window.scrollTo(0, 0);
+    if (inicializadores[id]) inicializadores[id]();
+  }
+
+  function iniciarPainel() {
+    if (!guardarAutenticacao()) return;
+    montarSidebar();
+    montarTopbar();
+    window.addEventListener('hashchange', abrirSecao);
+    abrirSecao();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('admin-content')) iniciarPainel();
+  });
 
   function badge(status, labels) {
     const label = (labels && labels[status]) || status;
@@ -103,5 +126,5 @@ const AdminUI = (() => {
     });
   }
 
-  return { guardarAutenticacao, montarSidebar, montarTopbar, badge, abrirModal, fecharModal };
+  return { registrar, guardarAutenticacao, badge, abrirModal, fecharModal };
 })();

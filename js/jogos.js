@@ -1,13 +1,9 @@
-AdminUI.guardarAutenticacao();
-
 const LABELS_STATUS_JOGO = { agendado: 'Agendado', ao_vivo: 'Ao vivo', encerrado: 'Encerrado', adiado: 'Adiado' };
 const FASES_FILTRO = ['grupos', 'r32', 'r16', 'qf', 'sf', 'terceiro', 'final'];
 const TIPOS_GOL = { normal: 'Gol', penalti: 'Pênalti', contra: 'Gol contra' };
 const TIPOS_CARTAO = { amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
 
-document.addEventListener('DOMContentLoaded', () => {
-  AdminUI.montarSidebar();
-  AdminUI.montarTopbar();
+AdminUI.registrar('jogos', () => {
   DB.MataMata.sincronizar();
 
   const esc = DB.Util.escapar;

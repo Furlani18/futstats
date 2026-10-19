@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — FUTSTATS</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+  <div id="sidebar-mount"></div>
+
+  <div class="admin-main">
+    <div id="topbar-mount"></div>
+    <div class="admin-content" id="admin-content"></div>
+  </div>
+</div>
+
+<!-- ===== Seções do painel (trocadas sem recarregar a página) ===== -->
+
+<template id="tpl-dashboard">
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="admin-panel" style="margin-bottom:20px;">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Jogos ao vivo agora</span>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th>Fase</th><th>Confronto</th><th>Placar</th><th>Local</th></tr></thead>
+      <tbody id="tbody-ao-vivo"></tbody>
+    </table>
+  </div>
+
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Próximos jogos</span>
+      <a href="#jogos" class="btn btn-ghost btn-sm">Gerenciar jogos</a>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th>Data</th><th>Fase</th><th>Confronto</th><th>Local</th></tr></thead>
+      <tbody id="tbody-proximos"></tbody>
+    </table>
+  </div>
+</template>
+
+<template id="tpl-times">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Seleções cadastradas</span>
+      <div style="display:flex;gap:10px;">
+        <input type="text" class="search-input" id="busca" placeholder="Buscar seleção...">
+      </div>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Seleção</th><th>Grupo</th><th>Confederação</th><th>Técnico</th><th>Ranking FIFA</th><th>Jogadores</th><th></th></tr>
+      </thead>
+      <tbody id="tbody-times"></tbody>
+    </table>
+  </div>
+</template>
+
+<template id="tpl-jogadores">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Jogadores cadastrados</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <select class="search-input" id="filtro-time" style="min-width:170px;"></select>
+        <input type="text" class="search-input" id="busca" placeholder="Buscar jogador ou clube...">
+        <button class="btn btn-primary" id="btn-novo">+ Novo jogador</button>
+      </div>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Nº</th><th>Jogador</th><th>Seleção</th><th>Posição</th><th>Clube</th><th>Idade</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody id="tbody-jogadores"></tbody>
+    </table>
+  </div>
+</template>
+
+<template id="tpl-jogos">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Jogos da Copa 2026</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-novo">+ Novo jogo</button>
+        <button class="btn btn-ghost" id="btn-importar">Importar calendário oficial</button>
+        <button class="btn btn-ghost" id="btn-sincronizar">Atualizar chaveamento</button>
+      </div>
+    </div>
+    <div class="admin-toolbar-hint">
+      Cadastre os jogos da fase de grupos (ou importe o calendário oficial, sem placares) e lance placar, gols, assistências e cartões em <strong>Editar</strong>.
+      Os jogos do mata-mata são criados sozinhos quando os 12 grupos terminam.
+    </div>
+    <div class="admin-panel-header" style="border-top:none;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <select class="search-input" id="filtro-fase" style="min-width:170px;"></select>
+        <select class="search-input" id="filtro-grupo" style="min-width:130px;"></select>
+        <select class="search-input" id="filtro-status" style="min-width:150px;">
+          <option value="">Todos os status</option>
+          <option value="agendado">Agendado</option>
+          <option value="ao_vivo">Ao vivo</option>
+          <option value="encerrado">Encerrado</option>
+          <option value="adiado">Adiado</option>
+        </select>
+      </div>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Data / Hora</th><th>Fase</th><th>Confronto</th><th>Placar</th><th>Lances</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody id="tbody-jogos"></tbody>
+    </table>
+  </div>
+</template>
+
+<script src="js/elencos.js"></script>
+<script src="js/calendario.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin-ui.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/times.js"></script>
+<script src="js/jogadores.js"></script>
+<script src="js/jogos.js"></script>
+</body>
+</html>

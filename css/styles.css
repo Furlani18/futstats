@@ -32,6 +32,15 @@
 }
 
 * { box-sizing: border-box; }
+
+/* Transição suave entre páginas; o menu fica parado enquanto o conteúdo troca. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .18s; }
+.topbar { view-transition-name: topbar; }
+#topbar-mount > .host-stripe { view-transition-name: faixa; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 

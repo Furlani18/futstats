@@ -2,49 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Painel Admin FUTSTATS</title>
-<link rel="stylesheet" href="css/admin.css">
+<title>Painel Admin — FUTSTATS</title>
+<meta http-equiv="refresh" content="0; url=painel.html#dashboard">
+<script>location.replace('painel.html#dashboard');</script>
 </head>
-<body>
-
-<div class="admin-shell">
-  <div id="sidebar-mount"></div>
-
-  <div class="admin-main">
-    <div id="topbar-mount"></div>
-
-    <div class="admin-content">
-      <div class="kpi-grid" id="kpi-grid"></div>
-
-      <div class="admin-panel" style="margin-bottom:20px;">
-        <div class="admin-panel-header">
-          <span class="admin-panel-title">Jogos ao vivo agora</span>
-        </div>
-        <table class="admin-table">
-          <thead><tr><th>Fase</th><th>Confronto</th><th>Placar</th><th>Local</th></tr></thead>
-          <tbody id="tbody-ao-vivo"></tbody>
-        </table>
-      </div>
-
-      <div class="admin-panel">
-        <div class="admin-panel-header">
-          <span class="admin-panel-title">Próximos jogos</span>
-          <a href="jogos.html" class="btn btn-ghost btn-sm">Gerenciar jogos</a>
-        </div>
-        <table class="admin-table">
-          <thead><tr><th>Data</th><th>Fase</th><th>Confronto</th><th>Local</th></tr></thead>
-          <tbody id="tbody-proximos"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="js/elencos.js"></script>
-<script src="js/db.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/admin-ui.js"></script>
-<script src="js/dashboard.js"></script>
-</body>
+<body><a href="painel.html#dashboard">Abrir o painel</a></body>
 </html>

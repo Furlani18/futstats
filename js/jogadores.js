@@ -1,11 +1,7 @@
-AdminUI.guardarAutenticacao();
-
 const LABELS_STATUS_JOGADOR = { ativo: 'Ativo', lesionado: 'Lesionado', suspenso: 'Suspenso' };
 const POSICOES_JOGADOR = ['Goleiro', 'Defensor', 'Meio-campo', 'Atacante'];
 
-document.addEventListener('DOMContentLoaded', () => {
-  AdminUI.montarSidebar();
-  AdminUI.montarTopbar();
+AdminUI.registrar('jogadores', () => {
 
   const esc = DB.Util.escapar;
   const filtroTime = document.getElementById('filtro-time');

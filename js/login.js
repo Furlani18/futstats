@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (DB.Auth.isLogged()) {
-    window.location.href = 'dashboard.html';
+    window.location.href = 'painel.html';
     return;
   }
 
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const senha = document.getElementById('senha').value;
     const erro = document.getElementById('erro-login');
     if (DB.Auth.login(usuario, senha)) {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'painel.html';
     } else {
       erro.style.display = 'block';
     }

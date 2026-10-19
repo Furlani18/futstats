@@ -23,9 +23,22 @@ const UI = (() => {
     ['selecoes', 'selecoes.html', 'Seleções'],
   ];
 
+  // Pré-carrega a página do link ao passar o mouse/tocar: a troca de página fica instantânea
+  // (navegadores sem suporte simplesmente ignoram).
+  function ativarPreCarregamento() {
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('speculationrules')) return;
+    const regras = document.createElement('script');
+    regras.type = 'speculationrules';
+    regras.textContent = JSON.stringify({
+      prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '*login.html*' } }] }, eagerness: 'moderate' }],
+    });
+    document.head.appendChild(regras);
+  }
+
   function montarTopbar() {
     const mount = document.getElementById('topbar-mount');
     if (!mount) return;
+    ativarPreCarregamento();
     const secao = SECOES[paginaAtual()] || '';
     mount.innerHTML = `
       <div class="host-stripe"></div>

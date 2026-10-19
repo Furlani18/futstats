@@ -186,7 +186,7 @@ button, input, select { font-family: inherit; }
 }
 
 .sidebar-link:hover { background: var(--panel-2); color: var(--text); }
-.sidebar-link.active { background: rgba(51, 224, 138, .12); color: var(--accent); }
+.sidebar-link.active { background: rgba(244, 198, 78, .12); color: var(--accent); }
 
 .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 
