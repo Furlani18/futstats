@@ -19,6 +19,8 @@ AdminUI.registrar('jogos', () => {
   };
   const idaEVolta = fase => !['liga', 'grupos'].includes(fase) && !(comp.jogoUnico || []).includes(fase);
 
+  document.getElementById('titulo-jogos').textContent = `Jogos · ${comp.curto} ${comp.temporada}`;
+
   const esc = DB.Util.escapar;
   const esc_ = esc; // nome alternativo onde `esc` é a escalação
   const filtroFase = document.getElementById('filtro-fase');
