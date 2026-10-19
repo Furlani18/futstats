@@ -90,9 +90,29 @@ const UI = (() => {
     document.head.appendChild(regras);
   }
 
+  // Cores do campeonato selecionado: destaque (--comp-cor) e a faixa do topo.
+  // Ficam salvas para o <head> da próxima página já abrir com elas (sem piscar).
+  function aplicarTemaCampeonato() {
+    const tema = DB.Contexto.get().tema;
+    if (!tema) return;
+    const lum = hex => {
+      const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+        .map(c => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const cores = {
+      '--comp-cor': tema.cor,
+      '--on-cor': lum(tema.cor) > 0.3 ? '#0b0f1a' : '#ffffff',
+      '--host-1': tema.faixa[0], '--host-2': tema.faixa[1], '--host-3': tema.faixa[2],
+    };
+    Object.entries(cores).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+    try { localStorage.setItem('fs_cores', JSON.stringify(cores)); } catch (e) { /* sem armazenamento */ }
+  }
+
   function montarTopbar() {
     const mount = document.getElementById('topbar-mount');
     if (!mount) return;
+    aplicarTemaCampeonato();
     ativarPreCarregamento();
     const secao = SECOES[paginaAtual()] || '';
     mount.innerHTML = `
