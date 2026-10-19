@@ -2,7 +2,7 @@
 // Campos do jogador: n = número, p = posição, nat = nacionalidade (ISO), cap = capitão.
 const COMPETICOES_CLUBES = {"bra2026":{"clubes":["athletico-paranaense","atletico-mineiro","bahia","botafogo","chapecoense","corinthians","coritiba","cruzeiro","flamengo","fluminense","gremio","internacional","mirassol","palmeiras","rb-bragantino","remo","santos","sao-paulo","vasco","vitoria"]},"eng2627":{"clubes":["arsenal","aston-villa","bournemouth","brentford","brighton","chelsea","coventry-city","crystal-palace","everton","fulham","hull-city","ipswich-town","leeds-united","liverpool","manchester-city","manchester-united","newcastle","nottingham-forest","sunderland","tottenham"]},"esp2627":{"clubes":["alaves","athletic-bilbao","atletico-de-madrid","barcelona","celta-vigo","deportivo-a-coruna","elche","espanyol","getafe","levante","malaga","osasuna","racing-santander","rayo-vallecano","real-betis","real-madrid","real-sociedad","sevilla","valencia","villarreal"]},"ita2627":{"clubes":["atalanta","bologna","cagliari","como","fiorentina","frosinone","genoa","inter-de-milao","juventus","lazio","lecce","milan","monza","napoli","parma","roma","sassuolo","torino","udinese","venezia"]},"ger2627":{"clubes":["fc-augsburg","union-berlin","werder-bremen","borussia-dortmund","sv-elversberg","eintracht-frankfurt","sc-freiburg","hamburger-sv","tsg-hoffenheim","1-fc-koln","rb-leipzig","bayer-leverkusen","mainz-05","borussia-m-gladbach","bayern-de-munique","sc-paderborn","schalke-04","vfb-stuttgart"]},"fra2627":{"clubes":["angers","auxerre","brest","le-havre","le-mans","lens","lille","lorient","lyon","olympique-de-marseille","monaco","nice","paris-fc","paris-saint-germain","rennes","strasbourg","toulouse","troyes"]},"ucl2627":{"clubes":["arsenal","aston-villa","aek-athens","atletico-de-madrid","barcelona","bayern-de-munique","bod-glimt","borussia-dortmund","club-brugge","como","fenerbahce","feyenoord","galatasaray","inter-de-milao","lask","lens","lille","liverpool","manchester-city","manchester-united","napoli","paris-saint-germain","porto","psv-eindhoven","rb-leipzig","real-betis","real-madrid","roma","sabah","shakhtar-donetsk","slavia-prague","slovan-bratislava","sporting","vfb-stuttgart","viking","villarreal"]},"lib2026":{"clubes":["flamengo","estudiantes","cusco","independiente-medellin","nacional","universitario","coquimbo-unido","deportes-tolima","fluminense","bolivar","deportivo-la-guaira","independiente-rivadavia","boca-juniors","cruzeiro","universidad-catolica","barcelona-2","penarol","corinthians","santa-fe","platense","palmeiras","cerro-porteno","junior","sporting-cristal","ldu-quito","lanus","always-ready","mirassol","independiente-del-valle","libertad","rosario-central","universidad-central"],"grupos":{"A":["flamengo","estudiantes","independiente-medellin","cusco"],"B":["coquimbo-unido","deportes-tolima","nacional","universitario"],"C":["independiente-rivadavia","fluminense","bolivar","deportivo-la-guaira"],"D":["universidad-catolica","cruzeiro","boca-juniors","barcelona-2"],"E":["corinthians","platense","santa-fe","penarol"],"F":["cerro-porteno","palmeiras","sporting-cristal","junior"],"G":["ldu-quito","mirassol","lanus","always-ready"],"H":["independiente-del-valle","rosario-central","universidad-central","libertad"]}},"cdb2026":{"clubes":["corinthians","palmeiras","atletico-mineiro","fluminense","athletico-paranaense","vasco","cruzeiro","gremio","fortaleza","internacional","santos","juventude","vitoria","mirassol","chapecoense","remo"]}};
 const CLUBES_2026 = {
-  "athletico-paranaense": {"nome":"Athletico Paranaense","sigla":"CAP","pais":"br","tecnico":"Odair Hellmann","estadio":"Arena da Baixada","cores":["#ffffff","#000000"],"jogadores":[
+  "athletico-paranaense": {"nome":"Athletico Paranaense","sigla":"CAP","pais":"br","tecnico":"Odair Hellmann","estadio":"Arena da Baixada","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Athletico_Paranaense_%28Logo_2019%29.svg/120px-Athletico_Paranaense_%28Logo_2019%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Mycael","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Gilberto dos Santos","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Léo Pelé","nat":"br"},
@@ -35,7 +35,7 @@ const CLUBES_2026 = {
     {"n":63,"p":"Meio-campo","nome":"Riquelme","nat":"br"},
     {"n":70,"p":"Atacante","nome":"Renan Peixoto","nat":"br"},
   ]},
-  "atletico-mineiro": {"nome":"Atlético Mineiro","sigla":"CAM","pais":"br","tecnico":"Eduardo Domínguez","estadio":"Arena MRV","cores":["#ffffff","#000000"],"jogadores":[
+  "atletico-mineiro": {"nome":"Atlético Mineiro","sigla":"CAM","pais":"br","tecnico":"Eduardo Domínguez","estadio":"Arena MRV","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Clube_Atl%C3%A9tico_Mineiro_logo.svg/120px-Clube_Atl%C3%A9tico_Mineiro_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Gabriel Delfim","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Natanael","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Léo Duarte","nat":"br"},
@@ -69,7 +69,7 @@ const CLUBES_2026 = {
     {"n":46,"p":"Goleiro","nome":"Pedro Cobra","nat":"br"},
     {"n":92,"p":"Atacante","nome":"Dudu","nat":"br"},
   ]},
-  "bahia": {"nome":"Bahia","sigla":"BAH","pais":"br","tecnico":"Rogério Ceni","estadio":"Arena Fonte Nova","cores":["#ffffff","#0000bf"],"jogadores":[
+  "bahia": {"nome":"Bahia","sigla":"BAH","pais":"br","tecnico":"Rogério Ceni","estadio":"Arena Fonte Nova","cores":["#ffffff","#0000bf"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Esporte_Clube_Bahia_logo.svg/120px-Esporte_Clube_Bahia_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ronaldo","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Marco Moreno","nat":"es"},
     {"n":4,"p":"Defensor","nome":"Kanu","nat":"br"},
@@ -100,7 +100,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Atacante","nome":"Ruan Pablo","nat":"br"},
     {"n":99,"p":"Atacante","nome":"Kike Olivera","nat":"uy"},
   ]},
-  "botafogo": {"nome":"Botafogo","sigla":"BOT","pais":"br","tecnico":"Tite","estadio":"Estádio Olímpico Nilton Santos","cores":["#ffffff","#000000"],"jogadores":[
+  "botafogo": {"nome":"Botafogo","sigla":"BOT","pais":"br","tecnico":"Tite","estadio":"Estádio Olímpico Nilton Santos","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Botafogo_de_Futebol_e_Regatas_logo.svg/120px-Botafogo_de_Futebol_e_Regatas_logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Vitinho","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Arthur Chaves","nat":"br"},
     {"n":4,"p":"Defensor","nome":"Mateo Ponte","nat":"uy"},
@@ -134,7 +134,7 @@ const CLUBES_2026 = {
     {"n":90,"p":"Atacante","nome":"Danilo Pereira","nat":"br"},
     {"n":91,"p":"Meio-campo","nome":"Domingos Andrade","nat":"ao"},
   ]},
-  "chapecoense": {"nome":"Chapecoense","sigla":"CHA","pais":"br","tecnico":"Rafael Lacerda","estadio":"Arena Condá","cores":["#007744","#ffffff"],"jogadores":[
+  "chapecoense": {"nome":"Chapecoense","sigla":"CHA","pais":"br","tecnico":"Rafael Lacerda","estadio":"Arena Condá","cores":["#007744","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Logo_Associa%C3%A7%C3%A3o_Chapecoense_de_Futebol.svg/120px-Logo_Associa%C3%A7%C3%A3o_Chapecoense_de_Futebol.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Rafael Santos","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Eduardo Doma","nat":"br","cap":1},
     {"n":4,"p":"Defensor","nome":"João Paulo","nat":"br"},
@@ -173,7 +173,7 @@ const CLUBES_2026 = {
     {"n":98,"p":"Goleiro","nome":"Anderson","nat":"br"},
     {"n":99,"p":"Meio-campo","nome":"Rafael Carvalheira","nat":"br"},
   ]},
-  "corinthians": {"nome":"Corinthians","sigla":"COR","pais":"br","tecnico":"Clarence Seedorf","estadio":"Neo Química Arena","cores":["#fcfaf5","#000000"],"jogadores":[
+  "corinthians": {"nome":"Corinthians","sigla":"COR","pais":"br","tecnico":"Clarence Seedorf","estadio":"Neo Química Arena","cores":["#fcfaf5","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/5a/Sport_Club_Corinthians_Paulista_crest.svg/120px-Sport_Club_Corinthians_Paulista_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Hugo Souza","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Matheuzinho","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Gabriel Paulista","nat":"br"},
@@ -208,7 +208,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Meio-campo","nome":"Jesse Lingard","nat":"gb-eng"},
     {"n":80,"p":"Meio-campo","nome":"Alex Santana","nat":"br"},
   ]},
-  "coritiba": {"nome":"Coritiba","sigla":"CTB","pais":"br","tecnico":"Fernando Seabra","estadio":"Couto Pereira","cores":["#00544d","#ffffff"],"jogadores":[
+  "coritiba": {"nome":"Coritiba","sigla":"CTB","pais":"br","tecnico":"Fernando Seabra","estadio":"Couto Pereira","cores":["#00544d","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Coritiba_Foot_Ball_Club_logo.svg/120px-Coritiba_Foot_Ball_Club_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Pedro Morisco","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Tinga","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Maicon","nat":"br"},
@@ -243,7 +243,7 @@ const CLUBES_2026 = {
     {"n":86,"p":"Defensor","nome":"Lucas Taverna","nat":"br"},
     {"n":99,"p":"Atacante","nome":"Rodrigo Rodrigues","nat":"br"},
   ]},
-  "cruzeiro": {"nome":"Cruzeiro","sigla":"CRU","pais":"br","tecnico":"Artur Jorge","estadio":"Mineirão","cores":["#0000ff","#ffffff"],"jogadores":[
+  "cruzeiro": {"nome":"Cruzeiro","sigla":"CRU","pais":"br","tecnico":"Artur Jorge","estadio":"Mineirão","cores":["#0000ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Cruzeiro_Esporte_Clube_%28logo%29.svg/120px-Cruzeiro_Esporte_Clube_%28logo%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Cássio","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Kauã Moraes","nat":"br"},
     {"n":5,"p":"Meio-campo","nome":"Zé Lucas","nat":"br"},
@@ -279,7 +279,7 @@ const CLUBES_2026 = {
     {"n":97,"p":"Atacante","nome":"Luciano Rodríguez","nat":"uy"},
     {"n":99,"p":"Atacante","nome":"Keny Arroyo","nat":"ec"},
   ]},
-  "flamengo": {"nome":"Flamengo","sigla":"FLA","pais":"br","tecnico":"Leonardo Jardim","estadio":"Maracanã","cores":["#ff0000","#ffffff"],"jogadores":[
+  "flamengo": {"nome":"Flamengo","sigla":"FLA","pais":"br","tecnico":"Leonardo Jardim","estadio":"Maracanã","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Clube_de_Regatas_do_Flamengo_logo.svg/120px-Clube_de_Regatas_do_Flamengo_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Agustín Rossi","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Guillermo Varela","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Léo Ortiz","nat":"br"},
@@ -308,7 +308,7 @@ const CLUBES_2026 = {
     {"n":52,"p":"Meio-campo","nome":"Evertton Araújo","nat":"br"},
     {"n":61,"p":"Defensor","nome":"João Victor","nat":"br"},
   ]},
-  "fluminense": {"nome":"Fluminense","sigla":"FLU","pais":"br","tecnico":"Marcão","estadio":"Maracanã","cores":["#800000","#ffffff"],"jogadores":[
+  "fluminense": {"nome":"Fluminense","sigla":"FLU","pais":"br","tecnico":"Marcão","estadio":"Maracanã","cores":["#800000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Fluminense_Football_Club.svg/120px-Fluminense_Football_Club.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Fábio","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Samuel Xavier","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Thiago Silva","nat":"br","cap":1},
@@ -340,7 +340,7 @@ const CLUBES_2026 = {
     {"n":94,"p":"Meio-campo","nome":"Otávio","nat":"br"},
     {"n":98,"p":"Goleiro","nome":"Vitor Eudes","nat":"br"},
   ]},
-  "gremio": {"nome":"Grêmio","sigla":"GRE","pais":"br","tecnico":"Renato Portaluppi","estadio":"Arena do Grêmio","cores":["#000000","#ffffff"],"jogadores":[
+  "gremio": {"nome":"Grêmio","sigla":"GRE","pais":"br","tecnico":"Renato Portaluppi","estadio":"Arena do Grêmio","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Gremio_logo.svg/120px-Gremio_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Weverton","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Fabián Balbuena","nat":"py"},
     {"n":3,"p":"Defensor","nome":"Wagner Leonardo","nat":"br"},
@@ -376,7 +376,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Atacante","nome":"Carlos Vinícius","nat":"br"},
     {"n":99,"p":"Atacante","nome":"José Enamorado","nat":"co"},
   ]},
-  "internacional": {"nome":"Internacional","sigla":"SCI","pais":"br","tecnico":"Eduardo Baptista","estadio":"Beira-Rio","cores":["#ef0000","#ffffff"],"jogadores":[
+  "internacional": {"nome":"Internacional","sigla":"SCI","pais":"br","tecnico":"Eduardo Baptista","estadio":"Beira-Rio","cores":["#ef0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Sport_Club_Internacional_logo.svg/120px-Sport_Club_Internacional_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Sergio Rochet","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Guillermo Maripán","nat":"cl"},
     {"n":4,"p":"Defensor","nome":"Félix Torres","nat":"ec"},
@@ -404,7 +404,7 @@ const CLUBES_2026 = {
     {"n":35,"p":"Defensor","nome":"Braian Aguirre","nat":"ar"},
     {"n":41,"p":"Defensor","nome":"Victor Gabriel","nat":"br"},
   ]},
-  "mirassol": {"nome":"Mirassol","sigla":"MIR","pais":"br","tecnico":"Rafael Guanaes","estadio":"José Maria de Campos Maia","cores":["#fff200","#ffffff"],"jogadores":[
+  "mirassol": {"nome":"Mirassol","sigla":"MIR","pais":"br","tecnico":"Rafael Guanaes","estadio":"José Maria de Campos Maia","cores":["#fff200","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Mirassol_Futebol_Clube_logo_%283_stars%29.png/120px-Mirassol_Futebol_Clube_logo_%283_stars%29.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Georgemy","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Lucas Oliveira","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Willian Machado","nat":"br"},
@@ -438,7 +438,7 @@ const CLUBES_2026 = {
     {"n":96,"p":"Atacante","nome":"Carlos Eduardo","nat":"br"},
     {"n":99,"p":"Atacante","nome":"André Luis","nat":"br"},
   ]},
-  "palmeiras": {"nome":"Palmeiras","sigla":"PAL","pais":"br","tecnico":"Abel Ferreira","estadio":"Nubank Parque","cores":["#035f30","#ffffff"],"jogadores":[
+  "palmeiras": {"nome":"Palmeiras","sigla":"PAL","pais":"br","tecnico":"Abel Ferreira","estadio":"Nubank Parque","cores":["#035f30","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Sociedade_Esportiva_Palmeiras_logo_%281_red_star%29.svg/120px-Sociedade_Esportiva_Palmeiras_logo_%281_red_star%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Carlos Miguel","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Alexander Barboza","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Bruno Fuchs","nat":"br"},
@@ -465,7 +465,7 @@ const CLUBES_2026 = {
     {"n":48,"p":"Meio-campo","nome":"Larson","nat":"br"},
     {"n":56,"p":"Defensor","nome":"Arthur Gabriel","nat":"br"},
   ]},
-  "rb-bragantino": {"nome":"RB Bragantino","sigla":"RBB","pais":"br","tecnico":"Vagner Mancini","estadio":"Cícero de Souza Marques","cores":["#ffffff","#ff0000"],"jogadores":[
+  "rb-bragantino": {"nome":"RB Bragantino","sigla":"RBB","pais":"br","tecnico":"Vagner Mancini","estadio":"Cícero de Souza Marques","cores":["#ffffff","#ff0000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2e/Red_Bull_Bragantino_logo.svg/120px-Red_Bull_Bragantino_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Cleiton","nat":"br","cap":1},
     {"n":2,"p":"Defensor","nome":"Guzmán Rodríguez","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Eduardo Santos","nat":"br"},
@@ -499,7 +499,7 @@ const CLUBES_2026 = {
     {"n":56,"p":"Goleiro","nome":"Gustavo Reis","nat":"br"},
     {"n":57,"p":"Atacante","nome":"Marcelinho Braz","nat":"br"},
   ]},
-  "remo": {"nome":"Remo","sigla":"REM","pais":"br","tecnico":"Thiago Carpini","estadio":"Baenão","cores":["#111533","#ffffff"],"jogadores":[
+  "remo": {"nome":"Remo","sigla":"REM","pais":"br","tecnico":"Thiago Carpini","estadio":"Baenão","cores":["#111533","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Clube_do_Remo.svg/120px-Clube_do_Remo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alexandre","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Matheus Alexandre","nat":"br"},
     {"n":4,"p":"Defensor","nome":"Matheus Felipe","nat":"br"},
@@ -533,7 +533,7 @@ const CLUBES_2026 = {
     {"n":97,"p":"Goleiro","nome":"Ivan","nat":"br"},
     {"n":null,"p":"Defensor","nome":"João Lucas","nat":"br"},
   ]},
-  "santos": {"nome":"Santos","sigla":"SAN","pais":"br","tecnico":"Cuca","estadio":"Vila Belmiro","cores":["#ffffff","#ffffff"],"jogadores":[
+  "santos": {"nome":"Santos","sigla":"SAN","pais":"br","tecnico":"Cuca","estadio":"Vila Belmiro","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Santos_Logo.png/120px-Santos_Logo.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Diógenes","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Vinicius Lira","nat":"br"},
     {"n":4,"p":"Defensor","nome":"Lucas Veríssimo","nat":"br"},
@@ -572,7 +572,7 @@ const CLUBES_2026 = {
     {"n":79,"p":"Goleiro","nome":"João Pedro","nat":"br"},
     {"n":81,"p":"Meio-campo","nome":"Samuel Pierri","nat":"br"},
   ]},
-  "sao-paulo": {"nome":"São Paulo","sigla":"SPA","pais":"br","tecnico":"Dorival Júnior","estadio":"| capacity = 72,039","cores":["#ffffff","#ffffff"],"jogadores":[
+  "sao-paulo": {"nome":"São Paulo","sigla":"SPA","pais":"br","tecnico":"Dorival Júnior","estadio":"| capacity = 72,039","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/S%C3%A3o_Paulo_Futebol_Clube_logo_%282022%29.svg/120px-S%C3%A3o_Paulo_Futebol_Clube_logo_%282022%29.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Rafael Tolói","nat":"it"},
     {"n":5,"p":"Defensor","nome":"Robert Arboleda","nat":"ec"},
     {"n":7,"p":"Meio-campo","nome":"Lucas Moura","nat":"br"},
@@ -612,7 +612,7 @@ const CLUBES_2026 = {
     {"n":80,"p":"Meio-campo","nome":"Cauly","nat":"br"},
     {"n":94,"p":"Meio-campo","nome":"Danielzinho","nat":"br"},
   ]},
-  "vasco": {"nome":"Vasco","sigla":"VAS","pais":"br","tecnico":"Pedro Emanuel","estadio":"São Januário","cores":["#111111","#ffffff"],"jogadores":[
+  "vasco": {"nome":"Vasco","sigla":"VAS","pais":"br","tecnico":"Pedro Emanuel","estadio":"São Januário","cores":["#111111","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a5/Club_de_Regatas_Vasco_da_Gama_logo_%282021%29.svg/120px-Club_de_Regatas_Vasco_da_Gama_logo_%282021%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Léo Jardim","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Puma Rodríguez","nat":"uy"},
     {"n":3,"p":"Meio-campo","nome":"Tchê Tchê","nat":"br"},
@@ -647,7 +647,7 @@ const CLUBES_2026 = {
     {"n":88,"p":"Meio-campo","nome":"Cauan Barros","nat":"br"},
     {"n":96,"p":"Defensor","nome":"Paulo Henrique","nat":"br"},
   ]},
-  "vitoria": {"nome":"Vitória","sigla":"VIT","pais":"br","tecnico":"Jair Ventura","estadio":"Barradão","cores":["#ff0000","#ffffff"],"jogadores":[
+  "vitoria": {"nome":"Vitória","sigla":"VIT","pais":"br","tecnico":"Jair Ventura","estadio":"Barradão","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Esporte_Clube_Vit%C3%B3ria_%282024%29.svg/120px-Esporte_Clube_Vit%C3%B3ria_%282024%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Lucas Arcanjo","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Emanuel Brítez","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Darlan","nat":"br"},
@@ -686,7 +686,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Meio-campo","nome":"Caíque Gonçalves","nat":"br"},
     {"n":98,"p":"Defensor","nome":"Mateus Silva","nat":"br"},
   ]},
-  "arsenal": {"nome":"Arsenal","sigla":"ARS","pais":"gb-eng","tecnico":"Mikel Arteta","estadio":"Emirates Stadium","cores":["#f00000","#ffffff"],"jogadores":[
+  "arsenal": {"nome":"Arsenal","sigla":"ARS","pais":"gb-eng","tecnico":"Mikel Arteta","estadio":"Emirates Stadium","cores":["#f00000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/120px-Arsenal_FC.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"David Raya","nat":"es"},
     {"n":2,"p":"Defensor","nome":"William Saliba","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Cristhian Mosquera","nat":"es"},
@@ -711,7 +711,7 @@ const CLUBES_2026 = {
     {"n":41,"p":"Meio-campo","nome":"Declan Rice","nat":"gb-eng"},
     {"n":49,"p":"Defensor","nome":"Myles Lewis-Skelly","nat":"gb-eng"},
   ]},
-  "aston-villa": {"nome":"Aston Villa","sigla":"AVL","pais":"gb-eng","tecnico":"Unai Emery","estadio":"Villa Park","cores":["#69091c","#bbd5f2"],"jogadores":[
+  "aston-villa": {"nome":"Aston Villa","sigla":"AVL","pais":"gb-eng","tecnico":"Unai Emery","estadio":"Villa Park","cores":["#69091c","#bbd5f2"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/9a/Aston_Villa_FC_new_crest.svg/120px-Aston_Villa_FC_new_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Zion Suzuki","nat":"jp"},
     {"n":2,"p":"Defensor","nome":"Matty Cash","nat":"pl"},
     {"n":3,"p":"Defensor","nome":"Victor Lindelöf","nat":"se"},
@@ -741,7 +741,7 @@ const CLUBES_2026 = {
     {"n":48,"p":"Defensor","nome":"Modou Kéba Cissé","nat":"sn"},
     {"n":53,"p":"Meio-campo","nome":"George Hemmings","nat":"gb-eng"},
   ]},
-  "bournemouth": {"nome":"Bournemouth","sigla":"BOU","pais":"gb-eng","tecnico":"Marco Rose","estadio":"Dean Court","cores":["#000000","#ffffff"],"jogadores":[
+  "bournemouth": {"nome":"Bournemouth","sigla":"BOU","pais":"gb-eng","tecnico":"Marco Rose","estadio":"Dean Court","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/e/e5/AFC_Bournemouth_%282013%29.svg/120px-AFC_Bournemouth_%282013%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Đorđe Petrović","nat":"rs"},
     {"n":2,"p":"Defensor","nome":"Julián Araujo","nat":"mx"},
     {"n":3,"p":"Defensor","nome":"Adrien Truffert","nat":"fr"},
@@ -771,7 +771,7 @@ const CLUBES_2026 = {
     {"n":37,"p":"Atacante","nome":"Rayan","nat":"br"},
     {"n":44,"p":"Defensor","nome":"Veljko Milosavljević","nat":"rs"},
   ]},
-  "brentford": {"nome":"Brentford","sigla":"BRE","pais":"gb-eng","tecnico":"Keith Andrews","estadio":"Brentford Community Stadium","cores":["#ffffff","#000000"],"jogadores":[
+  "brentford": {"nome":"Brentford","sigla":"BRE","pais":"gb-eng","tecnico":"Keith Andrews","estadio":"Brentford Community Stadium","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2a/Brentford_FC_crest.svg/120px-Brentford_FC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Caoimhín Kelleher","nat":"ie"},
     {"n":2,"p":"Defensor","nome":"Aaron Hickey","nat":"gb-sct"},
     {"n":3,"p":"Defensor","nome":"Rico Henry","nat":"jm"},
@@ -802,7 +802,7 @@ const CLUBES_2026 = {
     {"n":47,"p":"Atacante","nome":"Kaye Furo","nat":"be"},
     {"n":48,"p":"Defensor","nome":"Benjamin Fredrick","nat":"ng"},
   ]},
-  "brighton": {"nome":"Brighton","sigla":"BHA","pais":"gb-eng","tecnico":"Fabian Hürzeler","estadio":"Falmer Stadium","cores":["#1144dd","#ffffff"],"jogadores":[
+  "brighton": {"nome":"Brighton","sigla":"BHA","pais":"gb-eng","tecnico":"Fabian Hürzeler","estadio":"Falmer Stadium","cores":["#1144dd","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/d/d0/Brighton_and_Hove_Albion_FC_crest.svg/120px-Brighton_and_Hove_Albion_FC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Bart Verbruggen","nat":"nl"},
     {"n":3,"p":"Defensor","nome":"Jaouen Hadjam","nat":"dz"},
     {"n":4,"p":"Defensor","nome":"Pascal Struijk","nat":"nl"},
@@ -834,7 +834,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Meio-campo","nome":"Femi Azeez","nat":"ng"},
     {"n":44,"p":"Defensor","nome":"Luka Vušković","nat":"hr"},
   ]},
-  "chelsea": {"nome":"Chelsea","sigla":"CHE","pais":"gb-eng","tecnico":"Xabi Alonso","estadio":"Stamford Bridge","cores":["#14349b","#ffffff"],"jogadores":[
+  "chelsea": {"nome":"Chelsea","sigla":"CHE","pais":"gb-eng","tecnico":"Xabi Alonso","estadio":"Stamford Bridge","cores":["#14349b","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/120px-Chelsea_FC.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Emiliano Martínez","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Marco Palestra","nat":"it"},
     {"n":3,"p":"Defensor","nome":"Wesley Fofana","nat":"fr"},
@@ -866,7 +866,7 @@ const CLUBES_2026 = {
     {"n":44,"p":"Goleiro","nome":"Gabriel Slonina","nat":"us"},
     {"n":45,"p":"Meio-campo","nome":"Roméo Lavia","nat":"be"},
   ]},
-  "coventry-city": {"nome":"Coventry City","sigla":"COV","pais":"gb-eng","tecnico":"Frank Lampard","estadio":"Coventry Building Society Arena","cores":["#62b5e5","#ffffff"],"jogadores":[
+  "coventry-city": {"nome":"Coventry City","sigla":"COV","pais":"gb-eng","tecnico":"Frank Lampard","estadio":"Coventry Building Society Arena","cores":["#62b5e5","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/7b/Coventry_City_FC_crest.svg/120px-Coventry_City_FC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Oliver Dovin","nat":"se"},
     {"n":2,"p":"Defensor","nome":"Ethan Pinnock","nat":"jm"},
     {"n":3,"p":"Defensor","nome":"Jay Dasilva","nat":"gb-wls"},
@@ -898,7 +898,7 @@ const CLUBES_2026 = {
     {"n":38,"p":"Meio-campo","nome":"Gustavo Hamer","nat":"nl"},
     {"n":49,"p":"Atacante","nome":"Sidiki Cherif","nat":"gn"},
   ]},
-  "crystal-palace": {"nome":"Crystal Palace","sigla":"CRY","pais":"gb-eng","tecnico":"Pierre Sage","estadio":"Selhurst Park","cores":["#ffffff","#ffffff"],"jogadores":[
+  "crystal-palace": {"nome":"Crystal Palace","sigla":"CRY","pais":"gb-eng","tecnico":"Pierre Sage","estadio":"Selhurst Park","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a2/Crystal_Palace_FC_logo_%282022%29.svg/120px-Crystal_Palace_FC_logo_%282022%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Dean Henderson","nat":"gb-eng","cap":1},
     {"n":3,"p":"Defensor","nome":"Tyrick Mitchell","nat":"gb-eng"},
     {"n":4,"p":"Defensor","nome":"Chadi Riad","nat":"ma"},
@@ -928,7 +928,7 @@ const CLUBES_2026 = {
     {"n":33,"p":"Defensor","nome":"Ben Chilwell","nat":"gb-eng"},
     {"n":44,"p":"Goleiro","nome":"Walter Benítez","nat":"ar"},
   ]},
-  "everton": {"nome":"Everton","sigla":"EVE","pais":"gb-eng","tecnico":"David Moyes","estadio":"Hill Dickinson Stadium","cores":["#0000ff","#ffffff"],"jogadores":[
+  "everton": {"nome":"Everton","sigla":"EVE","pais":"gb-eng","tecnico":"David Moyes","estadio":"Hill Dickinson Stadium","cores":["#0000ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/7c/Everton_FC_logo.svg/120px-Everton_FC_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Jordan Pickford","nat":"gb-eng"},
     {"n":2,"p":"Defensor","nome":"Ainsley Maitland-Niles","nat":"gb-eng"},
     {"n":4,"p":"Defensor","nome":"Jarrad Branthwaite","nat":"gb-eng"},
@@ -951,7 +951,7 @@ const CLUBES_2026 = {
     {"n":37,"p":"Meio-campo","nome":"James Garner","nat":"gb-eng"},
     {"n":45,"p":"Meio-campo","nome":"Harrison Armstrong","nat":"gb-eng"},
   ]},
-  "fulham": {"nome":"Fulham","sigla":"FUL","pais":"gb-eng","tecnico":"Álvaro Arbeloa","estadio":"Craven Cottage","cores":["#ffffff","#000000"],"jogadores":[
+  "fulham": {"nome":"Fulham","sigla":"FUL","pais":"gb-eng","tecnico":"Álvaro Arbeloa","estadio":"Craven Cottage","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/e/eb/Fulham_FC_%28shield%29.svg/120px-Fulham_FC_%28shield%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Bernd Leno","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Kenny Tete","nat":"nl"},
     {"n":3,"p":"Defensor","nome":"Calvin Bassey","nat":"ng"},
@@ -979,7 +979,7 @@ const CLUBES_2026 = {
     {"n":33,"p":"Defensor","nome":"Antonee Robinson","nat":"us"},
     {"n":36,"p":"Goleiro","nome":"Alex Borto","nat":"us"},
   ]},
-  "hull-city": {"nome":"Hull City","sigla":"HUL","pais":"gb-eng","tecnico":"Sergej Jakirović","estadio":"MKM Stadium","cores":["#000000","#ffffff"],"jogadores":[
+  "hull-city": {"nome":"Hull City","sigla":"HUL","pais":"gb-eng","tecnico":"Sergej Jakirović","estadio":"MKM Stadium","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/54/Hull_City_A.F.C._logo.svg/120px-Hull_City_A.F.C._logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Jack Butland","nat":"gb-eng"},
     {"n":2,"p":"Defensor","nome":"Lewie Coyle","nat":"gb-eng","cap":1},
     {"n":3,"p":"Defensor","nome":"Ryan Giles","nat":"gb-eng"},
@@ -1014,7 +1014,7 @@ const CLUBES_2026 = {
     {"n":47,"p":"Atacante","nome":"Robinio Vaz","nat":"fr"},
     {"n":50,"p":"Atacante","nome":"Mohamed-Ali Cho","nat":"fr"},
   ]},
-  "ipswich-town": {"nome":"Ipswich Town","sigla":"IPS","pais":"gb-eng","tecnico":"Gary O'Neil","estadio":"Portman Road","cores":["#0333a0","#c10333"],"jogadores":[
+  "ipswich-town": {"nome":"Ipswich Town","sigla":"IPS","pais":"gb-eng","tecnico":"Gary O'Neil","estadio":"Portman Road","cores":["#0333a0","#c10333"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/4/43/Ipswich_Town.svg/120px-Ipswich_Town.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alex Palmer","nat":"gb-eng"},
     {"n":2,"p":"Defensor","nome":"Darnell Furlong","nat":"gb-eng"},
     {"n":3,"p":"Defensor","nome":"Leif Davis","nat":"gb-eng"},
@@ -1044,7 +1044,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Defensor","nome":"Abdoul Ouattara","nat":"ci"},
     {"n":47,"p":"Atacante","nome":"Jack Clarke","nat":"gb-eng"},
   ]},
-  "leeds-united": {"nome":"Leeds United","sigla":"LEE","pais":"gb-eng","tecnico":"Daniel Farke","estadio":"Elland Road","cores":["#ffffff","#1d428a"],"jogadores":[
+  "leeds-united": {"nome":"Leeds United","sigla":"LEE","pais":"gb-eng","tecnico":"Daniel Farke","estadio":"Elland Road","cores":["#ffffff","#1d428a"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/54/Leeds_United_F.C._logo.svg/120px-Leeds_United_F.C._logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"James Trafford","nat":"gb-eng"},
     {"n":2,"p":"Defensor","nome":"Jayden Bogle","nat":"gb-eng"},
     {"n":3,"p":"Defensor","nome":"Gabriel Gudmundsson","nat":"se"},
@@ -1070,7 +1070,7 @@ const CLUBES_2026 = {
     {"n":44,"p":"Meio-campo","nome":"Ilia Gruev","nat":"bg"},
     {"n":65,"p":"Defensor","nome":"Jayden Lienou","nat":"gb-wls"},
   ]},
-  "liverpool": {"nome":"Liverpool","sigla":"LIV","pais":"gb-eng","tecnico":"Andoni Iraola","estadio":"Anfield","cores":["#8f1e32","#ffffff"],"jogadores":[
+  "liverpool": {"nome":"Liverpool","sigla":"LIV","pais":"gb-eng","tecnico":"Andoni Iraola","estadio":"Anfield","cores":["#8f1e32","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/120px-Liverpool_FC.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alisson Becker","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Joe Gomez","nat":"gb-eng"},
     {"n":3,"p":"Meio-campo","nome":"Wataru Endo","nat":"jp"},
@@ -1103,7 +1103,7 @@ const CLUBES_2026 = {
     {"n":76,"p":"Atacante","nome":"Jayden Danns","nat":"gb-eng"},
     {"n":95,"p":"Goleiro","nome":"Harvey Davies","nat":"gb-eng"},
   ]},
-  "manchester-city": {"nome":"Manchester City","sigla":"MCI","pais":"gb-eng","tecnico":"Enzo Maresca","estadio":"Etihad Stadium","cores":["#98c6eb","#ffffff"],"jogadores":[
+  "manchester-city": {"nome":"Manchester City","sigla":"MCI","pais":"gb-eng","tecnico":"Enzo Maresca","estadio":"Etihad Stadium","cores":["#98c6eb","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/120px-Manchester_City_FC_badge.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Gianluigi Donnarumma","nat":"it"},
     {"n":3,"p":"Defensor","nome":"Rúben Dias","nat":"pt","cap":1},
     {"n":5,"p":"Meio-campo","nome":"Elliot Anderson","nat":"gb-eng"},
@@ -1131,7 +1131,7 @@ const CLUBES_2026 = {
     {"n":75,"p":"Meio-campo","nome":"Floyd Samba","nat":"de"},
     {"n":82,"p":"Defensor","nome":"Rico Lewis","nat":"gb-eng"},
   ]},
-  "manchester-united": {"nome":"Manchester United","sigla":"MUN","pais":"gb-eng","tecnico":"Michael Carrick","estadio":"Old Trafford","cores":["#ff0000","#ffffff"],"jogadores":[
+  "manchester-united": {"nome":"Manchester United","sigla":"MUN","pais":"gb-eng","tecnico":"Michael Carrick","estadio":"Old Trafford","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/120px-Manchester_United_FC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Senne Lammens","nat":"be"},
     {"n":2,"p":"Defensor","nome":"Diogo Dalot","nat":"pt"},
     {"n":3,"p":"Defensor","nome":"Noussair Mazraoui","nat":"ma"},
@@ -1163,7 +1163,7 @@ const CLUBES_2026 = {
     {"n":41,"p":"Defensor","nome":"Harry Amass","nat":"gb-eng"},
     {"n":45,"p":"Goleiro","nome":"Dermot Mee","nat":"gb-nir"},
   ]},
-  "newcastle": {"nome":"Newcastle","sigla":"NEW","pais":"gb-eng","tecnico":"Matthias Jaissle","estadio":"St James' Park","cores":["#ffffff","#000000"],"jogadores":[
+  "newcastle": {"nome":"Newcastle","sigla":"NEW","pais":"gb-eng","tecnico":"Matthias Jaissle","estadio":"St James' Park","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/8/87/Newcastle_United_FC_2026_crest.svg/120px-Newcastle_United_FC_2026_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Nick Pope","nat":"gb-eng"},
     {"n":2,"p":"Defensor","nome":"Tino Livramento","nat":"gb-eng"},
     {"n":3,"p":"Defensor","nome":"Lewis Hall","nat":"gb-eng"},
@@ -1191,7 +1191,7 @@ const CLUBES_2026 = {
     {"n":41,"p":"Meio-campo","nome":"Jacob Ramsey","nat":"gb-eng"},
     {"n":67,"p":"Meio-campo","nome":"Lewis Miley","nat":"gb-eng"},
   ]},
-  "nottingham-forest": {"nome":"Nottingham Forest","sigla":"NFO","pais":"gb-eng","tecnico":"Oliver Glasner","estadio":"City Ground","cores":["#d70926","#ffffff"],"jogadores":[
+  "nottingham-forest": {"nome":"Nottingham Forest","sigla":"NFO","pais":"gb-eng","tecnico":"Oliver Glasner","estadio":"City Ground","cores":["#d70926","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/e/e5/Nottingham_Forest_F.C._logo.svg/120px-Nottingham_Forest_F.C._logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Ousmane Diomande","nat":"ci"},
     {"n":3,"p":"Defensor","nome":"Neco Williams","nat":"gb-wls"},
     {"n":5,"p":"Defensor","nome":"Murillo","nat":"br"},
@@ -1217,7 +1217,7 @@ const CLUBES_2026 = {
     {"n":34,"p":"Defensor","nome":"Ola Aina","nat":"ng"},
     {"n":37,"p":"Defensor","nome":"Nicolò Savona","nat":"it"},
   ]},
-  "sunderland": {"nome":"Sunderland","sigla":"SUN","pais":"gb-eng","tecnico":"Régis Le Bris","estadio":"Stadium of Light","cores":["#ff0000","#000000"],"jogadores":[
+  "sunderland": {"nome":"Sunderland","sigla":"SUN","pais":"gb-eng","tecnico":"Régis Le Bris","estadio":"Stadium of Light","cores":["#ff0000","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/77/Logo_Sunderland.svg/120px-Logo_Sunderland.svg.png","jogadores":[
     {"n":4,"p":"Defensor","nome":"Kevin Danso","nat":"at"},
     {"n":5,"p":"Defensor","nome":"Daniel Ballard","nat":"gb-nir"},
     {"n":6,"p":"Defensor","nome":"Dayann Methalie","nat":"fr"},
@@ -1248,7 +1248,7 @@ const CLUBES_2026 = {
     {"n":50,"p":"Atacante","nome":"Juan Riquelme Angulo","nat":"ec"},
     {"n":57,"p":"Atacante","nome":"Timur Tutyerov","nat":"ua"},
   ]},
-  "tottenham": {"nome":"Tottenham","sigla":"TOT","pais":"gb-eng","tecnico":"Roberto De Zerbi","estadio":"Tottenham Hotspur Stadium","cores":["#ffffff","#ffffff"],"jogadores":[
+  "tottenham": {"nome":"Tottenham","sigla":"TOT","pais":"gb-eng","tecnico":"Roberto De Zerbi","estadio":"Tottenham Hotspur Stadium","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/b/b4/Tottenham_Hotspur.svg/120px-Tottenham_Hotspur.svg.png","jogadores":[
     {"n":3,"p":"Defensor","nome":"Andy Robertson","nat":"gb-sct"},
     {"n":4,"p":"Defensor","nome":"Tosin Adarabioyo","nat":"gb-eng"},
     {"n":5,"p":"Defensor","nome":"Marcos Senesi","nat":"ar"},
@@ -1278,7 +1278,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Goleiro","nome":"Martin Dúbravka","nat":"sk"},
     {"n":40,"p":"Goleiro","nome":"Brandon Austin","nat":"us"},
   ]},
-  "alaves": {"nome":"Alavés","sigla":"ALA","pais":"es","tecnico":"Quique Sánchez Flores","estadio":"Mendizorroza","cores":["#ffffff","#ffffff"],"jogadores":[
+  "alaves": {"nome":"Alavés","sigla":"ALA","pais":"es","tecnico":"Quique Sánchez Flores","estadio":"Mendizorroza","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f8/Deportivo_Alaves_logo_%282020%29.svg/120px-Deportivo_Alaves_logo_%282020%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Antonio Sivera","nat":"es","cap":1},
     {"n":2,"p":"Defensor","nome":"Nicolás Valentini","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Youssef Enríquez","nat":"ma"},
@@ -1307,7 +1307,7 @@ const CLUBES_2026 = {
     {"n":29,"p":"Meio-campo","nome":"Izei Hernández","nat":"es"},
     {"n":31,"p":"Goleiro","nome":"Grégoire Świderski","nat":"ca"},
   ]},
-  "athletic-bilbao": {"nome":"Athletic Bilbao","sigla":"ATH","pais":"es","tecnico":"Edin Terzić","estadio":"Estadio San Mamés","cores":["#ffffff","#000000"],"jogadores":[
+  "athletic-bilbao": {"nome":"Athletic Bilbao","sigla":"ATH","pais":"es","tecnico":"Edin Terzić","estadio":"Estadio San Mamés","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/98/Club_Athletic_Bilbao_logo.svg/120px-Club_Athletic_Bilbao_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Unai Simón","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Dani Vivian","nat":"es"},
     {"n":4,"p":"Defensor","nome":"Aitor Paredes","nat":"es"},
@@ -1335,7 +1335,7 @@ const CLUBES_2026 = {
     {"n":31,"p":"Defensor","nome":"Johaneko Louis-Jean","nat":"fr"},
     {"n":null,"p":"Defensor","nome":"Unai Egiluz","nat":"es"},
   ]},
-  "atletico-de-madrid": {"nome":"Atlético de Madrid","sigla":"ATM","pais":"es","tecnico":"Diego Simeone","estadio":"Estadio Riyadh Air Metropolitano","cores":["#ff0000","#0000ff"],"jogadores":[
+  "atletico-de-madrid": {"nome":"Atlético de Madrid","sigla":"ATM","pais":"es","tecnico":"Diego Simeone","estadio":"Estadio Riyadh Air Metropolitano","cores":["#ff0000","#0000ff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f9/Atletico_Madrid_Logo_2024.svg/120px-Atletico_Madrid_Logo_2024.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Juan Musso","nat":"ar"},
     {"n":3,"p":"Meio-campo","nome":"Obed Vargas","nat":"mx"},
     {"n":4,"p":"Meio-campo","nome":"Rodrigo Mendoza","nat":"es"},
@@ -1361,7 +1361,7 @@ const CLUBES_2026 = {
     {"n":25,"p":"Goleiro","nome":"Salvi Esquivel","nat":"es"},
     {"n":30,"p":"Defensor","nome":"Dani Martínez","nat":"es"},
   ]},
-  "barcelona": {"nome":"Barcelona","sigla":"BAR","pais":"es","tecnico":"Hansi Flick","estadio":"Camp Nou","cores":["#05003b","#ffffff"],"jogadores":[
+  "barcelona": {"nome":"Barcelona","sigla":"BAR","pais":"es","tecnico":"Hansi Flick","estadio":"Camp Nou","cores":["#05003b","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/120px-FC_Barcelona_%28crest%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Joan Garcia","nat":"es"},
     {"n":2,"p":"Defensor","nome":"João Cancelo","nat":"pt"},
     {"n":3,"p":"Defensor","nome":"Alejandro Balde","nat":"es"},
@@ -1390,7 +1390,7 @@ const CLUBES_2026 = {
     {"n":27,"p":"Atacante","nome":"Jesse Bisiwu","nat":"be"},
     {"n":29,"p":"Atacante","nome":"Hamza Abdelkarim","nat":"eg"},
   ]},
-  "celta-vigo": {"nome":"Celta Vigo","sigla":"CEL","pais":"es","tecnico":"Claudio Giráldez","estadio":"Balaídos","cores":["#8ac3ee","#ffffff"],"jogadores":[
+  "celta-vigo": {"nome":"Celta Vigo","sigla":"CEL","pais":"es","tecnico":"Claudio Giráldez","estadio":"Balaídos","cores":["#8ac3ee","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/12/RC_Celta_de_Vigo_logo.svg/120px-RC_Celta_de_Vigo_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Altay Bayındır","nat":"tr"},
     {"n":2,"p":"Defensor","nome":"Carl Starfelt","nat":"se"},
     {"n":3,"p":"Defensor","nome":"Marcos Alonso","nat":"es"},
@@ -1417,7 +1417,7 @@ const CLUBES_2026 = {
     {"n":25,"p":"Goleiro","nome":"Iván Villar","nat":"es"},
     {"n":39,"p":"Atacante","nome":"Jones El-Abdellaoui","nat":"ma"},
   ]},
-  "deportivo-a-coruna": {"nome":"Deportivo A Coruña","sigla":"DEP","pais":"es","tecnico":"Antonio Hidalgo","estadio":"Riazor","cores":["#0067b1","#ffffff"],"jogadores":[
+  "deportivo-a-coruna": {"nome":"Deportivo A Coruña","sigla":"DEP","pais":"es","tecnico":"Antonio Hidalgo","estadio":"Riazor","cores":["#0067b1","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/56/RC_Deportivo_A_Coru%C3%B1a_logo_2026.svg/120px-RC_Deportivo_A_Coru%C3%B1a_logo_2026.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Germán Parreño","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Adrià Altimira","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Arnau Comas","nat":"es"},
@@ -1445,7 +1445,7 @@ const CLUBES_2026 = {
     {"n":25,"p":"Goleiro","nome":"Álvaro Fernández","nat":"es"},
     {"n":32,"p":"Atacante","nome":"Bil Nsongo","nat":"cm"},
   ]},
-  "elche": {"nome":"Elche","sigla":"ELC","pais":"es","tecnico":"Martín Anselmi","estadio":"Estadio Martínez Valero","cores":["#ffffff","#05642c"],"jogadores":[
+  "elche": {"nome":"Elche","sigla":"ELC","pais":"es","tecnico":"Martín Anselmi","estadio":"Estadio Martínez Valero","cores":["#ffffff","#05642c"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a7/Elche_CF_logo.svg/120px-Elche_CF_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Matías Dituro","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Buba Sangaré","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Roy Revivo","nat":"il"},
@@ -1475,7 +1475,7 @@ const CLUBES_2026 = {
     {"n":32,"p":"Meio-campo","nome":"Adam Boayar","nat":"ma"},
     {"n":47,"p":"Meio-campo","nome":"Javi Morcillo","nat":"es"},
   ]},
-  "espanyol": {"nome":"Espanyol","sigla":"ESP","pais":"es","tecnico":"Manolo González","estadio":"RCDE Stadium","cores":["#007fc8","#ffffff"],"jogadores":[
+  "espanyol": {"nome":"Espanyol","sigla":"ESP","pais":"es","tecnico":"Manolo González","estadio":"RCDE Stadium","cores":["#007fc8","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/92/RCD_Espanyol_crest.svg/120px-RCD_Espanyol_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ángel Fortuño","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Andoni Gorosabel","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Quilindschy Hartman","nat":"nl"},
@@ -1502,7 +1502,7 @@ const CLUBES_2026 = {
     {"n":26,"p":"Meio-campo","nome":"Rafel Bauzà","nat":"es"},
     {"n":28,"p":"Atacante","nome":"Javi Hernández","nat":"es"},
   ]},
-  "getafe": {"nome":"Getafe","sigla":"GET","pais":"es","tecnico":"José Bordalás","estadio":"Estadio Coliseum","cores":["#0000ff","#ffffff"],"jogadores":[
+  "getafe": {"nome":"Getafe","sigla":"GET","pais":"es","tecnico":"José Bordalás","estadio":"Estadio Coliseum","cores":["#0000ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/4/46/Getafe_logo.svg/120px-Getafe_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Jiří Letáček","nat":"cz"},
     {"n":2,"p":"Defensor","nome":"Dakonam Djené","nat":"tg","cap":1},
     {"n":3,"p":"Defensor","nome":"Davinchi","nat":"es"},
@@ -1528,7 +1528,7 @@ const CLUBES_2026 = {
     {"n":26,"p":"Defensor","nome":"Jean Ives Valou","nat":"ci"},
     {"n":null,"p":"Meio-campo","nome":"Christantus Uche","nat":"ng"},
   ]},
-  "levante": {"nome":"Levante","sigla":"LEV","pais":"es","tecnico":"Luís Castro","estadio":"Estadi Ciutat de València","cores":["#222730","#661424"],"jogadores":[
+  "levante": {"nome":"Levante","sigla":"LEV","pais":"es","tecnico":"Luís Castro","estadio":"Estadi Ciutat de València","cores":["#222730","#661424"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/7b/Levante_Uni%C3%B3n_Deportiva%2C_S.A.D._logo.svg/120px-Levante_Uni%C3%B3n_Deportiva%2C_S.A.D._logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Pablo Campos","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Aïssa Mandi","nat":"dz","cap":1},
     {"n":3,"p":"Defensor","nome":"Ifeanyi Ndukwe","nat":"at"},
@@ -1555,7 +1555,7 @@ const CLUBES_2026 = {
     {"n":32,"p":"Goleiro","nome":"Álex Primo","nat":"es"},
     {"n":33,"p":"Defensor","nome":"Marc Santos","nat":"es"},
   ]},
-  "malaga": {"nome":"Málaga","sigla":"MAL","pais":"es","tecnico":"Juan Francisco Funes","estadio":"La Rosaleda","cores":["#ffffff","#103e9e"],"jogadores":[
+  "malaga": {"nome":"Málaga","sigla":"MAL","pais":"es","tecnico":"Juan Francisco Funes","estadio":"La Rosaleda","cores":["#ffffff","#103e9e"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/6/6d/M%C3%A1laga_CF.svg/120px-M%C3%A1laga_CF.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alfonso Herrero","nat":"es"},
     {"n":2,"p":"Meio-campo","nome":"Jens Cajuste","nat":"se"},
     {"n":3,"p":"Defensor","nome":"Carlos Puga","nat":"es"},
@@ -1585,7 +1585,7 @@ const CLUBES_2026 = {
     {"n":35,"p":"Meio-campo","nome":"Aarón Ochoa","nat":"ie"},
     {"n":39,"p":"Defensor","nome":"Adam Aznou","nat":"ma"},
   ]},
-  "osasuna": {"nome":"Osasuna","sigla":"OSA","pais":"es","tecnico":"Jagoba Arrasate","estadio":"Estadio El Sadar","cores":["#d91a21","#0a346f"],"jogadores":[
+  "osasuna": {"nome":"Osasuna","sigla":"OSA","pais":"es","tecnico":"Jagoba Arrasate","estadio":"Estadio El Sadar","cores":["#d91a21","#0a346f"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/3/38/CA_Osasuna_2024_crest.svg/120px-CA_Osasuna_2024_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Sergio Herrera","nat":"es","cap":1},
     {"n":5,"p":"Defensor","nome":"Jorge Herrando","nat":"es"},
     {"n":6,"p":"Meio-campo","nome":"Lucas Torró","nat":"es"},
@@ -1611,7 +1611,7 @@ const CLUBES_2026 = {
     {"n":29,"p":"Meio-campo","nome":"Asier Osambela","nat":"es"},
     {"n":48,"p":"Defensor","nome":"Rockson Yeboah","nat":"gh"},
   ]},
-  "racing-santander": {"nome":"Racing Santander","sigla":"RAC","pais":"es","tecnico":"José Alberto López","estadio":"El Sardinero","cores":["#ffffff","#000000"],"jogadores":[
+  "racing-santander": {"nome":"Racing Santander","sigla":"RAC","pais":"es","tecnico":"José Alberto López","estadio":"El Sardinero","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f5/Racing_de_Santander_logo.svg/120px-Racing_de_Santander_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Simon Eriksson","nat":"se"},
     {"n":2,"p":"Defensor","nome":"Álvaro Mantilla","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Aarón Martín","nat":"es"},
@@ -1637,7 +1637,7 @@ const CLUBES_2026 = {
     {"n":23,"p":"Meio-campo","nome":"Iván Martín","nat":"es"},
     {"n":24,"p":"Defensor","nome":"Jeanuël Belocian","nat":"fr"},
   ]},
-  "rayo-vallecano": {"nome":"Rayo Vallecano","sigla":"RAY","pais":"es","tecnico":"Beñat San José","estadio":"Vallecas Stadium","cores":["#ffffff","#ffffff"],"jogadores":[
+  "rayo-vallecano": {"nome":"Rayo Vallecano","sigla":"RAY","pais":"es","tecnico":"Beñat San José","estadio":"Vallecas Stadium","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/d/d8/Rayo_Vallecano_logo.svg/120px-Rayo_Vallecano_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Dani Cárdenas","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Andrei Rațiu","nat":"ro"},
     {"n":3,"p":"Defensor","nome":"Marash Kumbulla","nat":"al"},
@@ -1665,7 +1665,7 @@ const CLUBES_2026 = {
     {"n":36,"p":"Meio-campo","nome":"Gnangoro Bouare","nat":"es"},
     {"n":37,"p":"Meio-campo","nome":"Rayane Belaid","nat":"es"},
   ]},
-  "real-betis": {"nome":"Real Betis","sigla":"BET","pais":"es","tecnico":"Manuel Pellegrini","estadio":"Estadio La Cartuja","cores":["#359b5c","#ffffff"],"jogadores":[
+  "real-betis": {"nome":"Real Betis","sigla":"BET","pais":"es","tecnico":"Manuel Pellegrini","estadio":"Estadio La Cartuja","cores":["#359b5c","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2f/Real_Betis_2022_logo.svg/120px-Real_Betis_2022_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Álvaro Valles","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Héctor Bellerín","nat":"es","cap":1},
     {"n":3,"p":"Defensor","nome":"Diego Llorente","nat":"es"},
@@ -1692,7 +1692,7 @@ const CLUBES_2026 = {
     {"n":24,"p":"Atacante","nome":"Aitor Ruibal","nat":"es","cap":1},
     {"n":25,"p":"Meio-campo","nome":"Dani Ceballos","nat":"es"},
   ]},
-  "real-madrid": {"nome":"Real Madrid","sigla":"RMA","pais":"es","tecnico":"José Mourinho","estadio":"Bernabéu","cores":["#ffffff","#febe10"],"jogadores":[
+  "real-madrid": {"nome":"Real Madrid","sigla":"RMA","pais":"es","tecnico":"José Mourinho","estadio":"Bernabéu","cores":["#ffffff","#febe10"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/120px-Real_Madrid_CF.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Thibaut Courtois","nat":"be"},
     {"n":2,"p":"Defensor","nome":"Raúl Asencio","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Éder Militão","nat":"br"},
@@ -1720,7 +1720,7 @@ const CLUBES_2026 = {
     {"n":25,"p":"Atacante","nome":"Yan Diomande","nat":"ci"},
     {"n":27,"p":"Meio-campo","nome":"Thiago Pitarch","nat":"es"},
   ]},
-  "real-sociedad": {"nome":"Real Sociedad","sigla":"RSO","pais":"es","tecnico":"Pellegrino Matarazzo","estadio":"Reale Arena","cores":["#0042ff","#ffffff"],"jogadores":[
+  "real-sociedad": {"nome":"Real Sociedad","sigla":"RSO","pais":"es","tecnico":"Pellegrino Matarazzo","estadio":"Reale Arena","cores":["#0042ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f1/Real_Sociedad_logo.svg/120px-Real_Sociedad_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Álex Remiro","nat":"es"},
     {"n":2,"p":"Defensor","nome":"Jon Aramburu","nat":"ve"},
     {"n":3,"p":"Defensor","nome":"Aihen Muñoz","nat":"es"},
@@ -1746,7 +1746,7 @@ const CLUBES_2026 = {
     {"n":23,"p":"Meio-campo","nome":"Arsen Zakharyan","nat":"ru"},
     {"n":24,"p":"Meio-campo","nome":"Luka Sučić","nat":"hr"},
   ]},
-  "sevilla": {"nome":"Sevilla","sigla":"SEV","pais":"es","tecnico":"Luis García Plaza","estadio":"Estadio Ramón Sánchez-Pizjuán","cores":["#ffffff","#e20001"],"jogadores":[
+  "sevilla": {"nome":"Sevilla","sigla":"SEV","pais":"es","tecnico":"Luis García Plaza","estadio":"Estadio Ramón Sánchez-Pizjuán","cores":["#ffffff","#e20001"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/3/3b/Sevilla_FC_logo.svg/120px-Sevilla_FC_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Odysseas Vlachodimos","nat":"gr"},
     {"n":2,"p":"Defensor","nome":"Juan Iglesias","nat":"es"},
     {"n":3,"p":"Defensor","nome":"Julio Díaz","nat":"es"},
@@ -1774,7 +1774,7 @@ const CLUBES_2026 = {
     {"n":30,"p":"Atacante","nome":"Miguel Sierra","nat":"es"},
     {"n":33,"p":"Goleiro","nome":"Rafa Romero","nat":"es"},
   ]},
-  "valencia": {"nome":"Valencia","sigla":"VAL","pais":"es","tecnico":"Javier Aguirre","estadio":"Mestalla","cores":["#ffffff","#000000"],"jogadores":[
+  "valencia": {"nome":"Valencia","sigla":"VAL","pais":"es","tecnico":"Javier Aguirre","estadio":"Mestalla","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/ce/Valenciacf.svg/120px-Valenciacf.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Stole Dimitrievski","nat":"mk"},
     {"n":2,"p":"Meio-campo","nome":"Guido Rodríguez","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"José Copete","nat":"es"},
@@ -1801,7 +1801,7 @@ const CLUBES_2026 = {
     {"n":25,"p":"Goleiro","nome":"Kayne van Oevelen","nat":"nl"},
     {"n":39,"p":"Meio-campo","nome":"Ryūnosuke Satō","nat":"jp"},
   ]},
-  "villarreal": {"nome":"Villarreal","sigla":"VIL","pais":"es","tecnico":"Iñigo Pérez","estadio":"Estadio de la Cerámica","cores":["#ffff00","#ffffff"],"jogadores":[
+  "villarreal": {"nome":"Villarreal","sigla":"VIL","pais":"es","tecnico":"Iñigo Pérez","estadio":"Estadio de la Cerámica","cores":["#ffff00","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/b/b9/Villarreal_CF_logo-en.svg/120px-Villarreal_CF_logo-en.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Luiz Júnior","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Logan Costa","nat":"cv"},
     {"n":3,"p":"Defensor","nome":"Alex Freeman","nat":"us"},
@@ -1827,7 +1827,7 @@ const CLUBES_2026 = {
     {"n":24,"p":"Meio-campo","nome":"Nathan Saliba","nat":"ca"},
     {"n":25,"p":"Goleiro","nome":"Péter Gulácsi","nat":"hu"},
   ]},
-  "atalanta": {"nome":"Atalanta","sigla":"ATA","pais":"it","tecnico":"Maurizio Sarri","estadio":"New Balance Arena","cores":["#1e71b8","#111111"],"jogadores":[
+  "atalanta": {"nome":"Atalanta","sigla":"ATA","pais":"it","tecnico":"Maurizio Sarri","estadio":"New Balance Arena","cores":["#1e71b8","#111111"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f2/Atalanta_BC_new_logo.svg/120px-Atalanta_BC_new_logo.svg.png","jogadores":[
     {"n":3,"p":"Defensor","nome":"Odilon Kossounou","nat":"ci"},
     {"n":4,"p":"Defensor","nome":"Isak Hien","nat":"se"},
     {"n":7,"p":"Atacante","nome":"Kamaldeen Sulemana","nat":"gh"},
@@ -1854,7 +1854,7 @@ const CLUBES_2026 = {
     {"n":90,"p":"Atacante","nome":"Nikola Krstović","nat":"me"},
     {"n":99,"p":"Meio-campo","nome":"Eljif Elmas","nat":"mk"},
   ]},
-  "bologna": {"nome":"Bologna","sigla":"BOL","pais":"it","tecnico":"Raffaele Palladino","estadio":"Stadio Renato Dall'Ara","cores":["#00003c","#ffffff"],"jogadores":[
+  "bologna": {"nome":"Bologna","sigla":"BOL","pais":"it","tecnico":"Raffaele Palladino","estadio":"Stadio Renato Dall'Ara","cores":["#00003c","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Bologna_F.C._1909_logo.svg/120px-Bologna_F.C._1909_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Łukasz Skorupski","nat":"pl"},
     {"n":2,"p":"Defensor","nome":"Emil Holm","nat":"se"},
     {"n":3,"p":"Defensor","nome":"Arthur Theate","nat":"be"},
@@ -1884,7 +1884,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Goleiro","nome":"Ukko Happonen","nat":"fi"},
     {"n":91,"p":"Atacante","nome":"Roberto Piccoli","nat":"it"},
   ]},
-  "cagliari": {"nome":"Cagliari","sigla":"CAG","pais":"it","tecnico":"Fabio Pisacane","estadio":"Unipol Domus","cores":["#022249","#ffffff"],"jogadores":[
+  "cagliari": {"nome":"Cagliari","sigla":"CAG","pais":"it","tecnico":"Fabio Pisacane","estadio":"Unipol Domus","cores":["#022249","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/6/61/Cagliari_Calcio_1920.svg/120px-Cagliari_Calcio_1920.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Elia Caprile","nat":"it"},
     {"n":2,"p":"Defensor","nome":"Zé Pedro","nat":"pt"},
     {"n":3,"p":"Defensor","nome":"Riyad Idrissi","nat":"it"},
@@ -1917,7 +1917,7 @@ const CLUBES_2026 = {
     {"n":70,"p":"Atacante","nome":"Daniel Maldini","nat":"it"},
     {"n":79,"p":"Meio-campo","nome":"Yanis Massolin","nat":"fr"},
   ]},
-  "como": {"nome":"Como","sigla":"COM","pais":"it","tecnico":"Cesc Fàbregas","estadio":"Stadio Giuseppe Sinigaglia","cores":["#215aae","#ffffff"],"jogadores":[
+  "como": {"nome":"Como","sigla":"COM","pais":"it","tecnico":"Cesc Fàbregas","estadio":"Stadio Giuseppe Sinigaglia","cores":["#215aae","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg/120px-Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Jean Butez","nat":"fr"},
     {"n":2,"p":"Defensor","nome":"Marc-Oliver Kempf","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Álex Valle","nat":"es"},
@@ -1946,7 +1946,7 @@ const CLUBES_2026 = {
     {"n":97,"p":"Goleiro","nome":"Robert Sánchez","nat":"es"},
     {"n":99,"p":"Defensor","nome":"Trevoh Chalobah","nat":"gb-eng"},
   ]},
-  "fiorentina": {"nome":"Fiorentina","sigla":"FIO","pais":"it","tecnico":"Paolo Vanoli","estadio":"Stadio Artemio Franchi","cores":["#552a79","#ffffff"],"jogadores":[
+  "fiorentina": {"nome":"Fiorentina","sigla":"FIO","pais":"it","tecnico":"Paolo Vanoli","estadio":"Stadio Artemio Franchi","cores":["#552a79","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/ACF_Fiorentina_-_logo_%28Italy%2C_2022%29.svg/120px-ACF_Fiorentina_-_logo_%28Italy%2C_2022%29.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Dodô","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Radu Drăgușin","nat":"ro"},
     {"n":4,"p":"Meio-campo","nome":"Marco Brescianini","nat":"it"},
@@ -1971,7 +1971,7 @@ const CLUBES_2026 = {
     {"n":53,"p":"Goleiro","nome":"Oliver Christensen","nat":"dk"},
     {"n":65,"p":"Defensor","nome":"Fabiano Parisi","nat":"it"},
   ]},
-  "frosinone": {"nome":"Frosinone","sigla":"FRO","pais":"it","tecnico":"Massimiliano Alvini","estadio":"Stadio Benito Stirpe","cores":["#f5d661","#ffffff"],"jogadores":[
+  "frosinone": {"nome":"Frosinone","sigla":"FRO","pais":"it","tecnico":"Massimiliano Alvini","estadio":"Stadio Benito Stirpe","cores":["#f5d661","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/0b/Frosinone_Calcio_logo.svg/120px-Frosinone_Calcio_logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Giorgio Cittadini","nat":"it"},
     {"n":3,"p":"Defensor","nome":"Gabriele Calvani","nat":"it"},
     {"n":4,"p":"Meio-campo","nome":"Ben Lhassine Kone","nat":"ci"},
@@ -2003,7 +2003,7 @@ const CLUBES_2026 = {
     {"n":96,"p":"Meio-campo","nome":"Francesco Gelli","nat":"it"},
     {"n":null,"p":"Goleiro","nome":"Eldin Lolić","nat":"ba"},
   ]},
-  "genoa": {"nome":"Genoa","sigla":"GEN","pais":"it","tecnico":"Daniele De Rossi","estadio":"Stadio Luigi Ferraris","cores":["#ffffff","#000040"],"jogadores":[
+  "genoa": {"nome":"Genoa","sigla":"GEN","pais":"it","tecnico":"Daniele De Rossi","estadio":"Stadio Luigi Ferraris","cores":["#ffffff","#000040"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2c/Genoa_CFC_crest.svg/120px-Genoa_CFC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Justin Bijlow","nat":"nl"},
     {"n":2,"p":"Defensor","nome":"Mario Mitaj","nat":"al"},
     {"n":3,"p":"Defensor","nome":"Kingsley Ehizibue","nat":"nl"},
@@ -2033,7 +2033,7 @@ const CLUBES_2026 = {
     {"n":97,"p":"Meio-campo","nome":"Djibril Sow","nat":"ch"},
     {"n":99,"p":"Goleiro","nome":"Franz Stolz","nat":"at"},
   ]},
-  "inter-de-milao": {"nome":"Inter de Milão","sigla":"INT","pais":"it","tecnico":"Cristian Chivu","estadio":"San Siro","cores":["#000000","#ffffff"],"jogadores":[
+  "inter-de-milao": {"nome":"Inter de Milão","sigla":"INT","pais":"it","tecnico":"Cristian Chivu","estadio":"San Siro","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/FC_Internazionale_Milano_2021.svg/120px-FC_Internazionale_Milano_2021.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Josep Martínez","nat":"es"},
     {"n":5,"p":"Meio-campo","nome":"Aleksandar Stanković","nat":"rs"},
     {"n":6,"p":"Defensor","nome":"John Stones","nat":"gb-eng"},
@@ -2059,7 +2059,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Defensor","nome":"Alessandro Bastoni","nat":"it"},
     {"n":99,"p":"Defensor","nome":"Djed Spence","nat":"gb-eng"},
   ]},
-  "juventus": {"nome":"Juventus","sigla":"JUV","pais":"it","tecnico":"Luciano Spalletti","estadio":"Juventus Stadium","cores":["#111111","#ffffff"],"jogadores":[
+  "juventus": {"nome":"Juventus","sigla":"JUV","pais":"it","tecnico":"Luciano Spalletti","estadio":"Juventus Stadium","cores":["#111111","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Juventus_FC_-_logo_black_%28Italy%2C_2020%29.svg/120px-Juventus_FC_-_logo_black_%28Italy%2C_2020%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Kamil Grabara","nat":"pl"},
     {"n":2,"p":"Defensor","nome":"Zeki Çelik","nat":"tr"},
     {"n":3,"p":"Defensor","nome":"Bremer","nat":"br"},
@@ -2090,7 +2090,7 @@ const CLUBES_2026 = {
     {"n":32,"p":"Defensor","nome":"Juan Cabal","nat":"co"},
     {"n":33,"p":"Goleiro","nome":"Neto","nat":"br"},
   ]},
-  "lazio": {"nome":"Lazio","sigla":"LAZ","pais":"it","tecnico":"Gennaro Gattuso","estadio":"Stadio Olimpico","cores":["#88bff7","#ffffff"],"jogadores":[
+  "lazio": {"nome":"Lazio","sigla":"LAZ","pais":"it","tecnico":"Gennaro Gattuso","estadio":"Stadio Olimpico","cores":["#88bff7","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/ce/S.S._Lazio_badge.svg/120px-S.S._Lazio_badge.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Diogo Leite","nat":"pt"},
     {"n":3,"p":"Defensor","nome":"Luca Pellegrini","nat":"it"},
     {"n":5,"p":"Defensor","nome":"Danilho Doekhi","nat":"nl"},
@@ -2123,7 +2123,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Defensor","nome":"Adam Marušić","nat":"me"},
     {"n":80,"p":"Atacante","nome":"Albert Guðmundsson","nat":"is"},
   ]},
-  "lecce": {"nome":"Lecce","sigla":"LEC","pais":"it","tecnico":"Eusebio Di Francesco","estadio":"Stadio Via del mare","cores":["#ffff00","#000055"],"jogadores":[
+  "lecce": {"nome":"Lecce","sigla":"LEC","pais":"it","tecnico":"Eusebio Di Francesco","estadio":"Stadio Via del mare","cores":["#ffff00","#000055"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/23/US_Lecce_crest.svg/120px-US_Lecce_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Marco Bleve","nat":"it"},
     {"n":2,"p":"Defensor","nome":"Ali Dembélé","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Corrie Ndaba","nat":"ie"},
@@ -2153,7 +2153,7 @@ const CLUBES_2026 = {
     {"n":80,"p":"Meio-campo","nome":"Niko Kovač","nat":"ba"},
     {"n":99,"p":"Atacante","nome":"Joël Monteiro","nat":"ch"},
   ]},
-  "milan": {"nome":"Milan","sigla":"MIL","pais":"it","tecnico":"Ruben Amorim","estadio":"San Siro","cores":["#000000","#ffffff"],"jogadores":[
+  "milan": {"nome":"Milan","sigla":"MIL","pais":"it","tecnico":"Ruben Amorim","estadio":"San Siro","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Logo_of_AC_Milan.svg/120px-Logo_of_AC_Milan.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Pietro Terracciano","nat":"it"},
     {"n":2,"p":"Defensor","nome":"Pervis Estupiñán","nat":"ec"},
     {"n":5,"p":"Defensor","nome":"Koni De Winter","nat":"be"},
@@ -2182,7 +2182,7 @@ const CLUBES_2026 = {
     {"n":80,"p":"Meio-campo","nome":"Yunus Musah","nat":"us"},
     {"n":96,"p":"Goleiro","nome":"Lorenzo Torriani","nat":"it"},
   ]},
-  "monza": {"nome":"Monza","sigla":"MON","pais":"it","tecnico":"Ivan Jurić","estadio":"Stadio Brianteo","cores":["#ff0000","#ffffff"],"jogadores":[
+  "monza": {"nome":"Monza","sigla":"MON","pais":"it","tecnico":"Ivan Jurić","estadio":"Stadio Brianteo","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a7/AC_Monza_logo_%282021%29.svg/120px-AC_Monza_logo_%282021%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Noel Törnqvist","nat":"se"},
     {"n":2,"p":"Defensor","nome":"Saba Goglichidze","nat":"ge"},
     {"n":3,"p":"Defensor","nome":"Lorenzo Lucchesi","nat":"it"},
@@ -2215,7 +2215,7 @@ const CLUBES_2026 = {
     {"n":80,"p":"Meio-campo","nome":"Mathis Mout","nat":"it"},
     {"n":90,"p":"Meio-campo","nome":"Michael Folorunsho","nat":"it"},
   ]},
-  "napoli": {"nome":"Napoli","sigla":"NAP","pais":"it","tecnico":"Massimiliano Allegri","estadio":"Stadio Diego Armando Maradona","cores":["#a15f8e","#ffffff"],"jogadores":[
+  "napoli": {"nome":"Napoli","sigla":"NAP","pais":"it","tecnico":"Massimiliano Allegri","estadio":"Stadio Diego Armando Maradona","cores":["#a15f8e","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/SSC_Napoli_2025_%28white_and_azure%29.svg/120px-SSC_Napoli_2025_%28white_and_azure%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alex Meret","nat":"it"},
     {"n":2,"p":"Defensor","nome":"Costantino Favasuli","nat":"it"},
     {"n":4,"p":"Defensor","nome":"Alessandro Buongiorno","nat":"it"},
@@ -2244,7 +2244,7 @@ const CLUBES_2026 = {
     {"n":70,"p":"Atacante","nome":"Noa Lang","nat":"nl"},
     {"n":99,"p":"Meio-campo","nome":"Frank Anguissa","nat":"cm"},
   ]},
-  "parma": {"nome":"Parma","sigla":"PAR","pais":"it","tecnico":"Alberto Gilardino","estadio":"Stadio Ennio Tardini","cores":["#ffffff","#000000"],"jogadores":[
+  "parma": {"nome":"Parma","sigla":"PAR","pais":"it","tecnico":"Alberto Gilardino","estadio":"Stadio Ennio Tardini","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Logo_Parma_Calcio_1913_%28adozione_2016%29.svg/120px-Logo_Parma_Calcio_1913_%28adozione_2016%29.svg.png","jogadores":[
     {"n":3,"p":"Defensor","nome":"Abdoulaye Ndiaye","nat":"sn"},
     {"n":4,"p":"Meio-campo","nome":"Vincent Sierro","nat":"ch"},
     {"n":5,"p":"Defensor","nome":"Lautaro Valenti","nat":"ar"},
@@ -2274,7 +2274,7 @@ const CLUBES_2026 = {
     {"n":76,"p":"Meio-campo","nome":"Simone Lontani","nat":"it"},
     {"n":80,"p":"Meio-campo","nome":"Giovanni Fabbian","nat":"it"},
   ]},
-  "roma": {"nome":"Roma","sigla":"ROM","pais":"it","tecnico":"Gian Piero Gasperini","estadio":"Stadio Olimpico","cores":["#980729","#681f30"],"jogadores":[
+  "roma": {"nome":"Roma","sigla":"ROM","pais":"it","tecnico":"Gian Piero Gasperini","estadio":"Stadio Olimpico","cores":["#980729","#681f30"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f7/AS_Roma_logo_%282017%29.svg/120px-AS_Roma_logo_%282017%29.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Devyne Rensch","nat":"nl"},
     {"n":3,"p":"Defensor","nome":"Konstantinos Koulierakis","nat":"gr"},
     {"n":4,"p":"Meio-campo","nome":"Bryan Cristante","nat":"it","cap":1},
@@ -2301,7 +2301,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Goleiro","nome":"Pierluigi Gollini","nat":"it"},
     {"n":99,"p":"Goleiro","nome":"Mile Svilar","nat":"rs"},
   ]},
-  "sassuolo": {"nome":"Sassuolo","sigla":"SAS","pais":"it","tecnico":"Alberto Aquilani","estadio":"Mapei Stadium – Città del Tricolore","cores":["#00a746","#000000"],"jogadores":[
+  "sassuolo": {"nome":"Sassuolo","sigla":"SAS","pais":"it","tecnico":"Alberto Aquilani","estadio":"Mapei Stadium – Città del Tricolore","cores":["#00a746","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/1c/US_Sassuolo_Calcio_logo.svg/120px-US_Sassuolo_Calcio_logo.svg.png","jogadores":[
     {"n":3,"p":"Defensor","nome":"Josh Doig","nat":"gb-sct"},
     {"n":5,"p":"Defensor","nome":"Fali Candé","nat":"gw"},
     {"n":6,"p":"Defensor","nome":"Sebastian Walukiewicz","nat":"pl"},
@@ -2336,7 +2336,7 @@ const CLUBES_2026 = {
     {"n":90,"p":"Meio-campo","nome":"Ismaël Koné","nat":"ca"},
     {"n":94,"p":"Atacante","nome":"Sebastiano Esposito","nat":"it"},
   ]},
-  "torino": {"nome":"Torino","sigla":"TOR","pais":"it","tecnico":"Ignazio Abate","estadio":"Stadio Olimpico Grande Torino","cores":["#65001b","#c16500"],"jogadores":[
+  "torino": {"nome":"Torino","sigla":"TOR","pais":"it","tecnico":"Ignazio Abate","estadio":"Stadio Olimpico Grande Torino","cores":["#65001b","#c16500"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2e/Torino_FC_Logo.svg/120px-Torino_FC_Logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Nathan Patterson","nat":"gb-sct"},
     {"n":3,"p":"Defensor","nome":"Cristiano Biraghi","nat":"it"},
     {"n":5,"p":"Defensor","nome":"Eray Cömert","nat":"ch"},
@@ -2367,7 +2367,7 @@ const CLUBES_2026 = {
     {"n":81,"p":"Goleiro","nome":"Franco Israel","nat":"uy"},
     {"n":91,"p":"Atacante","nome":"Duván Zapata","nat":"co","cap":1},
   ]},
-  "udinese": {"nome":"Udinese","sigla":"UDI","pais":"it","tecnico":"Kosta Runjaić","estadio":"Bluenergy Stadium - Stadio Friuli","cores":["#aea1de","#000000"],"jogadores":[
+  "udinese": {"nome":"Udinese","sigla":"UDI","pais":"it","tecnico":"Kosta Runjaić","estadio":"Bluenergy Stadium - Stadio Friuli","cores":["#aea1de","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/ce/Udinese_Calcio_logo.svg/120px-Udinese_Calcio_logo.svg.png","jogadores":[
     {"n":4,"p":"Meio-campo","nome":"Sandi Lovrić","nat":"si"},
     {"n":5,"p":"Defensor","nome":"David Alaba","nat":"at"},
     {"n":6,"p":"Meio-campo","nome":"Oier Zarraga","nat":"es"},
@@ -2397,7 +2397,7 @@ const CLUBES_2026 = {
     {"n":91,"p":"Atacante","nome":"Lazar Jovanović","nat":"rs"},
     {"n":93,"p":"Goleiro","nome":"Daniele Padelli","nat":"it"},
   ]},
-  "venezia": {"nome":"Venezia","sigla":"VEN","pais":"it","tecnico":"Davide Nicola","estadio":"Stadio Pier Luigi Penzo","cores":["#000000","#ffffff"],"jogadores":[
+  "venezia": {"nome":"Venezia","sigla":"VEN","pais":"it","tecnico":"Davide Nicola","estadio":"Stadio Pier Luigi Penzo","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/3/39/Venezia_FC_crest.svg/120px-Venezia_FC_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Filip Stanković","nat":"rs"},
     {"n":2,"p":"Defensor","nome":"Matías Moreno","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Joël Schingtienne","nat":"be"},
@@ -2434,7 +2434,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Defensor","nome":"Ale Gomes","nat":"es"},
     {"n":96,"p":"Goleiro","nome":"Lorenzo Montipò","nat":"it"},
   ]},
-  "fc-augsburg": {"nome":"FC Augsburg","sigla":"AUG","pais":"de","tecnico":"Manuel Baum","estadio":"WWK Arena","cores":["#ede6dc","#680f00"],"jogadores":[
+  "fc-augsburg": {"nome":"FC Augsburg","sigla":"AUG","pais":"de","tecnico":"Manuel Baum","estadio":"WWK Arena","cores":["#ede6dc","#680f00"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/c5/FC_Augsburg_logo.svg/120px-FC_Augsburg_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Finn Dahmen","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Calvin Brackelmann","nat":"de"},
     {"n":4,"p":"Meio-campo","nome":"Han-Noah Massengo","nat":"fr"},
@@ -2464,7 +2464,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Meio-campo","nome":"Mahmut Küçükşahin","nat":"tr"},
     {"n":48,"p":"Goleiro","nome":"Tom Wisbereit","nat":"de"},
   ]},
-  "union-berlin": {"nome":"Union Berlin","sigla":"UNB","pais":"de","tecnico":"Mauro Lustrinelli","estadio":"Stadion An der Alten Försterei","cores":["#ff0000","#ffffff"],"jogadores":[
+  "union-berlin": {"nome":"Union Berlin","sigla":"UNB","pais":"de","tecnico":"Mauro Lustrinelli","estadio":"Stadion An der Alten Försterei","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/1._FC_Union_Berlin_Logo.svg/120px-1._FC_Union_Berlin_Logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Frederik Rønnow","nat":"dk"},
     {"n":2,"p":"Defensor","nome":"Felix Uduokhai","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Andrik Markgraf","nat":"de"},
@@ -2496,7 +2496,7 @@ const CLUBES_2026 = {
     {"n":38,"p":"Atacante","nome":"Julien Friedrich","nat":"de"},
     {"n":49,"p":"Meio-campo","nome":"Linus Güther","nat":"de"},
   ]},
-  "werder-bremen": {"nome":"Werder Bremen","sigla":"SVW","pais":"de","tecnico":"Daniel Thioune","estadio":"Weserstadion","cores":["#ffffff","#009a59"],"jogadores":[
+  "werder-bremen": {"nome":"Werder Bremen","sigla":"SVW","pais":"de","tecnico":"Daniel Thioune","estadio":"Weserstadion","cores":["#ffffff","#009a59"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/SV-Werder-Bremen-Logo.svg/120px-SV-Werder-Bremen-Logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Karl Hein","nat":"ee"},
     {"n":2,"p":"Defensor","nome":"Olivier Deman","nat":"be"},
     {"n":3,"p":"Defensor","nome":"Oskar Wójcik","nat":"pl"},
@@ -2531,7 +2531,7 @@ const CLUBES_2026 = {
     {"n":38,"p":"Atacante","nome":"Paul Erevbenagie","nat":"de"},
     {"n":44,"p":"Meio-campo","nome":"Youri Regeer","nat":"nl"},
   ]},
-  "borussia-dortmund": {"nome":"Borussia Dortmund","sigla":"DOR","pais":"de","tecnico":"Niko Kovač","estadio":"Signal Iduna Park","cores":["#ffe300","#000000"],"jogadores":[
+  "borussia-dortmund": {"nome":"Borussia Dortmund","sigla":"DOR","pais":"de","tecnico":"Niko Kovač","estadio":"Signal Iduna Park","cores":["#ffe300","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/120px-Borussia_Dortmund_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Gregor Kobel","nat":"ch"},
     {"n":3,"p":"Defensor","nome":"Waldemar Anton","nat":"de"},
     {"n":4,"p":"Defensor","nome":"Nico Schlotterbeck","nat":"de"},
@@ -2563,7 +2563,7 @@ const CLUBES_2026 = {
     {"n":48,"p":"Meio-campo","nome":"Mussa Kaba","nat":"de"},
     {"n":49,"p":"Defensor","nome":"Luca Reggiani","nat":"it"},
   ]},
-  "sv-elversberg": {"nome":"SV Elversberg","sigla":"ELV","pais":"de","tecnico":"Vincent Wagner","estadio":"Ursapharm-Arena","cores":["#ffffff","#ffffff"],"jogadores":[
+  "sv-elversberg": {"nome":"SV Elversberg","sigla":"ELV","pais":"de","tecnico":"Vincent Wagner","estadio":"Ursapharm-Arena","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/SV_Elversberg_Logo_2021.svg/120px-SV_Elversberg_Logo_2021.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Frank Lehmann","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Nicholas Mickelson","nat":"th"},
     {"n":3,"p":"Defensor","nome":"Florian Le Joncour","nat":"fr"},
@@ -2592,7 +2592,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Atacante","nome":"David Mokwa","nat":"fr"},
     {"n":43,"p":"Defensor","nome":"Felix Keidel","nat":"de"},
   ]},
-  "eintracht-frankfurt": {"nome":"Eintracht Frankfurt","sigla":"FRA","pais":"de","tecnico":"Adi Hütter","estadio":"Deutsche Bank Park","cores":["#000000","#ffffff"],"jogadores":[
+  "eintracht-frankfurt": {"nome":"Eintracht Frankfurt","sigla":"FRA","pais":"de","tecnico":"Adi Hütter","estadio":"Deutsche Bank Park","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/7/7e/Eintracht_Frankfurt_crest.svg/120px-Eintracht_Frankfurt_crest.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Noah Atubolu","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Elias Baum","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Lilian Brassier","nat":"fr"},
@@ -2620,7 +2620,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Atacante","nome":"Can Uzun","nat":"tr"},
     {"n":44,"p":"Atacante","nome":"Jessic Ngankam","nat":"de"},
   ]},
-  "sc-freiburg": {"nome":"SC Freiburg","sigla":"FRE","pais":"de","tecnico":"Julian Schuster","estadio":"Europa-Park Stadion","cores":["#fe0000","#ffffff"],"jogadores":[
+  "sc-freiburg": {"nome":"SC Freiburg","sigla":"FRE","pais":"de","tecnico":"Julian Schuster","estadio":"Europa-Park Stadion","cores":["#fe0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/6/6d/SC_Freiburg_logo.svg/120px-SC_Freiburg_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Mio Backhaus","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Philipp Lienhart","nat":"at"},
     {"n":5,"p":"Defensor","nome":"Anthony Jung","nat":"de"},
@@ -2649,7 +2649,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Atacante","nome":"Keisuke Gotō","nat":"jp"},
     {"n":43,"p":"Defensor","nome":"Bruno Ogbus","nat":"ch"},
   ]},
-  "hamburger-sv": {"nome":"Hamburger SV","sigla":"HAM","pais":"de","tecnico":"Merlin Polzin","estadio":"Volksparkstadion","cores":["#ffffff","#ff0000"],"jogadores":[
+  "hamburger-sv": {"nome":"Hamburger SV","sigla":"HAM","pais":"de","tecnico":"Merlin Polzin","estadio":"Volksparkstadion","cores":["#ffffff","#ff0000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Hamburger_SV_logo.svg/120px-Hamburger_SV_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Daniel Heuer Fernandes","nat":"pt"},
     {"n":3,"p":"Defensor","nome":"David Møller Wolfe","nat":"no"},
     {"n":4,"p":"Meio-campo","nome":"Bilal Nadir","nat":"ma"},
@@ -2679,7 +2679,7 @@ const CLUBES_2026 = {
     {"n":41,"p":"Goleiro","nome":"Fernando Dickes","nat":"de"},
     {"n":43,"p":"Defensor","nome":"Shafiq Nandja","nat":"de"},
   ]},
-  "tsg-hoffenheim": {"nome":"TSG Hoffenheim","sigla":"HOF","pais":"de","tecnico":"Christian Ilzer","estadio":"SNP Arena","cores":["#0000ff","#ffffff"],"jogadores":[
+  "tsg-hoffenheim": {"nome":"TSG Hoffenheim","sigla":"HOF","pais":"de","tecnico":"Christian Ilzer","estadio":"SNP Arena","cores":["#0000ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Logo_TSG_Hoffenheim.svg/120px-Logo_TSG_Hoffenheim.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Oliver Baumann","nat":"de","cap":1},
     {"n":2,"p":"Defensor","nome":"Robin Hranáč","nat":"cz"},
     {"n":4,"p":"Defensor","nome":"Sean Dulic","nat":"de"},
@@ -2708,7 +2708,7 @@ const CLUBES_2026 = {
     {"n":37,"p":"Goleiro","nome":"Luca Philipp","nat":"de"},
     {"n":39,"p":"Defensor","nome":"Mats Rots","nat":"nl"},
   ]},
-  "1-fc-koln": {"nome":"1. FC Köln","sigla":"KÖL","pais":"de","tecnico":"René Wagner","estadio":"RheinEnergieStadion","cores":["#ffffff","#ffffff"],"jogadores":[
+  "1-fc-koln": {"nome":"1. FC Köln","sigla":"KÖL","pais":"de","tecnico":"René Wagner","estadio":"RheinEnergieStadion","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/1._FC_Koeln_Logo_2014%E2%80%93.svg/120px-1._FC_Koeln_Logo_2014%E2%80%93.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Marvin Schwäbe","nat":"de","cap":1},
     {"n":2,"p":"Defensor","nome":"Joël Schmied","nat":"ch"},
     {"n":3,"p":"Defensor","nome":"Borna Sosa","nat":"hr"},
@@ -2741,7 +2741,7 @@ const CLUBES_2026 = {
     {"n":47,"p":"Atacante","nome":"Mikey Moore","nat":"gb-eng"},
     {"n":49,"p":"Meio-campo","nome":"David Fürst","nat":"de"},
   ]},
-  "rb-leipzig": {"nome":"RB Leipzig","sigla":"LEI","pais":"de","tecnico":"Martín Demichelis","estadio":"Red Bull Arena","cores":["#ffffff","#ff0000"],"jogadores":[
+  "rb-leipzig": {"nome":"RB Leipzig","sigla":"LEI","pais":"de","tecnico":"Martín Demichelis","estadio":"Red Bull Arena","cores":["#ffffff","#ff0000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/04/RB_Leipzig_2014_logo.svg/120px-RB_Leipzig_2014_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ørjan Nyland","nat":"no"},
     {"n":2,"p":"Defensor","nome":"Abdoul Koné","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Maxime Estève","nat":"fr"},
@@ -2772,7 +2772,7 @@ const CLUBES_2026 = {
     {"n":45,"p":"Atacante","nome":"Samba Konaté","nat":"fr"},
     {"n":47,"p":"Meio-campo","nome":"Viggo Gebel","nat":"de"},
   ]},
-  "bayer-leverkusen": {"nome":"Bayer Leverkusen","sigla":"B04","pais":"de","tecnico":"Carles Martínez Novell","estadio":"BayArena","cores":["#000000","#ffffff"],"jogadores":[
+  "bayer-leverkusen": {"nome":"Bayer Leverkusen","sigla":"B04","pais":"de","tecnico":"Carles Martínez Novell","estadio":"BayArena","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/59/Bayer_04_Leverkusen_logo.svg/120px-Bayer_04_Leverkusen_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Mark Flekken","nat":"nl"},
     {"n":2,"p":"Defensor","nome":"Facundo Medina","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Miguel Gutiérrez","nat":"es"},
@@ -2801,7 +2801,7 @@ const CLUBES_2026 = {
     {"n":36,"p":"Goleiro","nome":"Niklas Lomb","nat":"de"},
     {"n":42,"p":"Meio-campo","nome":"Montrell Culbreath","nat":"de"},
   ]},
-  "mainz-05": {"nome":"Mainz 05","sigla":"MAI","pais":"de","tecnico":"Urs Fischer","estadio":"MEWA Arena","cores":["#ff0000","#ffffff"],"jogadores":[
+  "mainz-05": {"nome":"Mainz 05","sigla":"MAI","pais":"de","tecnico":"Urs Fischer","estadio":"MEWA Arena","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/1._FSV_Mainz_05_logo.svg/120px-1._FSV_Mainz_05_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alexander Schwolow","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Phillipp Mwene","nat":"at"},
     {"n":3,"p":"Defensor","nome":"Fabio Gruber","nat":"pe"},
@@ -2829,7 +2829,7 @@ const CLUBES_2026 = {
     {"n":40,"p":"Goleiro","nome":"Maximilian Kinzig","nat":"de"},
     {"n":48,"p":"Defensor","nome":"Kacper Potulski","nat":"pl"},
   ]},
-  "borussia-m-gladbach": {"nome":"Borussia M'gladbach","sigla":"MÖN","pais":"de","tecnico":"Alexander Blessin","estadio":"Borussia-Park","cores":["#ffffff","#ffffff"],"jogadores":[
+  "borussia-m-gladbach": {"nome":"Borussia M'gladbach","sigla":"MÖN","pais":"de","tecnico":"Alexander Blessin","estadio":"Borussia-Park","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Borussia_M%C3%B6nchengladbach_logo.svg/120px-Borussia_M%C3%B6nchengladbach_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Moritz Nicolas","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Fabio Chiarodia","nat":"it"},
     {"n":3,"p":"Atacante","nome":"Isac Lidberg","nat":"se"},
@@ -2861,7 +2861,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Atacante","nome":"Iaia Manco Danfa","nat":"gw"},
     {"n":47,"p":"Meio-campo","nome":"Zento Uno","nat":"jp"},
   ]},
-  "bayern-de-munique": {"nome":"Bayern de Munique","sigla":"BAY","pais":"de","tecnico":"Vincent Kompany","estadio":"Allianz Arena","cores":["#ff0000","#ffffff"],"jogadores":[
+  "bayern-de-munique": {"nome":"Bayern de Munique","sigla":"BAY","pais":"de","tecnico":"Vincent Kompany","estadio":"Allianz Arena","cores":["#ff0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg/120px-FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Manuel Neuer","nat":"de","cap":1},
     {"n":2,"p":"Defensor","nome":"Dayot Upamecano","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Kim Min-jae","nat":"kr"},
@@ -2887,7 +2887,7 @@ const CLUBES_2026 = {
     {"n":45,"p":"Meio-campo","nome":"Aleksandar Pavlović","nat":"de"},
     {"n":47,"p":"Meio-campo","nome":"David Santos Daiber","nat":"pt"},
   ]},
-  "sc-paderborn": {"nome":"SC Paderborn","sigla":"PAD","pais":"de","tecnico":"Ralf Kettemann","estadio":"Home Deluxe Arena","cores":["#000000","#ffffff"],"jogadores":[
+  "sc-paderborn": {"nome":"SC Paderborn","sigla":"PAD","pais":"de","tecnico":"Ralf Kettemann","estadio":"Home Deluxe Arena","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/SC_Paderborn_07_Logo_new.svg/120px-SC_Paderborn_07_Logo_new.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Markus Schubert","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Ruben Müller","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Jonah Sticker","nat":"de"},
@@ -2921,7 +2921,7 @@ const CLUBES_2026 = {
     {"n":44,"p":"Meio-campo","nome":"Timur Gayret","nat":"de"},
     {"n":46,"p":"Defensor","nome":"Tristan Zobel","nat":"de"},
   ]},
-  "schalke-04": {"nome":"Schalke 04","sigla":"SCH","pais":"de","tecnico":"Miron Muslić","estadio":"Veltins-Arena","cores":["#0000dd","#c10000"],"jogadores":[
+  "schalke-04": {"nome":"Schalke 04","sigla":"SCH","pais":"de","tecnico":"Miron Muslić","estadio":"Veltins-Arena","cores":["#0000dd","#c10000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/FC_Schalke_04_Logo.svg/120px-FC_Schalke_04_Logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Loris Karius","nat":"de"},
     {"n":4,"p":"Defensor","nome":"Hasan Kuruçay","nat":"tr"},
     {"n":5,"p":"Defensor","nome":"Timo Becker","nat":"de"},
@@ -2950,7 +2950,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Defensor","nome":"Maximilian Wöber","nat":"at"},
     {"n":43,"p":"Defensor","nome":"Mertcan Ayhan","nat":"tr"},
   ]},
-  "vfb-stuttgart": {"nome":"VfB Stuttgart","sigla":"STU","pais":"de","tecnico":"Sebastian Hoeneß","estadio":"MHPArena","cores":["#ffffff","#ffffff"],"jogadores":[
+  "vfb-stuttgart": {"nome":"VfB Stuttgart","sigla":"STU","pais":"de","tecnico":"Sebastian Hoeneß","estadio":"MHPArena","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/VfB_Stuttgart_1893_Logo.svg/120px-VfB_Stuttgart_1893_Logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Fabian Bredlow","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Ameen Al-Dakhil","nat":"be"},
     {"n":3,"p":"Defensor","nome":"Ramon Hendriks","nat":"nl"},
@@ -2982,7 +2982,7 @@ const CLUBES_2026 = {
     {"n":46,"p":"Goleiro","nome":"Stefan Drljača","nat":"de"},
     {"n":47,"p":"Meio-campo","nome":"Yanik Spalt","nat":"at"},
   ]},
-  "angers": {"nome":"Angers","sigla":"ANG","pais":"fr","tecnico":"Stéphane Gilli","estadio":"Stade Raymond Kopa","cores":["#000000","#ffffff"],"jogadores":[
+  "angers": {"nome":"Angers","sigla":"ANG","pais":"fr","tecnico":"Stéphane Gilli","estadio":"Stade Raymond Kopa","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Angers_Sporting_Club_de_l%27Ouest_logo.svg/120px-Angers_Sporting_Club_de_l%27Ouest_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Anthony Lopes","nat":"pt"},
     {"n":2,"p":"Defensor","nome":"Carlens Arcus","nat":"ht"},
     {"n":4,"p":"Defensor","nome":"Ousmane Camara","nat":"ml"},
@@ -3008,7 +3008,7 @@ const CLUBES_2026 = {
     {"n":40,"p":"Goleiro","nome":"Oumar Pona","nat":"ml"},
     {"n":93,"p":"Meio-campo","nome":"Haris Belkebla","nat":"dz","cap":1},
   ]},
-  "auxerre": {"nome":"Auxerre","sigla":"AUX","pais":"fr","tecnico":"Will Still","estadio":"Stade de l'Abbé-Deschamps","cores":["#ffffff","#ffffff"],"jogadores":[
+  "auxerre": {"nome":"Auxerre","sigla":"AUX","pais":"fr","tecnico":"Will Still","estadio":"Stade de l'Abbé-Deschamps","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/51/AJAuxerreLogo.svg/120px-AJAuxerreLogo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Paul Nardi","nat":"fr"},
     {"n":3,"p":"Atacante","nome":"Rémy Labeau Lascary","nat":"gp"},
     {"n":4,"p":"Defensor","nome":"Axel Tuanzebe","nat":"cd"},
@@ -3041,7 +3041,7 @@ const CLUBES_2026 = {
     {"n":92,"p":"Defensor","nome":"Clément Akpa","nat":"ci"},
     {"n":93,"p":"Defensor","nome":"Sékou Fofana","nat":"ci"},
   ]},
-  "brest": {"nome":"Brest","sigla":"BRS","pais":"fr","tecnico":"Julien Lachuer","estadio":"Stade Francis-Le Blé","cores":["#ef0000","#ffffff"],"jogadores":[
+  "brest": {"nome":"Brest","sigla":"BRS","pais":"fr","tecnico":"Julien Lachuer","estadio":"Stade Francis-Le Blé","cores":["#ef0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/05/Stade_Brestois_29_logo.svg/120px-Stade_Brestois_29_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Egil Selvik","nat":"no"},
     {"n":2,"p":"Defensor","nome":"Bradley Locko","nat":"fr"},
     {"n":4,"p":"Defensor","nome":"Gautier Lloris","nat":"fr"},
@@ -3067,7 +3067,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Defensor","nome":"Kenny Lala","nat":"mq"},
     {"n":99,"p":"Atacante","nome":"Pathé Mboup","nat":"sn"},
   ]},
-  "le-havre": {"nome":"Le Havre","sigla":"LEH","pais":"fr","tecnico":"Didier Digard","estadio":"Stade Océane","cores":["#8ed6f9","#0d2142"],"jogadores":[
+  "le-havre": {"nome":"Le Havre","sigla":"LEH","pais":"fr","tecnico":"Didier Digard","estadio":"Stade Océane","cores":["#8ed6f9","#0d2142"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/fc/Le_Havre_AC_logo.svg/120px-Le_Havre_AC_logo.svg.png","jogadores":[
     {"n":5,"p":"Defensor","nome":"Ahmed Touba","nat":"dz"},
     {"n":6,"p":"Meio-campo","nome":"Junior Mwanga","nat":"fr"},
     {"n":7,"p":"Meio-campo","nome":"Amir Richardson","nat":"ma"},
@@ -3096,7 +3096,7 @@ const CLUBES_2026 = {
     {"n":93,"p":"Goleiro","nome":"Gauthier Gallon","nat":"fr"},
     {"n":null,"p":"Atacante","nome":"Élysée Logbo","nat":"fr"},
   ]},
-  "le-mans": {"nome":"Le Mans","sigla":"LMA","pais":"fr","tecnico":"Patrick Videira","estadio":"Stade Marie-Marvingt","cores":["#ff0000","#ffff00"],"jogadores":[
+  "le-mans": {"nome":"Le Mans","sigla":"LMA","pais":"fr","tecnico":"Patrick Videira","estadio":"Stade Marie-Marvingt","cores":["#ff0000","#ffff00"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/5/57/Le_Mans_FC_logo.svg/120px-Le_Mans_FC_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ewan Hatfout","nat":"fr"},
     {"n":5,"p":"Defensor","nome":"Harold Voyer","nat":"mq"},
     {"n":6,"p":"Meio-campo","nome":"Edwin Quarshie","nat":"cf","cap":1},
@@ -3127,7 +3127,7 @@ const CLUBES_2026 = {
     {"n":98,"p":"Goleiro","nome":"Nicolas Kocik","nat":"fr"},
     {"n":99,"p":"Atacante","nome":"Enzo Vagner","nat":"br"},
   ]},
-  "lens": {"nome":"Lens","sigla":"LEN","pais":"fr","tecnico":"Yannick Cahuzac","estadio":"Stade Bollaert-Delelis","cores":["#ffe600","#ec1c24"],"jogadores":[
+  "lens": {"nome":"Lens","sigla":"LEN","pais":"fr","tecnico":"Yannick Cahuzac","estadio":"Stade Bollaert-Delelis","cores":["#ffe600","#ec1c24"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/cc/RC_Lens_logo.svg/120px-RC_Lens_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Régis Gurtner","nat":"fr"},
     {"n":2,"p":"Defensor","nome":"Ruben Aguilar","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Maik Nawrocki","nat":"pl"},
@@ -3158,7 +3158,7 @@ const CLUBES_2026 = {
     {"n":40,"p":"Goleiro","nome":"Robin Risser","nat":"fr"},
     {"n":60,"p":"Goleiro","nome":"Ilan Jourdren","nat":"fr"},
   ]},
-  "lille": {"nome":"Lille","sigla":"LIL","pais":"fr","tecnico":"Davide Ancelotti","estadio":"Stade Pierre-Mauroy","cores":["#fe0000","#221f64"],"jogadores":[
+  "lille": {"nome":"Lille","sigla":"LIL","pais":"fr","tecnico":"Davide Ancelotti","estadio":"Stade Pierre-Mauroy","cores":["#fe0000","#221f64"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/3/3f/Lille_OSC_2018_logo.svg/120px-Lille_OSC_2018_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Berke Özer","nat":"tr"},
     {"n":2,"p":"Defensor","nome":"Loun Srdanovic","nat":"ch"},
     {"n":3,"p":"Defensor","nome":"Nathan Ngoy","nat":"be"},
@@ -3185,7 +3185,7 @@ const CLUBES_2026 = {
     {"n":35,"p":"Atacante","nome":"Soriba Diaoune","nat":"fr"},
     {"n":38,"p":"Defensor","nome":"Maxima Goffi","nat":"fr"},
   ]},
-  "lorient": {"nome":"Lorient","sigla":"LOR","pais":"fr","tecnico":"Alexandre Dujeux","estadio":"Stade du Moustoir","cores":["#f58113","#111111"],"jogadores":[
+  "lorient": {"nome":"Lorient","sigla":"LOR","pais":"fr","tecnico":"Alexandre Dujeux","estadio":"Stade du Moustoir","cores":["#f58113","#111111"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/4/4c/FC_Lorient_logo.svg/120px-FC_Lorient_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Benjamin Leroy","nat":"fr"},
     {"n":2,"p":"Defensor","nome":"Alec Georgen","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Montassar Talbi","nat":"tn"},
@@ -3214,7 +3214,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Meio-campo","nome":"Panos Katseris","nat":"gr"},
     {"n":95,"p":"Defensor","nome":"Isaak Touré","nat":"fr"},
   ]},
-  "lyon": {"nome":"Lyon","sigla":"LYO","pais":"fr","tecnico":"Paulo Fonseca","estadio":"Parc Olympique Lyonnais","cores":["#ffffff","#0000ff"],"jogadores":[
+  "lyon": {"nome":"Lyon","sigla":"LYO","pais":"fr","tecnico":"Paulo Fonseca","estadio":"Parc Olympique Lyonnais","cores":["#ffffff","#0000ff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/1c/Olympique_Lyonnais_logo.svg/120px-Olympique_Lyonnais_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Dominik Greif","nat":"sk"},
     {"n":2,"p":"Meio-campo","nome":"Mads Bidstrup","nat":"dk"},
     {"n":3,"p":"Defensor","nome":"Nicolás Tagliafico","nat":"ar"},
@@ -3242,7 +3242,7 @@ const CLUBES_2026 = {
     {"n":85,"p":"Defensor","nome":"Noham Kamara","nat":"fr"},
     {"n":99,"p":"Meio-campo","nome":"Noah Nartey","nat":"dk"},
   ]},
-  "olympique-de-marseille": {"nome":"Olympique de Marseille","sigla":"OLY","pais":"fr","tecnico":"Bruno Génésio","estadio":"Stade Vélodrome","cores":["#ffffff","#ffffff"],"jogadores":[
+  "olympique-de-marseille": {"nome":"Olympique de Marseille","sigla":"OLY","pais":"fr","tecnico":"Bruno Génésio","estadio":"Stade Vélodrome","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Olympique_de_Marseille_2026_logo.svg/120px-Olympique_de_Marseille_2026_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Jeffrey de Lange","nat":"nl"},
     {"n":4,"p":"Defensor","nome":"CJ Egan-Riley","nat":"gb-eng"},
     {"n":6,"p":"Meio-campo","nome":"Tochukwu Nnadi","nat":"ng"},
@@ -3266,7 +3266,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Meio-campo","nome":"Amine Harit","nat":"ma"},
     {"n":92,"p":"Goleiro","nome":"Théo Vermot","nat":"fr"},
   ]},
-  "monaco": {"nome":"Monaco","sigla":"ASM","pais":"fr","tecnico":"Filipe Luís","estadio":"Stade Louis II","cores":["#fe0000","#ffffff"],"jogadores":[
+  "monaco": {"nome":"Monaco","sigla":"ASM","pais":"fr","tecnico":"Filipe Luís","estadio":"Stade Louis II","cores":["#fe0000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/cf/LogoASMonacoFC2021.svg/120px-LogoASMonacoFC2021.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Lukas Hradecky","nat":"fi"},
     {"n":2,"p":"Defensor","nome":"Vanderson","nat":"br"},
     {"n":4,"p":"Defensor","nome":"Jordan Teze","nat":"nl"},
@@ -3298,7 +3298,7 @@ const CLUBES_2026 = {
     {"n":49,"p":"Defensor","nome":"Ilane Touré","nat":"fr"},
     {"n":72,"p":"Defensor","nome":"Sadibou Sané","nat":"sn"},
   ]},
-  "nice": {"nome":"Nice","sigla":"NIC","pais":"fr","tecnico":"Olivier Pantaloni","estadio":"Allianz Riviera","cores":["#ff0000","#000000"],"jogadores":[
+  "nice": {"nome":"Nice","sigla":"NIC","pais":"fr","tecnico":"Olivier Pantaloni","estadio":"Allianz Riviera","cores":["#ff0000","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/2/2e/OGC_Nice_logo.svg/120px-OGC_Nice_logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Ali Abdi","nat":"tn"},
     {"n":5,"p":"Defensor","nome":"Mohamed Abdelmonem","nat":"eg"},
     {"n":6,"p":"Meio-campo","nome":"Hicham Boudaoui","nat":"dz"},
@@ -3329,7 +3329,7 @@ const CLUBES_2026 = {
     {"n":92,"p":"Defensor","nome":"Jonathan Clauss","nat":"fr"},
     {"n":99,"p":"Meio-campo","nome":"Salis Abdul Samed","nat":"gh"},
   ]},
-  "paris-fc": {"nome":"Paris FC","sigla":"PFC","pais":"fr","tecnico":"Liam Rosenior","estadio":"Stade Jean-Bouin","cores":["#000060","#ffffff"],"jogadores":[
+  "paris-fc": {"nome":"Paris FC","sigla":"PFC","pais":"fr","tecnico":"Liam Rosenior","estadio":"Stade Jean-Bouin","cores":["#000060","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/9f/Paris_FC_logo.svg/120px-Paris_FC_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Kevin Trapp","nat":"de"},
     {"n":3,"p":"Defensor","nome":"Emmanuel Mbemba","nat":"fr"},
     {"n":4,"p":"Meio-campo","nome":"Vincent Marchetti","nat":"fr"},
@@ -3356,7 +3356,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Defensor","nome":"Diego Coppola","nat":"it"},
     {"n":93,"p":"Atacante","nome":"Jonathan Ikoné","nat":"fr"},
   ]},
-  "paris-saint-germain": {"nome":"Paris Saint-Germain","sigla":"PSG","pais":"fr","tecnico":"Luis Enrique","estadio":"Parc des Princes","cores":["#0000cc","#ffffff"],"jogadores":[
+  "paris-saint-germain": {"nome":"Paris Saint-Germain","sigla":"PSG","pais":"fr","tecnico":"Luis Enrique","estadio":"Parc des Princes","cores":["#0000cc","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/120px-Paris_Saint-Germain_F.C..svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Achraf Hakimi","nat":"ma"},
     {"n":4,"p":"Defensor","nome":"Lucas Beraldo","nat":"br"},
     {"n":5,"p":"Defensor","nome":"Marquinhos","nat":"br","cap":1},
@@ -3382,7 +3382,7 @@ const CLUBES_2026 = {
     {"n":51,"p":"Defensor","nome":"Willian Pacho","nat":"ec"},
     {"n":87,"p":"Meio-campo","nome":"João Neves","nat":"pt"},
   ]},
-  "rennes": {"nome":"Rennes","sigla":"REN","pais":"fr","tecnico":"Franck Haise","estadio":"Roazhon Park","cores":["#ff0000","#000000"],"jogadores":[
+  "rennes": {"nome":"Rennes","sigla":"REN","pais":"fr","tecnico":"Franck Haise","estadio":"Roazhon Park","cores":["#ff0000","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/9e/Stade_Rennais_FC.svg/120px-Stade_Rennais_FC.svg.png","jogadores":[
     {"n":4,"p":"Defensor","nome":"Charlie Cresswell","nat":"gb-eng"},
     {"n":5,"p":"Defensor","nome":"Gonçalo Oliveira","nat":"pt"},
     {"n":6,"p":"Meio-campo","nome":"Djaoui Cissé","nat":"fr"},
@@ -3410,7 +3410,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Meio-campo","nome":"Przemysław Frankowski","nat":"pl"},
     {"n":null,"p":"Meio-campo","nome":"Ayanda Sishuba","nat":"be"},
   ]},
-  "strasbourg": {"nome":"Strasbourg","sigla":"STR","pais":"fr","tecnico":"Hugo Oliveira","estadio":"Stade de la Meinau","cores":["#0000dd","#ffffff"],"jogadores":[
+  "strasbourg": {"nome":"Strasbourg","sigla":"STR","pais":"fr","tecnico":"Hugo Oliveira","estadio":"Stade de la Meinau","cores":["#0000dd","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/8/80/Racing_Club_de_Strasbourg_logo.svg/120px-Racing_Club_de_Strasbourg_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Filip Jörgensen","nat":"dk"},
     {"n":4,"p":"Defensor","nome":"Jeyland Mitchell","nat":"cr"},
     {"n":6,"p":"Defensor","nome":"Ismaël Doukouré","nat":"fr"},
@@ -3442,7 +3442,7 @@ const CLUBES_2026 = {
     {"n":null,"p":"Defensor","nome":"Hermann Malonga","nat":"fr"},
     {"n":null,"p":"Atacante","nome":"Sékou Mara","nat":"fr"},
   ]},
-  "toulouse": {"nome":"Toulouse","sigla":"TFC","pais":"fr","tecnico":"Jens Berthel Askou","estadio":"Stadium de Toulouse","cores":["#3c0082","#ffffff"],"jogadores":[
+  "toulouse": {"nome":"Toulouse","sigla":"TFC","pais":"fr","tecnico":"Jens Berthel Askou","estadio":"Stadium de Toulouse","cores":["#3c0082","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/6/63/Toulouse_FC_2018_logo.svg/120px-Toulouse_FC_2018_logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Rasmus Nicolaisen","nat":"dk","cap":1},
     {"n":5,"p":"Defensor","nome":"Seny Koumbassa","nat":"fr"},
     {"n":6,"p":"Meio-campo","nome":"Alexis Vossah","nat":"fr"},
@@ -3468,7 +3468,7 @@ const CLUBES_2026 = {
     {"n":60,"p":"Goleiro","nome":"Mathys Niflore","nat":"fr"},
     {"n":94,"p":"Defensor","nome":"Ismaïl Diallo","nat":"fr"},
   ]},
-  "troyes": {"nome":"Troyes","sigla":"TRO","pais":"fr","tecnico":"Stéphane Dumont","estadio":"Stade de l'Aube","cores":["#005baa","#ffffff"],"jogadores":[
+  "troyes": {"nome":"Troyes","sigla":"TRO","pais":"fr","tecnico":"Stéphane Dumont","estadio":"Stade de l'Aube","cores":["#005baa","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/ESTAC_Troyes_Logo.svg/120px-ESTAC_Troyes_Logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Zacharie Boucher","nat":"fr"},
     {"n":2,"p":"Defensor","nome":"Lucas Maronnier","nat":"fr"},
     {"n":3,"p":"Defensor","nome":"Anis Ouzenadji","nat":"fr"},
@@ -3498,7 +3498,7 @@ const CLUBES_2026 = {
     {"n":41,"p":"Defensor","nome":"Enisio Carneiro","nat":"fr"},
     {"n":44,"p":"Defensor","nome":"Yvann Titi","nat":"fr"},
   ]},
-  "aek-athens": {"nome":"AEK Athens","sigla":"AEK","pais":"gr","tecnico":"Marko Nikolić","estadio":"Agia Sophia Stadium","cores":["#ffde00","#111111"],"jogadores":[
+  "aek-athens": {"nome":"AEK Athens","sigla":"AEK","pais":"gr","tecnico":"Marko Nikolić","estadio":"Agia Sophia Stadium","cores":["#ffde00","#111111"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/04/AEK_Athens_FC_logo.svg/120px-AEK_Athens_FC_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Thomas Strakosha","nat":"al"},
     {"n":2,"p":"Defensor","nome":"Harold Moukoudi","nat":"cm","cap":1},
     {"n":3,"p":"Defensor","nome":"Stavros Pilios","nat":"al"},
@@ -3528,7 +3528,7 @@ const CLUBES_2026 = {
     {"n":90,"p":"Atacante","nome":"Zini","nat":"ao"},
     {"n":91,"p":"Goleiro","nome":"Alberto Brignoli","nat":"it"},
   ]},
-  "bod-glimt": {"nome":"Bodø/Glimt","sigla":"BOD","pais":"no","tecnico":"Kjetil Knutsen","estadio":"Aspmyra Stadion","cores":["#ffdd00","#ffffff"],"jogadores":[
+  "bod-glimt": {"nome":"Bodø/Glimt","sigla":"BOD","pais":"no","tecnico":"Kjetil Knutsen","estadio":"Aspmyra Stadion","cores":["#ffdd00","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/8/8d/FK_Bodo_Glimt_logo.svg/120px-FK_Bodo_Glimt_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Julian Faye Lund","nat":"no"},
     {"n":2,"p":"Defensor","nome":"Villads Nielsen","nat":"dk"},
     {"n":4,"p":"Defensor","nome":"Odin Bjørtuft","nat":"no"},
@@ -3555,7 +3555,7 @@ const CLUBES_2026 = {
     {"n":45,"p":"Goleiro","nome":"Isak Sjong","nat":"no"},
     {"n":94,"p":"Atacante","nome":"August Mikkelsen","nat":"no"},
   ]},
-  "club-brugge": {"nome":"Club Brugge","sigla":"BRU","pais":"be","tecnico":"Ivan Leko","estadio":"Jan Breydel Stadium","cores":["#000000","#ffffff"],"jogadores":[
+  "club-brugge": {"nome":"Club Brugge","sigla":"BRU","pais":"be","tecnico":"Ivan Leko","estadio":"Jan Breydel Stadium","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/d/d0/Club_Brugge_KV_logo.svg/120px-Club_Brugge_KV_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Yann Sommer","nat":"ch"},
     {"n":3,"p":"Defensor","nome":"Lee Han-beom","nat":"kr"},
     {"n":4,"p":"Defensor","nome":"Joel Ordóñez","nat":"ec"},
@@ -3585,7 +3585,7 @@ const CLUBES_2026 = {
     {"n":85,"p":"Meio-campo","nome":"Tian Nai Koren","nat":"si"},
     {"n":86,"p":"Meio-campo","nome":"Gianluca Okon","nat":"it"},
   ]},
-  "fenerbahce": {"nome":"Fenerbahçe","sigla":"FEN","pais":"tr","tecnico":"İsmail Kartal","estadio":"Şükrü Saracoğlu Stadium","cores":["#ffed00","#002d72"],"jogadores":[
+  "fenerbahce": {"nome":"Fenerbahçe","sigla":"FEN","pais":"tr","tecnico":"İsmail Kartal","estadio":"Şükrü Saracoğlu Stadium","cores":["#ffed00","#002d72"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/3/39/Fenerbah%C3%A7e.svg/120px-Fenerbah%C3%A7e.svg.png","jogadores":[
     {"n":3,"p":"Defensor","nome":"Archie Brown","nat":"gb-eng"},
     {"n":5,"p":"Meio-campo","nome":"İsmail Yüksek","nat":"tr"},
     {"n":6,"p":"Meio-campo","nome":"Mattéo Guendouzi","nat":"fr"},
@@ -3613,7 +3613,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Defensor","nome":"Ognjen Mimović","nat":"rs"},
     {"n":91,"p":"Meio-campo","nome":"N'Golo Kanté","nat":"fr"},
   ]},
-  "feyenoord": {"nome":"Feyenoord","sigla":"FEY","pais":"nl","tecnico":"Giovanni van Bronckhorst","estadio":"De Kuip","cores":["#a1ff00","#000000"],"jogadores":[
+  "feyenoord": {"nome":"Feyenoord","sigla":"FEY","pais":"nl","tecnico":"Giovanni van Bronckhorst","estadio":"De Kuip","cores":["#a1ff00","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Feyenoord_logo_since_2024.svg/120px-Feyenoord_logo_since_2024.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Tjark Ernst","nat":"de"},
     {"n":2,"p":"Defensor","nome":"Bart Nieuwkoop","nat":"nl"},
     {"n":3,"p":"Defensor","nome":"Thomas Beelen","nat":"nl"},
@@ -3644,7 +3644,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Goleiro","nome":"Liam Bossin","nat":"ie"},
     {"n":49,"p":"Atacante","nome":"Shaqueel van Persie","nat":"nl"},
   ]},
-  "galatasaray": {"nome":"Galatasaray","sigla":"GAL","pais":"tr","tecnico":"Okan Buruk","estadio":"Rams Park","cores":["#270e8b","#ffffff"],"jogadores":[
+  "galatasaray": {"nome":"Galatasaray","sigla":"GAL","pais":"tr","tecnico":"Okan Buruk","estadio":"Rams Park","cores":["#270e8b","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Galatasaray_S.K._Logo_2026_5-stars.svg/120px-Galatasaray_S.K._Logo_2026_5-stars.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Uğurcan Çakır","nat":"tr"},
     {"n":3,"p":"Defensor","nome":"Chadaille Bitshiabu","nat":"fr"},
     {"n":4,"p":"Defensor","nome":"Ismail Jakobs","nat":"sn"},
@@ -3678,7 +3678,7 @@ const CLUBES_2026 = {
     {"n":91,"p":"Defensor","nome":"Arda Ünyay","nat":"tr"},
     {"n":99,"p":"Meio-campo","nome":"Mario Lemina","nat":"ga"},
   ]},
-  "lask": {"nome":"LASK","sigla":"LAS","pais":"at","tecnico":"Dietmar Kühbauer","estadio":"Raiffeisen Arena","cores":["#ffffff","#ffdd00"],"jogadores":[
+  "lask": {"nome":"LASK","sigla":"LAS","pais":"at","tecnico":"Dietmar Kühbauer","estadio":"Raiffeisen Arena","cores":["#ffffff","#ffdd00"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/LASK-Logo_2023.svg/120px-LASK-Logo_2023.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Lukas Jungwirth","nat":"at"},
     {"n":2,"p":"Defensor","nome":"George Bello","nat":"us"},
     {"n":3,"p":"Defensor","nome":"Miguel Freckleton","nat":"jm"},
@@ -3708,7 +3708,7 @@ const CLUBES_2026 = {
     {"n":50,"p":"Goleiro","nome":"Fabian Schillinger","nat":"at"},
     {"n":52,"p":"Defensor","nome":"Cheikne Kébé","nat":"ml"},
   ]},
-  "porto": {"nome":"Porto","sigla":"POR","pais":"pt","tecnico":"Francesco Farioli","estadio":"Estádio do Dragão","cores":["#0122eb","#ffffff"],"jogadores":[
+  "porto": {"nome":"Porto","sigla":"POR","pais":"pt","tecnico":"Francesco Farioli","estadio":"Estádio do Dragão","cores":["#0122eb","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f1/FC_Porto.svg/120px-FC_Porto.svg.png","jogadores":[
     {"n":4,"p":"Defensor","nome":"Jakub Kiwior","nat":"pl"},
     {"n":5,"p":"Defensor","nome":"Jan Bednarek","nat":"pl"},
     {"n":6,"p":"Defensor","nome":"Chris Smalling","nat":"gb-eng"},
@@ -3739,7 +3739,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Atacante","nome":"Oskar Pietuszewski","nat":"pl"},
     {"n":99,"p":"Goleiro","nome":"Diogo Costa","nat":"pt","cap":1},
   ]},
-  "psv-eindhoven": {"nome":"PSV Eindhoven","sigla":"PSV","pais":"nl","tecnico":"Peter Bosz","estadio":"Philips Stadion","cores":["#ffffff","#ffffff"],"jogadores":[
+  "psv-eindhoven": {"nome":"PSV Eindhoven","sigla":"PSV","pais":"nl","tecnico":"Peter Bosz","estadio":"Philips Stadion","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/0/05/PSV_Eindhoven.svg/120px-PSV_Eindhoven.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Nick Olij","nat":"nl"},
     {"n":2,"p":"Defensor","nome":"Lutsharel Geertruida","nat":"nl"},
     {"n":3,"p":"Defensor","nome":"Yarek Gasiorowski","nat":"es"},
@@ -3772,7 +3772,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Meio-campo","nome":"Shuryjano Cornecion","nat":"cw"},
     {"n":51,"p":"Goleiro","nome":"Tijn Smolenaars","nat":"nl"},
   ]},
-  "sabah": {"nome":"Sabah","sigla":"SAB","pais":"az","tecnico":"Valdas Dambrauskas","estadio":"Bank Respublika Arena","cores":["#000000","#ffffff"],"jogadores":[
+  "sabah": {"nome":"Sabah","sigla":"SAB","pais":"az","tecnico":"Valdas Dambrauskas","estadio":"Bank Respublika Arena","cores":["#000000","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/17/Sabah_FK_%28Azerbaijan%29_logo.svg/120px-Sabah_FK_%28Azerbaijan%29_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Amin Ramazanov","nat":"az"},
     {"n":3,"p":"Defensor","nome":"Steve Solvet","nat":"gp"},
     {"n":4,"p":"Defensor","nome":"Aden McCarthy","nat":"za"},
@@ -3804,7 +3804,7 @@ const CLUBES_2026 = {
     {"n":95,"p":"Meio-campo","nome":"Shahin Ibrahimov","nat":"az"},
     {"n":99,"p":"Atacante","nome":"Orphé Mbina","nat":"ga"},
   ]},
-  "shakhtar-donetsk": {"nome":"Shakhtar Donetsk","sigla":"SHK","pais":"ua","tecnico":"Arda Turan","estadio":"Arena Lviv","cores":["#fd7d28","#000000"],"jogadores":[
+  "shakhtar-donetsk": {"nome":"Shakhtar Donetsk","sigla":"SHK","pais":"ua","tecnico":"Arda Turan","estadio":"Arena Lviv","cores":["#fd7d28","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/a/a1/FC_Shakhtar_Donetsk.svg/120px-FC_Shakhtar_Donetsk.svg.png","jogadores":[
     {"n":2,"p":"Atacante","nome":"Lassina Traoré","nat":"bf"},
     {"n":4,"p":"Defensor","nome":"Marlon Santos","nat":"br"},
     {"n":5,"p":"Defensor","nome":"Valeriy Bondar","nat":"ua"},
@@ -3837,7 +3837,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Meio-campo","nome":"Gleiker Mendoza","nat":"ve"},
     {"n":99,"p":"Atacante","nome":"Bruninho","nat":"br"},
   ]},
-  "slavia-prague": {"nome":"Slavia Prague","sigla":"SLP","pais":"cz","tecnico":"Jindřich Trpišovský","estadio":"Fortuna Arena","cores":["#ffffff","#ffffff"],"jogadores":[
+  "slavia-prague": {"nome":"Slavia Prague","sigla":"SLP","pais":"cz","tecnico":"Jindřich Trpišovský","estadio":"Fortuna Arena","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/SK_Slavia_Praha_full_logo.svg/120px-SK_Slavia_Praha_full_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ondřej Kolář","nat":"cz"},
     {"n":2,"p":"Defensor","nome":"Štěpán Chaloupek","nat":"cz"},
     {"n":3,"p":"Defensor","nome":"Tomáš Holeš","nat":"cz"},
@@ -3866,7 +3866,7 @@ const CLUBES_2026 = {
     {"n":42,"p":"Defensor","nome":"Mikuláš Konečný","nat":"cz"},
     {"n":43,"p":"Defensor","nome":"Eliáš Piták","nat":"cz"},
   ]},
-  "slovan-bratislava": {"nome":"Slovan Bratislava","sigla":"SLO","pais":"sk","tecnico":"Yaya Touré","estadio":"Tehelné pole","cores":["#80bfff","#000060"],"jogadores":[
+  "slovan-bratislava": {"nome":"Slovan Bratislava","sigla":"SLO","pais":"sk","tecnico":"Yaya Touré","estadio":"Tehelné pole","cores":["#80bfff","#000060"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/SK_Slovan_Bratislava_logo.svg/120px-SK_Slovan_Bratislava_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Aleksandar Popović","nat":"rs"},
     {"n":2,"p":"Defensor","nome":"Samuel Kozlovský","nat":"sk"},
     {"n":3,"p":"Meio-campo","nome":"Peter Pokorný","nat":"sk"},
@@ -3898,7 +3898,7 @@ const CLUBES_2026 = {
     {"n":88,"p":"Meio-campo","nome":"Daiki Matsuoka","nat":"jp"},
     {"n":99,"p":"Atacante","nome":"Andraž Šporar","nat":"si","cap":1},
   ]},
-  "sporting": {"nome":"Sporting","sigla":"SPO","pais":"pt","tecnico":"Rui Borges","estadio":"Estádio José Alvalade","cores":["#ffffff","#000000"],"jogadores":[
+  "sporting": {"nome":"Sporting","sigla":"SPO","pais":"pt","tecnico":"Rui Borges","estadio":"Estádio José Alvalade","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/9/97/Sporting_Clube_de_Portugal_logo_%282026%29.svg/120px-Sporting_Clube_de_Portugal_logo_%282026%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Rui Silva","nat":"pt"},
     {"n":4,"p":"Meio-campo","nome":"Silas Andersen","nat":"dk"},
     {"n":5,"p":"Meio-campo","nome":"Sergi Altimira","nat":"es"},
@@ -3929,7 +3929,7 @@ const CLUBES_2026 = {
     {"n":97,"p":"Atacante","nome":"Luis Suárez","nat":"co"},
     {"n":99,"p":"Goleiro","nome":"Francisco Silva","nat":"pt"},
   ]},
-  "viking": {"nome":"Viking","sigla":"VIK","pais":"no","tecnico":"Bjarte Lunde Aarsheim","estadio":"Viking Stadion","cores":["#002f6c","#ffffff"],"jogadores":[
+  "viking": {"nome":"Viking","sigla":"VIK","pais":"no","tecnico":"Bjarte Lunde Aarsheim","estadio":"Viking Stadion","cores":["#002f6c","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/13/Viking_FK_logo_2020.svg/120px-Viking_FK_logo_2020.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Arild Østbø","nat":"no"},
     {"n":2,"p":"Defensor","nome":"Herman Haugen","nat":"no"},
     {"n":3,"p":"Defensor","nome":"Viljar Vevatne","nat":"no"},
@@ -3961,7 +3961,7 @@ const CLUBES_2026 = {
     {"n":33,"p":"Meio-campo","nome":"Jakob Segadal Hansen","nat":"no"},
     {"n":42,"p":"Atacante","nome":"Kelvin Frimpong","nat":"gh"},
   ]},
-  "estudiantes": {"nome":"Estudiantes","sigla":"EST","pais":"ar","tecnico":"Alexander Medina","estadio":"Estadio Jorge Luis Hirschi","cores":["#ff0000","#000000"],"jogadores":[
+  "estudiantes": {"nome":"Estudiantes","sigla":"EST","pais":"ar","tecnico":"Alexander Medina","estadio":"Estadio Jorge Luis Hirschi","cores":["#ff0000","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Estudiantes_de_la_Plata_crest_%282025%29_cropped.svg/120px-Estudiantes_de_la_Plata_crest_%282025%29_cropped.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Fabricio Iacovich","nat":"ar"},
     {"n":4,"p":"Defensor","nome":"Santiago Núñez","nat":"ar"},
     {"n":7,"p":"Meio-campo","nome":"José Sosa","nat":"ar"},
@@ -3993,7 +3993,7 @@ const CLUBES_2026 = {
     {"n":40,"p":"Defensor","nome":"Eros Mancuso","nat":"ar"},
     {"n":52,"p":"Meio-campo","nome":"Bautista Kociubinski","nat":"ar"},
   ]},
-  "cusco": {"nome":"Cusco","sigla":"CUS","pais":"pe","tecnico":"Miguel Rondelli","estadio":"Estadio Garcilaso","cores":["#eacf75","#ffffff"],"jogadores":[
+  "cusco": {"nome":"Cusco","sigla":"CUS","pais":"pe","tecnico":"Miguel Rondelli","estadio":"Estadio Garcilaso","cores":["#eacf75","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f6/Cusco_FC_logo.png/120px-Cusco_FC_logo.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Rodolfo Anderson","nat":"pe"},
     {"n":2,"p":"Defensor","nome":"Carlos Gamarra","nat":"pe"},
     {"n":4,"p":"Defensor","nome":"Álex Custodio","nat":"ve"},
@@ -4022,7 +4022,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Atacante","nome":"Joel Herrera","nat":"pe"},
     {"n":88,"p":"Meio-campo","nome":"Diego Soto","nat":"pe"},
   ]},
-  "independiente-medellin": {"nome":"Independiente Medellín","sigla":"DIM","pais":"co","tecnico":"Luis Amaranto Perea","estadio":"","cores":["#ff0000","#000049"],"jogadores":[
+  "independiente-medellin": {"nome":"Independiente Medellín","sigla":"DIM","pais":"co","tecnico":"Luis Amaranto Perea","estadio":"","cores":["#ff0000","#000049"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Deportivo_Independiente_Medell%C3%ADn_logo_%282026%2C_official%29.svg/120px-Deportivo_Independiente_Medell%C3%ADn_logo_%282026%2C_official%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Salvador Ichazo","nat":"uy"},
     {"n":4,"p":"Defensor","nome":"Kevin Mantilla","nat":"co"},
     {"n":5,"p":"Defensor","nome":"Joaquín Varela","nat":"uy"},
@@ -4056,7 +4056,7 @@ const CLUBES_2026 = {
     {"n":null,"p":"Meio-campo","nome":"Alexis Serna","nat":"co"},
     {"n":null,"p":"Atacante","nome":"Luis Maturana","nat":"co"},
   ]},
-  "nacional": {"nome":"Nacional","sigla":"NAC","pais":"uy","tecnico":"Jorge Bava","estadio":"Gran Parque Central","cores":["#ffffff","#ffffff"],"jogadores":[
+  "nacional": {"nome":"Nacional","sigla":"NAC","pais":"uy","tecnico":"Jorge Bava","estadio":"Gran Parque Central","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Club_Nacional_de_Football_logo.svg/120px-Club_Nacional_de_Football_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Luis Mejía","nat":"pa"},
     {"n":2,"p":"Defensor","nome":"Agustín Rogel","nat":"uy"},
     {"n":4,"p":"Defensor","nome":"Sebastián Coates","nat":"uy","cap":1},
@@ -4086,7 +4086,7 @@ const CLUBES_2026 = {
     {"n":56,"p":"Meio-campo","nome":"Juan Ignacio García","nat":"uy"},
     {"n":77,"p":"Atacante","nome":"Nahuel Gelos","nat":"uy"},
   ]},
-  "universitario": {"nome":"Universitario","sigla":"UNI","pais":"pe","tecnico":"Héctor Cúper","estadio":"Estadio Monumental \"U\"","cores":["#fefaeb","#ffffff"],"jogadores":[
+  "universitario": {"nome":"Universitario","sigla":"UNI","pais":"pe","tecnico":"Héctor Cúper","estadio":"Estadio Monumental \"U\"","cores":["#fefaeb","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Logo_oficial_de_Universitario.svg/120px-Logo_oficial_de_Universitario.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Diego Romero","nat":"pe"},
     {"n":2,"p":"Defensor","nome":"Cain Fara","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Williams Riveros","nat":"py"},
@@ -4117,14 +4117,14 @@ const CLUBES_2026 = {
     {"n":70,"p":"Defensor","nome":"Jorge Abdiel Gutiérrez","nat":"pa"},
     {"n":77,"p":"Atacante","nome":"Bryan Reyna","nat":"pe"},
   ]},
-  "coquimbo-unido": {"nome":"Coquimbo Unido","sigla":"COQ","pais":"cl","tecnico":"Hernán Caputto","estadio":"Francisco Sánchez Rumoroso","cores":["#ffde00","#000000"],"jogadores":[
+  "coquimbo-unido": {"nome":"Coquimbo Unido","sigla":"COQ","pais":"cl","tecnico":"Hernán Caputto","estadio":"Francisco Sánchez Rumoroso","cores":["#ffde00","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/c0/Coquimbo_Unido.png/120px-Coquimbo_Unido.png","jogadores":[
     {"n":null,"p":"Defensor","nome":"Dylan Escobar","nat":"cl"},
     {"n":null,"p":"Meio-campo","nome":"Dylan Glaby","nat":"ar"},
     {"n":null,"p":"Meio-campo","nome":"Nicolás Julio","nat":"cl"},
     {"n":null,"p":"Meio-campo","nome":"Diego Ortiz","nat":"cl"},
     {"n":null,"p":"Meio-campo","nome":"Diego Plaza","nat":"cl"},
   ]},
-  "deportes-tolima": {"nome":"Deportes Tolima","sigla":"TOL","pais":"co","tecnico":"Luis Fernando Suárez","estadio":"","cores":["#971b27","#ffffff"],"jogadores":[
+  "deportes-tolima": {"nome":"Deportes Tolima","sigla":"TOL","pais":"co","tecnico":"Luis Fernando Suárez","estadio":"","cores":["#971b27","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Tolima_Campe%C3%B3n_2018.png/120px-Tolima_Campe%C3%B3n_2018.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Neto Volpi","nat":"br"},
     {"n":2,"p":"Defensor","nome":"Anderson Angulo","nat":"co","cap":1},
     {"n":3,"p":"Defensor","nome":"Jan Carlos Angulo","nat":"co"},
@@ -4159,7 +4159,7 @@ const CLUBES_2026 = {
     {"n":71,"p":"Defensor","nome":"Yordan Osorio","nat":"ve"},
     {"n":80,"p":"Meio-campo","nome":"Brayan Rovira","nat":"co"},
   ]},
-  "bolivar": {"nome":"Bolívar","sigla":"BLV","pais":"bo","tecnico":"Alejandro Restrepo","estadio":"Estadio Hernando Siles","cores":["#79c3ff","#80afff"],"jogadores":[
+  "bolivar": {"nome":"Bolívar","sigla":"BLV","pais":"bo","tecnico":"Alejandro Restrepo","estadio":"Estadio Hernando Siles","cores":["#79c3ff","#80afff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/1/13/Club_Bol%C3%ADvar_logo.svg/120px-Club_Bol%C3%ADvar_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Carlos Lampe","nat":"bo"},
     {"n":2,"p":"Defensor","nome":"Jesús Sagredo","nat":"bo"},
     {"n":3,"p":"Defensor","nome":"Xavier Arreaga","nat":"ec"},
@@ -4191,7 +4191,7 @@ const CLUBES_2026 = {
     {"n":80,"p":"Meio-campo","nome":"Carlos Melgar","nat":"bo"},
     {"n":99,"p":"Atacante","nome":"Damián Batallini","nat":"ar"},
   ]},
-  "deportivo-la-guaira": {"nome":"Deportivo La Guaira","sigla":"DLG","pais":"ve","tecnico":"Héctor Bidoglio","estadio":"Estadio Olímpico de la UCV","cores":["#ff7400","#ffffff"],"jogadores":[
+  "deportivo-la-guaira": {"nome":"Deportivo La Guaira","sigla":"DLG","pais":"ve","tecnico":"Héctor Bidoglio","estadio":"Estadio Olímpico de la UCV","cores":["#ff7400","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/fa/Deportivo_La_Guaira_logo.png/120px-Deportivo_La_Guaira_logo.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Cristopher Varela","nat":"ve"},
     {"n":2,"p":"Defensor","nome":"Martín Gianoli","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Brayan Morales","nat":"ve"},
@@ -4220,7 +4220,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Atacante","nome":"Rafael Arace","nat":"ve"},
     {"n":null,"p":"Defensor","nome":"Carlos Rojas","nat":"ve"},
   ]},
-  "independiente-rivadavia": {"nome":"Independiente Rivadavia","sigla":"IRI","pais":"ar","tecnico":"Alfredo Berti","estadio":"Estadio Bautista Gargantini","cores":["#00447c","#ffffff"],"jogadores":[
+  "independiente-rivadavia": {"nome":"Independiente Rivadavia","sigla":"IRI","pais":"ar","tecnico":"Alfredo Berti","estadio":"Estadio Bautista Gargantini","cores":["#00447c","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Escudo_del_Club_Independiente_Rivadavia.svg/120px-Escudo_del_Club_Independiente_Rivadavia.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Leonard Costa","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Juan Elordi","nat":"ar"},
     {"n":5,"p":"Meio-campo","nome":"Tomás Bottari","nat":"ar"},
@@ -4250,7 +4250,7 @@ const CLUBES_2026 = {
     {"n":43,"p":"Atacante","nome":"Fabrizio Sartori","nat":"ar"},
     {"n":77,"p":"Meio-campo","nome":"Luis Sequeira","nat":"ar"},
   ]},
-  "boca-juniors": {"nome":"Boca Juniors","sigla":"BOC","pais":"ar","tecnico":"Rodolfo Arruabarrena","estadio":"Estadio Alberto J. Armando","cores":["#103f79","#f3b229"],"jogadores":[
+  "boca-juniors": {"nome":"Boca Juniors","sigla":"BOC","pais":"ar","tecnico":"Rodolfo Arruabarrena","estadio":"Estadio Alberto J. Armando","cores":["#103f79","#f3b229"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Boca_Juniors_logo18.svg/120px-Boca_Juniors_logo18.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Álvaro Montero","nat":"co"},
     {"n":2,"p":"Defensor","nome":"Lautaro Di Lollo","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Lautaro Blanco","nat":"ar"},
@@ -4280,7 +4280,7 @@ const CLUBES_2026 = {
     {"n":30,"p":"Atacante","nome":"Enner Valencia","nat":"ec"},
     {"n":32,"p":"Defensor","nome":"Ayrton Costa","nat":"ar"},
   ]},
-  "universidad-catolica": {"nome":"Universidad Católica","sigla":"UCA","pais":"cl","tecnico":"Daniel Garnero","estadio":"Claro Arena","cores":["#ffffff","#0033a0"],"jogadores":[
+  "universidad-catolica": {"nome":"Universidad Católica","sigla":"UCA","pais":"cl","tecnico":"Daniel Garnero","estadio":"Claro Arena","cores":["#ffffff","#0033a0"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Escudo_Club_Deportivo_Universidad_Cat%C3%B3lica.svg/120px-Escudo_Club_Deportivo_Universidad_Cat%C3%B3lica.svg.png","jogadores":[
     {"n":12,"p":"Goleiro","nome":"Francisco Valdés","nat":"cl"},
     {"n":22,"p":"Meio-campo","nome":"Martín Gómez","nat":"ar"},
     {"n":34,"p":"Defensor","nome":"Francisco Daza","nat":"cl"},
@@ -4303,7 +4303,7 @@ const CLUBES_2026 = {
     {"n":null,"p":"Atacante","nome":"Amaro Riveros","nat":"cl"},
     {"n":null,"p":"Atacante","nome":"Danilo Saavedra","nat":"cl"},
   ]},
-  "barcelona-2": {"nome":"Barcelona de Guayaquil","sigla":"BSC","pais":"ec","tecnico":"Pablo Trobbiani","estadio":"Estadio Monumental Banco Pichincha","cores":["#fff200","#000000"],"jogadores":[
+  "barcelona-2": {"nome":"Barcelona de Guayaquil","sigla":"BSC","pais":"ec","tecnico":"Pablo Trobbiani","estadio":"Estadio Monumental Banco Pichincha","cores":["#fff200","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Escudo_oficial_del_Barcelona_Sporting_Club.png/120px-Escudo_oficial_del_Barcelona_Sporting_Club.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"José Contreras","nat":"ve"},
     {"n":4,"p":"Defensor","nome":"Gustavo Vallecilla","nat":"ec"},
     {"n":6,"p":"Defensor","nome":"Aníbal Chalá","nat":"ec"},
@@ -4336,7 +4336,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Atacante","nome":"Yordi Vernaza","nat":"ec"},
     {"n":93,"p":"Atacante","nome":"Eduardo Esterilla","nat":"ec"},
   ]},
-  "penarol": {"nome":"Peñarol","sigla":"PEÑ","pais":"uy","tecnico":"Diego Aguirre","estadio":"Estadio Campeón del Siglo","cores":["#ffe517","#000000"],"jogadores":[
+  "penarol": {"nome":"Peñarol","sigla":"PEÑ","pais":"uy","tecnico":"Diego Aguirre","estadio":"Estadio Campeón del Siglo","cores":["#ffe517","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Escudo_del_Club_Atl%C3%A9tico_Pe%C3%B1arol.svg/120px-Escudo_del_Club_Atl%C3%A9tico_Pe%C3%B1arol.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Sebastián Britos","nat":"uy"},
     {"n":2,"p":"Defensor","nome":"Germán Pezzella","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Mauricio Lemos","nat":"uy"},
@@ -4378,7 +4378,7 @@ const CLUBES_2026 = {
     {"n":99,"p":"Atacante","nome":"Abel Hernández","nat":"uy"},
     {"n":null,"p":"Defensor","nome":"Andrés Madruga","nat":"uy"},
   ]},
-  "santa-fe": {"nome":"Santa Fe","sigla":"SFE","pais":"co","tecnico":"Pablo Repetto","estadio":"","cores":["#f91010","#ffffff"],"jogadores":[
+  "santa-fe": {"nome":"Santa Fe","sigla":"SFE","pais":"co","tecnico":"Pablo Repetto","estadio":"","cores":["#f91010","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Independiente_Santa_Fe_logo.svg/120px-Independiente_Santa_Fe_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Andrés Mosquera","nat":"co"},
     {"n":2,"p":"Defensor","nome":"Juan Sebastián Quintero","nat":"co"},
     {"n":3,"p":"Defensor","nome":"Víctor Moreno","nat":"co"},
@@ -4411,7 +4411,7 @@ const CLUBES_2026 = {
     {"n":77,"p":"Meio-campo","nome":"Jáder Obrian","nat":"co"},
     {"n":null,"p":"Meio-campo","nome":"Andrés Amaya","nat":"co"},
   ]},
-  "platense": {"nome":"Platense","sigla":"PLA","pais":"ar","tecnico":"Martín Palermo","estadio":"Estadio Ciudad de Vicente López","cores":["#ffffff","#ffffff"],"jogadores":[
+  "platense": {"nome":"Platense","sigla":"PLA","pais":"ar","tecnico":"Martín Palermo","estadio":"Estadio Ciudad de Vicente López","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Club_Alt%C3%A9tico_Platense_crest_%282025%29.svg/120px-Club_Alt%C3%A9tico_Platense_crest_%282025%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Brian Bustos","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Tomás Silva","nat":"ar"},
     {"n":4,"p":"Defensor","nome":"Agustín Lagos","nat":"ar"},
@@ -4449,7 +4449,7 @@ const CLUBES_2026 = {
     {"n":99,"p":"Atacante","nome":"Gonzalo Lencina","nat":"ar"},
     {"n":null,"p":"Defensor","nome":"Fabricio López","nat":"ar"},
   ]},
-  "cerro-porteno": {"nome":"Cerro Porteño","sigla":"CCP","pais":"py","tecnico":"Gustavo Costas","estadio":"Estadio General Pablo Rojas","cores":["#c8102e","#003da5"],"jogadores":[
+  "cerro-porteno": {"nome":"Cerro Porteño","sigla":"CCP","pais":"py","tecnico":"Gustavo Costas","estadio":"Estadio General Pablo Rojas","cores":["#c8102e","#003da5"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Escudo_Club_Cerro_Porte%C3%B1o_2023-Actual.svg/120px-Escudo_Club_Cerro_Porte%C3%B1o_2023-Actual.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Manuel Roffo","nat":"ar"},
     {"n":4,"p":"Defensor","nome":"Alexis Cañete","nat":"py"},
     {"n":5,"p":"Meio-campo","nome":"Jorge Morel","nat":"py"},
@@ -4479,7 +4479,7 @@ const CLUBES_2026 = {
     {"n":40,"p":"Meio-campo","nome":"Mateo Klimowicz","nat":"de"},
     {"n":null,"p":"Goleiro","nome":"Ángel Martínez","nat":"py"},
   ]},
-  "junior": {"nome":"Junior","sigla":"JUN","pais":"co","tecnico":"Sebastián Viera","estadio":"","cores":["#ffffff","#000066"],"jogadores":[
+  "junior": {"nome":"Junior","sigla":"JUN","pais":"co","tecnico":"Sebastián Viera","estadio":"","cores":["#ffffff","#000066"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Junior_Barranquilla_logo.svg/120px-Junior_Barranquilla_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Mauro Silveira","nat":"uy"},
     {"n":3,"p":"Defensor","nome":"Edwin Herrera","nat":"co"},
     {"n":5,"p":"Defensor","nome":"Daniel Rivera","nat":"co"},
@@ -4512,7 +4512,7 @@ const CLUBES_2026 = {
     {"n":99,"p":"Defensor","nome":"Fabián Correa","nat":"co"},
     {"n":null,"p":"Defensor","nome":"Daniel Socarrás","nat":"co"},
   ]},
-  "sporting-cristal": {"nome":"Sporting Cristal","sigla":"CRI","pais":"pe","tecnico":"Roberto Mosquera","estadio":"Estadio Alberto Gallardo","cores":["#6bc5fd","#ffffff"],"jogadores":[
+  "sporting-cristal": {"nome":"Sporting Cristal","sigla":"CRI","pais":"pe","tecnico":"Roberto Mosquera","estadio":"Estadio Alberto Gallardo","cores":["#6bc5fd","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Escudo_de_Sporting_Cristal_2025.svg/120px-Escudo_de_Sporting_Cristal_2025.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Diego Enríquez","nat":"pe"},
     {"n":2,"p":"Defensor","nome":"Duham Ballumbrosio","nat":"pe"},
     {"n":4,"p":"Defensor","nome":"Anderson Villacorta","nat":"pe"},
@@ -4550,7 +4550,7 @@ const CLUBES_2026 = {
     {"n":96,"p":"Defensor","nome":"Luis Abram","nat":"pe"},
     {"n":null,"p":"Meio-campo","nome":"Agustín Álvarez","nat":"uy"},
   ]},
-  "ldu-quito": {"nome":"LDU Quito","sigla":"LDQ","pais":"ec","tecnico":"Gustavo Álvarez","estadio":"Estadio Rodrigo Paz Delgado","cores":["#ffffff","#ffffff"],"jogadores":[
+  "ldu-quito": {"nome":"LDU Quito","sigla":"LDQ","pais":"ec","tecnico":"Gustavo Álvarez","estadio":"Estadio Rodrigo Paz Delgado","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Liga_Deportiva_Universitaria_%28Ecuador%29_logo_%285_stars%29.svg/120px-Liga_Deportiva_Universitaria_%28Ecuador%29_logo_%285_stars%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Gonzalo Valle","nat":"ec"},
     {"n":3,"p":"Defensor","nome":"Richard Mina","nat":"ec"},
     {"n":4,"p":"Defensor","nome":"Ricardo Adé","nat":"ht"},
@@ -4580,7 +4580,7 @@ const CLUBES_2026 = {
     {"n":99,"p":"Meio-campo","nome":"Cristian Tobar","nat":"ec"},
     {"n":57,"p":"Defensor","nome":"Marcelo Weigandt","nat":"ar"},
   ]},
-  "lanus": {"nome":"Lanús","sigla":"LAN","pais":"ar","tecnico":"Mauricio Pellegrino","estadio":"Estadio Lanús","cores":["#58151c","#800000"],"jogadores":[
+  "lanus": {"nome":"Lanús","sigla":"LAN","pais":"ar","tecnico":"Mauricio Pellegrino","estadio":"Estadio Lanús","cores":["#58151c","#800000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Escudo_de_Lan%C3%BAs_%28sin_estrellas%29.svg/120px-Escudo_de_Lan%C3%BAs_%28sin_estrellas%29.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Franco Petroli","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Luciano Romero","nat":"ar"},
     {"n":3,"p":"Defensor","nome":"Nicolás Morgantini","nat":"ar"},
@@ -4611,7 +4611,7 @@ const CLUBES_2026 = {
     {"n":39,"p":"Meio-campo","nome":"Thiago Laplace","nat":"ar"},
     {"n":77,"p":"Atacante","nome":"Lucas Besozzi","nat":"ar"},
   ]},
-  "always-ready": {"nome":"Always Ready","sigla":"CAR","pais":"bo","tecnico":"Julio César Baldivieso","estadio":"Estadio Municipal de El Alto","cores":["#ffffff","#000000"],"jogadores":[
+  "always-ready": {"nome":"Always Ready","sigla":"CAR","pais":"bo","tecnico":"Julio César Baldivieso","estadio":"Estadio Municipal de El Alto","cores":["#ffffff","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Escudo_Always_Ready_4_Estrellas.png/120px-Escudo_Always_Ready_4_Estrellas.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Alain Baroja","nat":"ve"},
     {"n":2,"p":"Defensor","nome":"José Herrera","nat":"bo"},
     {"n":4,"p":"Defensor","nome":"Nicolás Villarroel","nat":"bo"},
@@ -4637,7 +4637,7 @@ const CLUBES_2026 = {
     {"n":99,"p":"Goleiro","nome":"Enzo Rodriguez","nat":"bo"},
     {"n":null,"p":"Atacante","nome":"Carlos Florenciañez","nat":"py"},
   ]},
-  "independiente-del-valle": {"nome":"Independiente del Valle","sigla":"IDV","pais":"ec","tecnico":"Joaquín Papa","estadio":"Estadio Banco Guayaquil","cores":["#0040bf","#000000"],"jogadores":[
+  "independiente-del-valle": {"nome":"Independiente del Valle","sigla":"IDV","pais":"ec","tecnico":"Joaquín Papa","estadio":"Estadio Banco Guayaquil","cores":["#0040bf","#000000"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Escudoindependientedelvalle2023.png/120px-Escudoindependientedelvalle2023.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Aldair Quintana","nat":"co"},
     {"n":2,"p":"Defensor","nome":"Luis Zárate","nat":"py"},
     {"n":4,"p":"Defensor","nome":"Jhon Espinoza","nat":"ec"},
@@ -4667,7 +4667,7 @@ const CLUBES_2026 = {
     {"n":52,"p":"Atacante","nome":"Yandri Vásquez","nat":"ec"},
     {"n":99,"p":"Atacante","nome":"Djorkaeff Reasco","nat":"ec"},
   ]},
-  "libertad": {"nome":"Libertad","sigla":"LIB","pais":"py","tecnico":"Nelson Haedo Valdez","estadio":"Estadio Tigo La Huerta","cores":["#111111","#ffffff"],"jogadores":[
+  "libertad": {"nome":"Libertad","sigla":"LIB","pais":"py","tecnico":"Nelson Haedo Valdez","estadio":"Estadio Tigo La Huerta","cores":["#111111","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/e/ee/Club_Libertad_logo.png/120px-Club_Libertad_logo.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Ángel González","nat":"py"},
     {"n":2,"p":"Defensor","nome":"Alan Benítez","nat":"py"},
     {"n":3,"p":"Defensor","nome":"Robert Rojas","nat":"py"},
@@ -4699,7 +4699,7 @@ const CLUBES_2026 = {
     {"n":33,"p":"Meio-campo","nome":"Christian Martínez","nat":"py"},
     {"n":34,"p":"Defensor","nome":"Estiven Villalba","nat":"py"},
   ]},
-  "rosario-central": {"nome":"Rosario Central","sigla":"ROS","pais":"ar","tecnico":"Jorge Almirón","estadio":"Estadio Gigante de Arroyito","cores":["#0000ff","#ffffff"],"jogadores":[
+  "rosario-central": {"nome":"Rosario Central","sigla":"ROS","pais":"ar","tecnico":"Jorge Almirón","estadio":"Estadio Gigante de Arroyito","cores":["#0000ff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/c/ce/Rosario_Central_logo.svg/120px-Rosario_Central_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Axel Werner","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Sebastián Zaracho","nat":"py"},
     {"n":3,"p":"Defensor","nome":"Agustín Sández","nat":"py"},
@@ -4732,7 +4732,7 @@ const CLUBES_2026 = {
     {"n":47,"p":"Defensor","nome":"Luca Raffin","nat":"ar"},
     {"n":88,"p":"Meio-campo","nome":"Alan Rodríguez","nat":"uy"},
   ]},
-  "universidad-central": {"nome":"Universidad Central","sigla":"UCV","pais":"ve","tecnico":"Daniel Sasso","estadio":"Estadio Olímpico de la UCV","cores":["#0000ff","#ffff01"],"jogadores":[
+  "universidad-central": {"nome":"Universidad Central","sigla":"UCV","pais":"ve","tecnico":"Daniel Sasso","estadio":"Estadio Olímpico de la UCV","cores":["#0000ff","#ffff01"],"escudo":"https://thumb.wikimedia.org/wikipedia/en/thumb/f/f7/Universidad_Central_FC.png/120px-Universidad_Central_FC.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"Lautaro Morales","nat":"ar"},
     {"n":2,"p":"Defensor","nome":"Kendrys Silva","nat":"ve"},
     {"n":3,"p":"Defensor","nome":"Rubén Ramírez","nat":"ve"},
@@ -4765,7 +4765,7 @@ const CLUBES_2026 = {
     {"n":57,"p":"Meio-campo","nome":"Carlos Cermeño","nat":"ve"},
     {"n":null,"p":"Meio-campo","nome":"Williander Muñoz","nat":"ve"},
   ]},
-  "fortaleza": {"nome":"Fortaleza","sigla":"FOR","pais":"br","tecnico":"Paulo Autuori","estadio":"Castelão","cores":["#fd1220","#0e00ee"],"jogadores":[
+  "fortaleza": {"nome":"Fortaleza","sigla":"FOR","pais":"br","tecnico":"Paulo Autuori","estadio":"Castelão","cores":["#fd1220","#0e00ee"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Fortaleza_Esporte_Clube_logo.svg/120px-Fortaleza_Esporte_Clube_logo.svg.png","jogadores":[
     {"n":1,"p":"Goleiro","nome":"João Ricardo","nat":"br","cap":1},
     {"n":4,"p":"Defensor","nome":"Luan Freitas","nat":"br"},
     {"n":5,"p":"Meio-campo","nome":"Pierre","nat":"br"},
@@ -4801,7 +4801,7 @@ const CLUBES_2026 = {
     {"n":88,"p":"Meio-campo","nome":"Lucas Sasha","nat":"br"},
     {"n":91,"p":"Atacante","nome":"Chico da Costa","nat":"br"},
   ]},
-  "juventude": {"nome":"Juventude","sigla":"JTD","pais":"br","tecnico":"Maurício Barbieri","estadio":"Alfredo Jaconi","cores":["#ffffff","#ffffff"],"jogadores":[
+  "juventude": {"nome":"Juventude","sigla":"JTD","pais":"br","tecnico":"Maurício Barbieri","estadio":"Alfredo Jaconi","cores":["#ffffff","#ffffff"],"escudo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Esporte_Clube_Juventude_logo.svg/120px-Esporte_Clube_Juventude_logo.svg.png","jogadores":[
     {"n":2,"p":"Defensor","nome":"Raí Ramos","nat":"br"},
     {"n":3,"p":"Defensor","nome":"Titi","nat":"br"},
     {"n":4,"p":"Defensor","nome":"Messias","nat":"br"},

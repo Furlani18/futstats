@@ -1,5 +1,5 @@
 const DB = (() => {
-  const SEED_VERSION = 'multi-1';
+  const SEED_VERSION = 'multi-2';
 
   // Cache em memória do que foi lido do localStorage: com milhares de jogadores,
   // reler e reconverter o JSON a cada consulta deixaria o site lento.
@@ -234,7 +234,7 @@ const DB = (() => {
 
   const CLUBES_SEED = Object.entries(CLUBES).map(([slug, c]) => ({
     id: idClube(slug), tipo: 'clube', nome: c.nome, codigo: c.sigla, iso: c.pais || null,
-    cores: c.cores, tecnico: c.tecnico || '', estadio: c.estadio || '',
+    cores: c.cores, tecnico: c.tecnico || '', estadio: c.estadio || '', escudo: c.escudo || null,
   }));
 
   const JOGADORES_CLUBES_SEED = Object.entries(CLUBES).flatMap(([slug, c]) => c.jogadores.map((j, i) => ({
@@ -261,7 +261,11 @@ const DB = (() => {
     const versao = localStorage.getItem('fs_seed_version');
     if (versao === SEED_VERSION) return;
     if (!JOGADORES_SEED.length || !CLUBES_SEED.length) return; // elencos.js/clubes.js não carregados nesta página
-    if (versao === 'wc2026-2') {
+    if (versao === 'multi-1') {
+      // multi-2: os clubes ganham o escudo (sem mexer em nada que foi editado).
+      const escudos = Object.fromEntries(CLUBES_SEED.map(t => [t.id, t.escudo]));
+      gravar('fs_times', (ler('fs_times') || []).map(t => (t.tipo === 'clube' && !t.escudo && escudos[t.id] ? { ...t, escudo: escudos[t.id] } : t)));
+    } else if (versao === 'wc2026-2') {
       garantirClubes();
       gravar('fs_jogos', (ler('fs_jogos') || []).map(j => (j.competicaoId ? j : { ...j, competicaoId: 'copa2026' })));
     } else {

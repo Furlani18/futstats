@@ -318,9 +318,13 @@ const UI = (() => {
     const classe = `flag${tamanho ? ` flag-${tamanho}` : ''}`;
     if (!time) return `<span class="${classe}"></span>`;
     if (time.tipo === 'clube') {
-      // Sem escudos livres de direitos: um distintivo com a sigla nas cores do clube.
+      // Distintivo com a sigla nas cores do clube: usado quando não há escudo
+      // ou enquanto/se a imagem do escudo não carregar.
       const c = DB.Util.coresTime(time);
-      return `<span class="${classe} crest" style="background:${c.primaria};color:${c.texto};box-shadow:inset 0 -3px 0 ${c.secundaria}, 0 0 0 1px var(--flag-ring);" title="${esc(time.nome)}">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
+      const distintivo = `<span class="${classe} crest" style="background:${c.primaria};color:${c.texto};box-shadow:inset 0 -3px 0 ${c.secundaria}, 0 0 0 1px var(--flag-ring);" title="${esc(time.nome)}">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
+      if (!time.escudo) return distintivo;
+      return `<span class="${classe} crest-img" title="${esc(time.nome)}"><img src="${esc(time.escudo)}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=this.parentNode.dataset.reserva" ></span>`
+        .replace('class="', `data-reserva="${esc(distintivo)}" class="`);
     }
     const largura = { sm: 40, '': 40, lg: 80, xl: 160 }[tamanho] || 40;
     const url = DB.Util.bandeiraUrl(time.iso, largura);

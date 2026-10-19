@@ -52,10 +52,11 @@ const Compartilhar = (() => {
   async function desenharJogo(jogo) {
     const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
     try { await document.fonts.load(`800 120px "Barlow Condensed"`); } catch (e) { /* segue com a fonte padrão */ }
-    const [bandM, bandV] = await Promise.all([
-      carregarImagem(DB.Util.bandeiraUrl(m.iso, 320)),
-      carregarImagem(DB.Util.bandeiraUrl(v.iso, 320)),
-    ]);
+    // Seleção: bandeira; clube: escudo (versão de 250 px da mesma miniatura).
+    const imagemDe = t => (t.tipo === 'clube'
+      ? (t.escudo ? t.escudo.replace('/120px-', '/250px-') : null)
+      : DB.Util.bandeiraUrl(t.iso, 320));
+    const [bandM, bandV] = await Promise.all([carregarImagem(imagemDe(m)), carregarImagem(imagemDe(v))]);
 
     const canvas = document.createElement('canvas');
     canvas.width = L; canvas.height = L;
@@ -79,13 +80,32 @@ const Compartilhar = (() => {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f4c64e';
     ctx.font = `800 30px ${TEXTO}`;
-    ctx.fillText('COPA DO MUNDO FIFA 2026', L / 2, 92);
+    const comp = DB.Contexto.get();
+    ctx.fillText(`${comp.curto} ${comp.temporada}`.toUpperCase(), L / 2, 92);
     ctx.fillStyle = '#8f98ad';
     ctx.font = `700 28px ${TEXTO}`;
     ctx.fillText(`${UI.rotuloJogo(jogo).toUpperCase()} · ${DB.Util.formatarData(jogo.data)}`, L / 2, 140);
 
     // Bandeiras e nomes
     const desenharLado = (time, img, cx) => {
+      if (time.tipo === 'clube') {
+        const lado = 190, x = cx - lado / 2, y = 215;
+        if (img) {
+          const escala = Math.min(lado / img.width, lado / img.height);
+          const w = img.width * escala, h = img.height * escala;
+          ctx.drawImage(img, cx - w / 2, y + (lado - h) / 2, w, h);
+        } else {
+          const c = DB.Util.coresTime(time);
+          ctx.beginPath(); ctx.arc(cx, y + lado / 2, lado / 2, 0, Math.PI * 2);
+          ctx.fillStyle = c.primaria; ctx.fill();
+          ctx.lineWidth = 8; ctx.strokeStyle = c.secundaria; ctx.stroke();
+          ctx.fillStyle = c.texto; ctx.font = `800 64px ${DISPLAY}`;
+          ctx.fillText(time.codigo, cx, y + lado / 2 + 22);
+        }
+        ctx.fillStyle = '#f1f4fa';
+        textoAjustado(ctx, time.nome.toUpperCase(), cx, 460, 330, 54, DISPLAY);
+        return;
+      }
       const w = 240, h = 160, x = cx - w / 2, y = 230;
       ctx.save();
       retanguloArredondado(ctx, x, y, w, h, 16);
@@ -144,7 +164,7 @@ const Compartilhar = (() => {
     const larguraFut = ctx.measureText('FUT').width;
     ctx.fillStyle = '#f4c64e'; ctx.fillText('STATS', 132 + larguraFut + 4, L - 75);
     ctx.textAlign = 'right'; ctx.fillStyle = '#5d667b'; ctx.font = `600 24px ${TEXTO}`;
-    ctx.fillText('Estatísticas da Copa 2026', L - 60, L - 80);
+    ctx.fillText('Estatísticas de futebol', L - 60, L - 80);
 
     return canvas;
   }

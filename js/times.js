@@ -61,6 +61,9 @@ AdminUI.registrar('times', () => {
           <div class="field"><label>Sigla (3 letras)</label><input type="text" name="codigo" maxlength="4" value="${esc(t.codigo || '')}" required></div>
           <div class="field"><label>Técnico</label><input type="text" name="tecnico" value="${esc(t.tecnico || '')}"></div>
           <div class="field"><label>Estádio</label><input type="text" name="estadio" value="${esc(t.estadio || '')}"></div>
+          <div class="field"><label>Escudo (endereço da imagem)</label>
+            <div style="display:flex;gap:10px;align-items:center;">${UI.bandeira(t, 'lg')}<input type="url" name="escudo" value="${esc(t.escudo || '')}" placeholder="https://… (vazio = distintivo com a sigla)" style="flex:1;"></div>
+          </div>
           <div class="field"><label>Cores (camisa e detalhe)</label>
             <div style="display:flex;gap:8px;">
               <input type="color" name="cor1" value="${(t.cores || [])[0] || '#5d667b'}" style="height:40px;">
@@ -75,6 +78,7 @@ AdminUI.registrar('times', () => {
             tecnico: dados.get('tecnico').trim(),
             estadio: dados.get('estadio').trim(),
             cores: [dados.get('cor1'), dados.get('cor2')],
+            escudo: dados.get('escudo').trim() || null,
           });
           AdminUI.fecharModal();
           renderTabela();
