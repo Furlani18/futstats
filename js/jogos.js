@@ -136,7 +136,7 @@ AdminUI.registrar('jogos', () => {
       corpoHtml: `
         ${camposNovo}
         <div class="field-row">
-          <div class="field"><label>Data e hora (Brasília)</label><input type="datetime-local" name="data" value="${existente ? existente.data.slice(0, 16) : '2026-06-11T16:00'}" required></div>
+          <div class="field"><label>Data e hora (Brasília)</label><input type="datetime-local" name="data" value="${existente ? existente.data.slice(0, 16) : `${comp.inicio || '2026-06-11'}T16:00`}" required></div>
           <div class="field"><label>Estádio / cidade</label><input type="text" name="local" value="${esc(existente ? existente.local : '')}" placeholder="Ex.: MetLife Stadium, Nova York/Nova Jersey" required></div>
           <div class="field"><label>Status</label><select name="status" id="f-status" required>${opcoesStatus}</select></div>
         </div>
@@ -228,6 +228,13 @@ AdminUI.registrar('jogos', () => {
         estado.visitanteId = fV.value;
         // Lances de outro confronto não fazem sentido: começa do zero.
         if (mudou) { estado.gols = []; estado.cartoes = []; estado.escalacoes = {}; }
+        // Clube: sugere o estádio do mandante (se o campo ainda não foi digitado à mão).
+        const campoLocal = document.querySelector('input[name="local"]');
+        const mandante = DB.Times.get(fM.value);
+        if (campoLocal && mandante && mandante.estadio && (!campoLocal.value || campoLocal.dataset.auto)) {
+          campoLocal.value = mandante.estadio;
+          campoLocal.dataset.auto = '1';
+        }
         atualizarRotulos();
         renderLances();
       };
@@ -235,6 +242,7 @@ AdminUI.registrar('jogos', () => {
       fFase.addEventListener('change', ajustarFase);
       fM.addEventListener('change', trocarTimes);
       fV.addEventListener('change', trocarTimes);
+      document.querySelector('input[name="local"]').addEventListener('input', e => delete e.target.dataset.auto);
       ajustarFase();
     }
 

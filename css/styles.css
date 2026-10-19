@@ -109,6 +109,8 @@
 }
 
 * { box-sizing: border-box; }
+/* o atributo hidden sempre vence (senão regras com display: flex/grid o anulam) */
+[hidden] { display: none !important; }
 
 /* Transição suave entre páginas; o menu fica parado enquanto o conteúdo troca. */
 @view-transition { navigation: auto; }
@@ -1490,7 +1492,6 @@ a.featured:hover { border-color: var(--gold); transform: translateY(-2px); }
   border: 1px solid color-mix(in srgb, var(--time-1) 28%, var(--border));
   backdrop-filter: blur(8px);
 }
-.time-forma[hidden] { display: none; }
 .forma-rotulo { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); }
 .forma-pills { display: flex; gap: 6px; }
 .forma-pill {
