@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mata-mata — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Chaveamento do mata-mata da Copa 2026: 32avos, oitavas, quartas, semifinais e final.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Mata-mata — Copa do Mundo FIFA 2026 — FUTSTATS">
+<meta property="og:description" content="Chaveamento do mata-mata da Copa 2026: 32avos, oitavas, quartas, semifinais e final.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/chaveamento.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -21,24 +35,19 @@
 </section>
 
 <main class="page">
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="panel final-card">
-      <div class="panel-header"><span class="panel-title">🏆 Final</span><span class="group-status">19/07 · MetLife Stadium</span></div>
-      <div class="panel-body" id="bloco-final"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Disputa de 3º lugar</span><span class="group-status">18/07 · Miami</span></div>
-      <div class="panel-body" id="bloco-terceiro"></div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">32avos → Final</span><span class="group-status">Final · 19/07 · MetLife Stadium</span></div>
+    <div class="panel-body">
+      <div class="tree-hint">↔ Arraste para o lado para ver o chaveamento inteiro.</div>
+      <div class="tree-wrap">
+        <div class="tree" id="arvore"></div>
+      </div>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-header"><span class="panel-title">32avos → Semifinal</span></div>
-    <div class="panel-body">
-      <div class="bracket-wrap">
-        <div class="bracket" id="bracket"></div>
-      </div>
-    </div>
+  <div class="panel" style="margin-top:20px;max-width:420px;">
+    <div class="panel-header"><span class="panel-title">Disputa de 3º lugar</span><span class="group-status">18/07 · Miami</span></div>
+    <div class="panel-body" id="bloco-terceiro"></div>
   </div>
 </main>
 

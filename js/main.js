@@ -14,15 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const nomeCurto = time => (time ? time.codigo : '—');
   const kpi = (label, valor, nota) => `
     <div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${valor}</div><div class="kpi-note">${nota || '&nbsp;'}</div></div>`;
+  const conta = (valor, decimais = 0) => `<span data-contar="${valor}" data-decimais="${decimais}">${Number(valor).toFixed(decimais).replace('.', ',')}</span>`;
   document.getElementById('kpis').innerHTML = [
-    kpi('Jogos disputados', `${r.jogos}<span style="font-size:18px;color:var(--text-faint)">/104</span>`, `${r.totalJogos} cadastrados`),
-    kpi('Gols', r.gols, `${r.penaltis} de pênalti · ${r.golsContra} contra`),
-    kpi('Média por jogo', r.media.toFixed(2).replace('.', ',')),
-    kpi('Artilheiro', artilheiro ? artilheiro.gols : '—', artilheiro ? DB.Util.escapar(artilheiro.jogador.nome) : 'sem gols cadastrados'),
-    kpi('Líder em assistências', garcom ? garcom.assistencias : '—', garcom ? DB.Util.escapar(garcom.jogador.nome) : 'sem assistências'),
+    kpi('Jogos disputados', `${conta(r.jogos)}<span style="font-size:18px;color:var(--text-faint)">/104</span>`, `${r.totalJogos} cadastrados`),
+    kpi('Gols', conta(r.gols), `${r.penaltis} de pênalti · ${r.golsContra} contra`),
+    kpi('Média por jogo', conta(r.media, 2)),
+    kpi('Artilheiro', artilheiro ? conta(artilheiro.gols) : '—', artilheiro ? DB.Util.escapar(artilheiro.jogador.nome) : 'sem gols cadastrados'),
+    kpi('Líder em assistências', garcom ? conta(garcom.assistencias) : '—', garcom ? DB.Util.escapar(garcom.jogador.nome) : 'sem assistências'),
     kpi('Maior goleada', goleada ? `${goleada.golsMandante}–${goleada.golsVisitante}` : '—',
       goleada ? `${nomeCurto(DB.Times.get(goleada.mandanteId))} x ${nomeCurto(DB.Times.get(goleada.visitanteId))}` : ''),
   ].join('');
+  UI.animarNumeros(document.getElementById('kpis'));
+
+  // ---------- Jogo em destaque: ao vivo › próximo › último resultado ----------
+  montarDestaque();
 
   // ---------- Partidas: ao vivo + próximas; senão, últimos resultados ----------
   const todos = DB.Jogos.all().sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -72,3 +77,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   UI.montarFooter();
 });
+
+function montarDestaque() {
+  const mount = document.getElementById('destaque');
+  const jogos = DB.Jogos.all().filter(j => j.mandanteId && j.visitanteId).sort((a, b) => new Date(a.data) - new Date(b.data));
+  const agora = Date.now();
+  const aoVivo = jogos.find(j => j.status === 'ao_vivo');
+  const proximo = jogos.find(j => j.status === 'agendado' && new Date(j.data).getTime() > agora)
+    || jogos.find(j => j.status === 'agendado');
+  const ultimo = [...jogos].reverse().find(j => j.status === 'encerrado');
+  const jogo = aoVivo || proximo || ultimo;
+  if (!jogo) { mount.innerHTML = ''; return; }
+
+  const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
+  const tipo = jogo === aoVivo ? 'vivo' : jogo === proximo ? 'proximo' : 'ultimo';
+  const rotulo = { vivo: '<span class="live-dot"></span> Ao vivo', proximo: 'Próximo jogo', ultimo: 'Último resultado' }[tipo];
+  const lado = t => `<span class="featured-team">${UI.bandeira(t, 'lg')}<span class="nome">${DB.Util.escapar(t.nome)}</span></span>`;
+  const futuro = new Date(jogo.data).getTime() > agora;
+  const centro = tipo === 'proximo'
+    ? (futuro ? '<div class="countdown" id="contagem"></div>' : `<div class="featured-score" style="font-size:30px;">${DB.Util.formatarHora(jogo.data)}<small>${DB.Util.formatarData(jogo.data)}</small></div>`)
+    : `<div class="featured-score${tipo === 'vivo' ? ' live' : ''}">${jogo.golsMandante ?? 0}–${jogo.golsVisitante ?? 0}${
+      jogo.penaltisMandante != null ? `<small>pên. ${jogo.penaltisMandante}–${jogo.penaltisVisitante}</small>` : ''}</div>`;
+  const gols = UI.temPlacar(jogo)
+    ? [UI.autoresResumo(jogo, m.id, 2), UI.autoresResumo(jogo, v.id, 2)].filter(Boolean).join(' · ')
+    : '';
+
+  mount.innerHTML = `
+    <a class="featured" href="jogo.html?id=${jogo.id}">
+      <div class="featured-label${tipo === 'vivo' ? ' live' : ''}"><span>${rotulo}</span><span>${UI.rotuloJogo(jogo)}</span></div>
+      <div class="featured-teams">${lado(m)}${centro}${lado(v)}</div>
+      <div class="featured-foot">${gols || `${DB.Util.formatarDiaLongo(jogo.data)} · ${DB.Util.formatarHora(jogo.data)}${jogo.local ? ` · ${DB.Util.escapar(jogo.local.split(',').pop().trim())}` : ''}`}</div>
+    </a>`;
+
+  const contagem = document.getElementById('contagem');
+  if (contagem) {
+    const alvo = new Date(jogo.data).getTime();
+    const tick = () => {
+      const resta = Math.max(0, alvo - Date.now());
+      const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, mi = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
+      const bloco = (n, l) => `<div><b>${String(n).padStart(2, '0')}</b><span>${l}</span></div>`;
+      contagem.innerHTML = bloco(d, 'dias') + bloco(h, 'horas') + bloco(mi, 'min') + bloco(s, 'seg');
+      if (resta > 0) setTimeout(tick, 1000);
+    };
+    tick();
+  }
+}

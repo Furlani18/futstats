@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FUTSTATS — Copa do Mundo FIFA 2026</title>
 <meta name="description" content="Resultados, classificação, artilharia, assistências e elencos da Copa do Mundo FIFA 2026.">
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#070a12">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="FUTSTATS — Copa do Mundo FIFA 2026">
+<meta property="og:description" content="Resultados, classificação, artilharia, assistências e elencos da Copa do Mundo FIFA 2026.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -14,9 +27,14 @@
 
 <section class="hero">
   <div class="container">
-    <div class="section-eyebrow" id="hero-fase">Fase de grupos</div>
-    <h1 class="hero-title">Copa do Mundo<br><span class="gold">FIFA 2026</span></h1>
-    <p class="hero-sub"><strong>Estados Unidos, México e Canadá</strong> · 11 de junho a 19 de julho · 48 seleções · 104 jogos</p>
+    <div class="hero-grid">
+      <div>
+        <div class="section-eyebrow" id="hero-fase">Fase de grupos</div>
+        <h1 class="hero-title">Copa do Mundo<br><span class="gold">FIFA 2026</span></h1>
+        <p class="hero-sub" style="margin:0;"><strong>Estados Unidos, México e Canadá</strong> · 11 de junho a 19 de julho · 48 seleções · 104 jogos</p>
+      </div>
+      <div id="destaque"></div>
+    </div>
     <div class="kpi-strip" id="kpis"></div>
   </div>
 </section>

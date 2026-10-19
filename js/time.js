@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nome-time').textContent = time.nome;
   document.getElementById('eyebrow-time').textContent = `${time.codigo} · ${time.confederacao}`;
   document.getElementById('flag-mount').innerHTML = UI.bandeira(time, 'xl');
+  const pintarTopo = time => {
+    const c = DB.Util.coresTime(time);
+    const topo = document.querySelector('.page-hero');
+    topo.classList.add('hero-time');
+    topo.style.setProperty('--time-1', c.primaria);
+    topo.style.setProperty('--time-2', c.secundaria);
+  };
+  pintarTopo(time);
 
   const elenco = DB.Jogadores.all().filter(j => j.timeId === time.id);
   const capitao = elenco.find(j => j.capitao);

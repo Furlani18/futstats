@@ -4,26 +4,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const chave = DB.MataMata.sincronizar();
 
-  document.getElementById('bracket').innerHTML = [
-    colunaHtml('32avos de final', chave.r32),
-    colunaHtml('Oitavas de final', chave.r16),
-    colunaHtml('Quartas de final', chave.qf),
-    colunaHtml('Semifinais', chave.sf),
-  ].join('');
+  // Árvore clássica: metade esquerda → final ← metade direita (espelhada).
+  // Cada fase leva os vencedores de dois jogos consecutivos da anterior, então a
+  // metade esquerda é a primeira metade de cada lista e a direita, a segunda.
+  const metade = (lista, lado) => (lado === 'esq' ? lista.slice(0, lista.length / 2) : lista.slice(lista.length / 2));
+  const fases = [
+    ['r32', '32avos', chave.r32],
+    ['r16', 'Oitavas', chave.r16],
+    ['qf', 'Quartas', chave.qf],
+    ['sf', 'Semifinal', chave.sf],
+  ];
+  const colunasEsq = fases.map(([id, titulo, lista]) => coluna(id, titulo, metade(lista, 'esq'), 'esq'));
+  const colunasDir = fases.map(([id, titulo, lista]) => coluna(id, titulo, metade(lista, 'dir'), 'dir')).reverse();
 
-  document.getElementById('bloco-final').innerHTML = cartaoHtml(chave.final);
-  document.getElementById('bloco-terceiro').innerHTML = cartaoHtml(chave.terceiro);
+  const finalJogo = chave.final.jogoId ? DB.Jogos.get(chave.final.jogoId) : null;
+  const campeaoId = finalJogo && finalJogo.status === 'encerrado' ? DB.MataMata.vencedor(finalJogo) : null;
+  const campeao = campeaoId ? DB.Times.get(campeaoId) : null;
+  const colunaFinal = `
+    <div class="tree-col final-col">
+      <div class="tree-title">Final</div>
+      <div class="tree-body">
+        <div class="tree-pair unico"><div class="tree-slot">
+          <div class="tree-trofeu" aria-hidden="true">🏆</div>
+          ${cartaoHtml(chave.final, 'tree-final-card')}
+          <div class="tree-campeao">${campeao ? `${UI.bandeira(campeao, 'sm')} Campeão: ${DB.Util.escapar(campeao.nome)}` : 'Campeão do mundo'}</div>
+        </div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('arvore').innerHTML = [...colunasEsq, colunaFinal, ...colunasDir].join('');
+  document.getElementById('bloco-terceiro').innerHTML = cartaoHtml(chave.terceiro, '', false);
 
   UI.montarFooter();
 });
 
-function ladoHtml(timeId, rotulo, gols, classe) {
-  const time = timeId ? DB.Times.get(timeId) : null;
-  const nome = time ? time.nome : rotulo;
-  return `<div class="bracket-team ${classe}">${time ? UI.bandeira(time, 'sm') : ''}<span class="nome">${DB.Util.escapar(nome)}</span><span class="gols">${gols ?? ''}</span></div>`;
+function coluna(id, titulo, itens, lado) {
+  const pares = [];
+  for (let i = 0; i < itens.length; i += 2) pares.push(itens.slice(i, i + 2));
+  return `
+    <div class="tree-col ${lado} ${id}">
+      <div class="tree-title">${titulo}</div>
+      <div class="tree-body">
+        ${pares.map(par => `<div class="tree-pair${par.length === 1 ? ' unico' : ''}">
+          ${par.map(item => `<div class="tree-slot">${cartaoHtml(item)}</div>`).join('')}
+        </div>`).join('')}
+      </div>
+    </div>`;
 }
 
-function cartaoHtml(item) {
+function ladoHtml(timeId, rotulo, gols, classe, compacto) {
+  const time = timeId ? DB.Times.get(timeId) : null;
+  const nome = time ? time.nome : rotulo;
+  // Na árvore usa o código (BRA, GER…) para caber; o nome completo fica na dica.
+  const texto = time && compacto ? time.codigo : nome;
+  return `<div class="bracket-team ${classe}">${time ? UI.bandeira(time, 'sm') : ''}<span class="nome" title="${DB.Util.escapar(nome)}">${DB.Util.escapar(texto)}</span><span class="gols">${gols ?? ''}</span></div>`;
+}
+
+function cartaoHtml(item, classeExtra = '', compacto = true) {
   const jogo = item.jogoId ? DB.Jogos.get(item.jogoId) : null;
   const comPlacar = jogo && UI.temPlacar(jogo);
   const vencedor = jogo && jogo.status === 'encerrado' ? DB.MataMata.vencedor(jogo) : null;
@@ -32,18 +69,11 @@ function cartaoHtml(item) {
     ? `<div class="bracket-meta">Pênaltis: ${jogo.penaltisMandante}–${jogo.penaltisVisitante}</div>` : '';
   const data = jogo ? `<div class="bracket-meta">${DB.Util.formatarDataHora(jogo.data)}</div>` : '';
   const corpo = `
-    ${ladoHtml(jogo && jogo.mandanteId, item.labelMandante, comPlacar ? jogo.golsMandante : null, jogo ? classe(jogo.mandanteId) : '')}
-    ${ladoHtml(jogo && jogo.visitanteId, item.labelVisitante, comPlacar ? jogo.golsVisitante : null, jogo ? classe(jogo.visitanteId) : '')}
+    ${ladoHtml(jogo && jogo.mandanteId, item.labelMandante, comPlacar ? jogo.golsMandante : null, jogo ? classe(jogo.mandanteId) : '', compacto)}
+    ${ladoHtml(jogo && jogo.visitanteId, item.labelVisitante, comPlacar ? jogo.golsVisitante : null, jogo ? classe(jogo.visitanteId) : '', compacto)}
     ${pen || (comPlacar ? '' : data)}`;
+  const classes = `bracket-match${item.projetado ? ' projetado' : ''} ${classeExtra}`.trim();
   return jogo
-    ? `<a class="bracket-match${item.projetado ? ' projetado' : ''}" href="jogo.html?id=${jogo.id}">${corpo}</a>`
-    : `<div class="bracket-match projetado">${corpo}</div>`;
-}
-
-function colunaHtml(titulo, itens) {
-  return `
-    <div class="bracket-round">
-      <div class="bracket-round-title">${titulo}</div>
-      ${itens.map(cartaoHtml).join('')}
-    </div>`;
+    ? `<a class="${classes}" href="jogo.html?id=${jogo.id}">${corpo}</a>`
+    : `<div class="${classes}${item.projetado ? '' : ' projetado'}">${corpo}</div>`;
 }

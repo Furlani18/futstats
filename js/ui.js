@@ -45,25 +45,31 @@ const UI = (() => {
     ativarPreCarregamento();
     const secao = SECOES[paginaAtual()] || '';
     mount.innerHTML = `
+      <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
       <div class="host-stripe"></div>
       <div class="topbar">
         <div class="topbar-inner">
           <a class="topbar-logo" href="index.html">
-            <span class="logo-mark">⚽</span>FUT<span class="accent">STATS</span>
+            <span class="logo-mark"><img src="favicon.svg" alt=""></span>FUT<span class="accent">STATS</span>
             <span class="logo-tag">Copa 2026</span>
           </a>
           <button type="button" class="search-btn" id="btn-busca" aria-label="Buscar jogador ou seleção" title="Buscar (Ctrl+K)">
             <span aria-hidden="true">⌕</span><span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
           </button>
+          <button type="button" class="theme-btn" id="btn-tema" aria-label="Alternar tema claro/escuro" title="Tema claro/escuro"></button>
           <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
           <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menu">☰</label>
           <nav class="topbar-nav">
-            ${NAV.map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}">${label}</a>`).join('')}
+            ${NAV.map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
             <a href="login.html" class="nav-admin">Painel</a>
           </nav>
         </div>
       </div>`;
     ativarBusca();
+    ativarTema();
+    montarBarraInferior(secao);
+    const principal = document.querySelector('main');
+    if (principal && !principal.id) principal.id = 'conteudo';
   }
 
   // ---------- Busca global (jogadores e seleções) ----------
@@ -146,6 +152,70 @@ const UI = (() => {
     });
   }
 
+  // ---------- Tema claro/escuro ----------
+  function temaAtual() {
+    const escolhido = document.documentElement.dataset.theme;
+    if (escolhido) return escolhido;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function ativarTema() {
+    const botao = document.getElementById('btn-tema');
+    if (!botao) return;
+    const atualizar = () => { botao.textContent = temaAtual() === 'light' ? '🌙' : '☀️'; };
+    botao.addEventListener('click', () => {
+      const novo = temaAtual() === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = novo;
+      try { localStorage.setItem('fs_tema', novo); } catch (e) { /* sem armazenamento: vale só nesta página */ }
+      atualizar();
+    });
+    atualizar();
+  }
+
+  // ---------- Barra de navegação inferior (celular) ----------
+  const ICONES = {
+    inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+    partidas: '<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/>',
+    grupos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16"/>',
+    estatisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+    mais: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  };
+  const icone = id => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES[id]}</svg>`;
+
+  function montarBarraInferior(secao) {
+    if (document.querySelector('.bottom-nav')) return;
+    const principais = [['inicio', 'index.html', 'Início'], ['partidas', 'partidas.html', 'Partidas'], ['grupos', 'grupos.html', 'Grupos'], ['estatisticas', 'estatisticas.html', 'Números']];
+    const noMais = !principais.some(([id]) => id === secao) && secao;
+    const barra = document.createElement('nav');
+    barra.className = 'bottom-nav';
+    barra.setAttribute('aria-label', 'Navegação principal');
+    barra.innerHTML = principais.map(([id, href, label]) =>
+      `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${icone(id)}<span>${label}</span></a>`).join('')
+      + `<label for="nav-toggle" class="${noMais ? 'active' : ''}">${icone('mais')}<span>Mais</span></label>`;
+    document.body.appendChild(barra);
+    document.body.classList.add('com-barra-inferior');
+  }
+
+  // ---------- Números que contam até o valor ----------
+  // Elementos com data-contar="154" (e opcional data-decimais="2") animam do 0 ao valor.
+  function animarNumeros(raiz = document) {
+    const reduzir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    raiz.querySelectorAll('[data-contar]').forEach(el => {
+      const alvo = Number(el.dataset.contar);
+      const casas = Number(el.dataset.decimais || 0);
+      const formatar = v => v.toFixed(casas).replace('.', ',');
+      if (reduzir || !alvo) { el.textContent = formatar(alvo); return; }
+      const duracao = 900;
+      const inicio = performance.now();
+      const passo = agora => {
+        const t = Math.min(1, (agora - inicio) / duracao);
+        el.textContent = formatar(alvo * (1 - (1 - t) ** 3));
+        if (t < 1) requestAnimationFrame(passo);
+      };
+      requestAnimationFrame(passo);
+    });
+  }
+
   function montarTicker() {
     const mount = document.getElementById('ticker-mount');
     if (!mount) return;
@@ -212,9 +282,14 @@ const UI = (() => {
     return `<a class="team-inline" href="time.html?id=${time.id}">${bandeira(time, opts.tamanho || '')}<span class="nome">${esc(nome)}</span></a>`;
   }
 
+  function estiloCores(timeId) {
+    const c = DB.Util.coresTime(DB.Times.get(timeId));
+    return `background:${c.primaria};color:${c.texto};box-shadow:0 0 0 2px ${c.secundaria};`;
+  }
+
   function avatar(jogador) {
     const num = jogador.numero != null ? `<span class="shirt-num">${jogador.numero}</span>` : '';
-    return `<span class="avatar">${esc(DB.Util.iniciais(jogador.nome))}${num}</span>`;
+    return `<span class="avatar" style="${estiloCores(jogador.timeId)}">${esc(DB.Util.iniciais(jogador.nome))}${num}</span>`;
   }
 
   // ---------- Jogos ----------
@@ -239,16 +314,37 @@ const UI = (() => {
     return `<span class="match-score${jogo.status === 'ao_vivo' ? ' live' : ''}">${jogo.golsMandante} – ${jogo.golsVisitante}${pen}</span>`;
   }
 
+  // "R. Jiménez 12', 60+2' · Vega 69'" — resumo curto dos gols de um lado.
+  function autoresResumo(jogo, timeId, limite = 3) {
+    const porAutor = new Map();
+    [...(jogo.gols || [])]
+      .filter(g => g.timeId === timeId)
+      .sort((a, b) => DB.Util.minutoNumero(a.minuto) - DB.Util.minutoNumero(b.minuto))
+      .forEach(g => {
+        const j = DB.Jogadores.get(g.jogadorId);
+        const nome = j ? nomeCurto(j.nome) : 'Gol';
+        const sufixo = g.tipo === 'penalti' ? ' (p)' : g.tipo === 'contra' ? ' (c)' : '';
+        if (!porAutor.has(nome)) porAutor.set(nome, []);
+        porAutor.get(nome).push(`${g.minuto ? `${g.minuto}'` : ''}${sufixo}`.trim());
+      });
+    const itens = [...porAutor].map(([nome, mins]) => `${esc(nome)} ${esc(mins.filter(Boolean).join(', '))}`.trim());
+    return itens.length > limite ? `${itens.slice(0, limite).join(' · ')} …` : itens.join(' · ');
+  }
+
   function linhaJogo(jogo, opts = {}) {
     const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
     const vencedor = jogo.status === 'encerrado' ? DB.MataMata.vencedor(jogo) : null;
     const hora = jogo.status === 'ao_vivo'
       ? '<span class="match-time live"><span class="live-dot"></span>AO VIVO</span>'
       : `<span class="match-time">${opts.comData ? DB.Util.formatarData(jogo.data).slice(0, 5) : DB.Util.formatarHora(jogo.data)}</span>`;
-    const lado = (time, classe) => `
+    const lado = (time, classe) => {
+      const gols = time && temPlacar(jogo) ? autoresResumo(jogo, time.id) : '';
+      const texto = `<span class="side-txt"><span class="nome">${time ? esc(time.nome) : 'A definir'}</span>${gols ? `<span class="mini-gols">${gols}</span>` : ''}</span>`;
+      return `
       <span class="match-side ${classe}${vencedor && time && vencedor !== time.id ? ' perdeu' : ''}">
-        ${classe === 'home' ? `<span class="nome">${time ? esc(time.nome) : 'A definir'}</span>${bandeira(time)}` : `${bandeira(time)}<span class="nome">${time ? esc(time.nome) : 'A definir'}</span>`}
+        ${classe === 'home' ? `${texto}${bandeira(time)}` : `${bandeira(time)}${texto}`}
       </span>`;
+    };
     return `
       <a class="match-row" href="jogo.html?id=${jogo.id}">
         ${hora}
@@ -373,7 +469,7 @@ const UI = (() => {
       if (!item) return '<span class="pitch-player vazio"><span class="shirt"></span><span class="nome">—</span></span>';
       const j = item.jogador;
       return `<a class="pitch-player${j.posicao === 'Goleiro' ? ' gk' : ''}" href="jogador.html?id=${j.id}" title="${esc(j.nome)}">
-        <span class="shirt">${j.numero ?? ''}${item.pts != null ? `<span class="pts">${item.pts}</span>` : ''}</span>
+        <span class="shirt" style="${j.posicao === 'Goleiro' ? '' : estiloCores(j.timeId)}">${j.numero ?? ''}${item.pts != null ? `<span class="pts">${item.pts}</span>` : ''}</span>
         <span class="nome">${esc(nomeCurto(j.nome))}</span>
         <span class="tags">${item.tags || ''}</span>
       </a>`;
@@ -390,5 +486,6 @@ const UI = (() => {
     bandeira, bandeiraClube, crestHtml, timeLink, avatar,
     badge, rotuloJogo, temPlacar, placarHtml, linhaJogo, linhaJogoCompacta, listaPorDia, formaRecente,
     tabelaGrupo, legendaZonas, listaLideres, vazio, campinho, nomeCurto,
+    autoresResumo, animarNumeros, estiloCores,
   };
 })();

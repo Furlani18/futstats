@@ -12,10 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const time = DB.Times.get(jogador.timeId);
   const s = DB.Estatisticas.doJogador(jogador.id);
+  const pintarTopo = time => {
+    const c = DB.Util.coresTime(time);
+    const topo = document.querySelector('.page-hero');
+    topo.classList.add('hero-time');
+    topo.style.setProperty('--time-1', c.primaria);
+    topo.style.setProperty('--time-2', c.secundaria);
+  };
+  pintarTopo(time);
 
   document.getElementById('page-title').textContent = `${jogador.nome} — Copa 2026 — FUTSTATS`;
   document.getElementById('breadcrumb').innerHTML = `<a href="index.html">Início</a> / <a href="time.html?id=${time.id}">${esc(time.nome)}</a> / <span>${esc(jogador.nome)}</span>`;
-  document.getElementById('avatar-mount').innerHTML = `<span class="avatar" style="width:96px;height:96px;font-size:38px;">${esc(DB.Util.iniciais(jogador.nome))}
+  document.getElementById('avatar-mount').innerHTML = `<span class="avatar" style="width:96px;height:96px;font-size:38px;${UI.estiloCores(jogador.timeId)}">${esc(DB.Util.iniciais(jogador.nome))}
     <span class="shirt-num" style="min-width:30px;height:30px;font-size:14px;border-radius:15px;">${jogador.numero ?? '–'}</span></span>`;
   document.getElementById('eyebrow-jogador').textContent = `${jogador.posicao}${jogador.capitao ? ' · Capitão' : ''}`;
   document.getElementById('nome-jogador').textContent = jogador.nome;

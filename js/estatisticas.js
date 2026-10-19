@@ -5,15 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const esc = DB.Util.escapar;
   const r = DB.Estatisticas.resumo();
-  const kpi = (label, valor) => `<div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${valor}</div></div>`;
+  const kpi = (label, valor, decimais = 0) => `<div class="kpi"><div class="kpi-label">${label}</div>
+    <div class="kpi-value"><span data-contar="${valor}" data-decimais="${decimais}">${Number(valor).toFixed(decimais).replace('.', ',')}</span></div></div>`;
   document.getElementById('kpis').innerHTML = [
     kpi('Jogos', r.jogos),
     kpi('Gols', r.gols),
-    kpi('Média de gols', r.media.toFixed(2).replace('.', ',')),
+    kpi('Média de gols', r.media, 2),
     kpi('Gols de pênalti', r.penaltis),
     kpi('Cartões amarelos', r.amarelos),
     kpi('Cartões vermelhos', r.vermelhos),
   ].join('');
+  UI.animarNumeros(document.getElementById('kpis'));
 
   document.getElementById('lista-gols').innerHTML = UI.listaLideres('gols', 10, 'gols', 'Nenhum gol com autor cadastrado ainda.');
   document.getElementById('lista-assist').innerHTML = UI.listaLideres('assistencias', 10, 'assist.', 'Nenhuma assistência cadastrada ainda.');

@@ -1026,7 +1026,34 @@ const DB = (() => {
 
   const CORES = ['#33e08a', '#ff8a3d', '#5b8cff', '#ff5470', '#c792ea', '#ffd166'];
 
+  // Cores de cada seleção (camisa principal, detalhe) — usadas no topo da página
+  // da seleção e nos avatares dos jogadores.
+  const CORES_SELECAO = {
+    MEX: ['#006847', '#ce1126'], RSA: ['#ffb612', '#007a4d'], KOR: ['#c60c30', '#003478'], CZE: ['#d7141a', '#11457e'],
+    CAN: ['#d80621', '#ffffff'], SUI: ['#d52b1e', '#ffffff'], QAT: ['#8a1538', '#ffffff'], BIH: ['#002395', '#fecb00'],
+    BRA: ['#ffdf00', '#009c3b'], MAR: ['#c1272d', '#006233'], HAI: ['#00209f', '#d21034'], SCO: ['#0065bd', '#ffffff'],
+    USA: ['#0a3161', '#b31942'], PAR: ['#d52b1e', '#0038a8'], AUS: ['#ffcd00', '#00843d'], TUR: ['#e30a17', '#ffffff'],
+    GER: ['#f2f2f2', '#dd0000'], CUW: ['#002b7f', '#f9e814'], CIV: ['#f77f00', '#009e60'], ECU: ['#ffdd00', '#034ea2'],
+    NED: ['#f36c21', '#21468b'], JPN: ['#1d3a8a', '#bc002d'], TUN: ['#e70013', '#ffffff'], SWE: ['#fecc02', '#006aa7'],
+    BEL: ['#c8102e', '#fae042'], EGY: ['#ce1126', '#c09300'], IRN: ['#ffffff', '#239f40'], NZL: ['#f2f2f2', '#111111'],
+    ESP: ['#c60b1e', '#ffc400'], CPV: ['#003893', '#cf2027'], KSA: ['#006c35', '#ffffff'], URU: ['#5cbfeb', '#0b1f45'],
+    FRA: ['#002654', '#ed2939'], IRQ: ['#007a3d', '#ce1126'], NOR: ['#ba0c2f', '#00205b'], SEN: ['#00853f', '#fdef42'],
+    ARG: ['#74acdf', '#ffffff'], ALG: ['#006233', '#d21034'], AUT: ['#ed2939', '#ffffff'], JOR: ['#ce1126', '#007a3d'],
+    POR: ['#da291c', '#046a38'], UZB: ['#0099b5', '#1eb53a'], COL: ['#fcd116', '#003893'], COD: ['#007fff', '#f7d618'],
+    ENG: ['#f2f2f2', '#cf081f'], CRO: ['#ff0000', '#171796'], GHA: ['#f2f2f2', '#006b3f'], PAN: ['#da121a', '#005293'],
+  };
+
+  function luminancia(hex) {
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map(c => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
   const Util = {
+    coresTime(time) {
+      const [primaria, secundaria] = (time && CORES_SELECAO[time.codigo]) || ['#5d667b', '#8f98ad'];
+      return { primaria, secundaria, texto: luminancia(primaria) > 0.35 ? '#0b0f1a' : '#ffffff' };
+    },
     minutoNumero,
     escapar(texto) {
       return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
