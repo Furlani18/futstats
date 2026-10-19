@@ -3,45 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Time — FUTSTATS</title>
+<title id="page-title">Seleção — FUTSTATS</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
 
-<main class="page">
-  <div class="breadcrumb"><a href="index.html">Início</a> / <span id="breadcrumb-nome">Time</span></div>
-
-  <div class="team-header">
-    <div id="crest-mount"></div>
-    <div>
-      <h1 class="section-title" style="margin-bottom:4px;" id="nome-time">Carregando...</h1>
-      <div style="color:var(--text-dim);font-weight:600;font-size:14px;" id="meta-time"></div>
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <a href="selecoes.html">Seleções</a> / <span id="breadcrumb-nome">Seleção</span></div>
+    <div class="profile-head">
+      <div id="flag-mount"></div>
+      <div>
+        <div class="section-eyebrow" id="eyebrow-time"></div>
+        <h1 class="section-title" id="nome-time">Carregando...</h1>
+        <div class="profile-facts" id="fatos-time"></div>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="layout-grid" style="grid-template-columns: 1fr 340px;">
-    <section>
-      <div class="section-eyebrow">Elenco</div>
-      <h2 class="section-title" style="font-size:22px;">Jogadores</h2>
-      <div class="player-grid" id="grid-jogadores"></div>
+<main class="page">
+  <div class="stat-tiles" id="tiles-time" style="margin-bottom:20px;"></div>
+
+  <div class="grid-main">
+    <section class="panel">
+      <div class="panel-header"><span class="panel-title">Elenco · <span id="qtd-elenco">26</span> convocados</span></div>
+      <div id="elenco"></div>
     </section>
 
-    <aside>
-      <div class="panel" style="margin-bottom:16px;">
-        <div class="panel-header"><span class="panel-title">Grupo</span></div>
-        <div class="panel-body">
-          <table class="standings-table" id="tabela-grupo-time">
-            <thead><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    <aside class="stack">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title" id="titulo-grupo">Grupo</span><a id="link-grupo" href="grupos.html">Ver grupos →</a></div>
+        <div id="tabela-grupo"></div>
       </div>
-
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Jogos</span></div>
-        <div id="jogos-time"></div>
+        <div class="match-list" id="jogos-time"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Artilheiros da seleção</span></div>
+        <div id="artilheiros-time"></div>
       </div>
     </aside>
   </div>
@@ -49,6 +53,7 @@
 
 <div id="footer-mount"></div>
 
+<script src="js/elencos.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/time.js"></script>

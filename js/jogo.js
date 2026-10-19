@@ -2,88 +2,133 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.montarTopbar();
   DB.MataMata.sincronizar();
 
-  const params = new URLSearchParams(window.location.search);
-  const jogo = DB.Jogos.get(params.get('id'));
+  const esc = DB.Util.escapar;
+  const jogo = DB.Jogos.get(new URLSearchParams(window.location.search).get('id'));
 
   if (!jogo) {
-    document.getElementById('hero-jogo').innerHTML = '<p>Jogo não encontrado.</p>';
+    document.getElementById('hero-jogo').innerHTML = '<p style="grid-column:1/-1;text-align:center;">Jogo não encontrado.</p>';
     UI.montarFooter();
     return;
   }
 
   const mandante = DB.Times.get(jogo.mandanteId);
   const visitante = DB.Times.get(jogo.visitanteId);
-  const placar = (jogo.status === 'agendado' || jogo.status === 'adiado')
-    ? 'vs'
-    : `${jogo.golsMandante} - ${jogo.golsVisitante}`;
-  const pens = (jogo.penaltisMandante != null && jogo.penaltisVisitante != null)
-    ? ` <span style="font-size:16px;color:var(--text-dim);">(pên. ${jogo.penaltisMandante}-${jogo.penaltisVisitante})</span>`
-    : '';
-
-  const faseLabel = DB.Util.faseLabel(jogo.fase);
+  const nome = t => (t ? t.nome : 'A definir');
+  const rotuloFase = UI.rotuloJogo(jogo);
   const linkFase = jogo.fase === 'grupos' ? `grupos.html#grupo-${jogo.grupo}` : 'chaveamento.html';
-  const rotuloFase = jogo.fase === 'grupos' ? `Grupo ${jogo.grupo}` : faseLabel;
 
-  document.getElementById('page-title').textContent = `${mandante.nome} x ${visitante.nome} — FUTSTATS`;
-  document.getElementById('breadcrumb').innerHTML = `<a href="index.html">Início</a> / <a href="${linkFase}">${rotuloFase}</a> / <span>${mandante.nome} x ${visitante.nome}</span>`;
+  document.getElementById('page-title').textContent = `${nome(mandante)} x ${nome(visitante)} — Copa 2026 — FUTSTATS`;
+  document.getElementById('breadcrumb').innerHTML = `<a href="index.html">Início</a> / <a href="partidas.html">Partidas</a> / <a href="${linkFase}">${jogo.fase === 'grupos' ? `Grupo ${jogo.grupo}` : DB.Util.faseLabel(jogo.fase)}</a>`;
+  document.getElementById('meta-jogo').innerHTML = `${rotuloFase} · ${DB.Util.formatarDiaLongo(jogo.data)} · ${DB.Util.formatarHora(jogo.data)}`;
 
+  // ---------- Placar ----------
+  const placar = UI.temPlacar(jogo)
+    ? `${jogo.golsMandante} – ${jogo.golsVisitante}${jogo.penaltisMandante != null && jogo.penaltisVisitante != null
+      ? `<span class="pen">pênaltis ${jogo.penaltisMandante}–${jogo.penaltisVisitante}</span>` : ''}`
+    : 'vs';
+  const ladoHero = t => (t
+    ? `<a class="match-hero-team" href="time.html?id=${t.id}">${UI.bandeira(t, 'xl')}<span class="nome">${esc(t.nome)}</span></a>`
+    : '<div class="match-hero-team"><span class="flag flag-xl"></span><span class="nome">A definir</span></div>');
   document.getElementById('hero-jogo').innerHTML = `
-    <div class="hero-team"><a href="time.html?id=${mandante.id}">${UI.crestHtml(mandante, 76)}<div class="name">${mandante.nome}</div></a></div>
+    ${ladoHero(mandante)}
     <div>
-      <div class="hero-score">${placar}${pens}</div>
-      <div class="hero-status">${UI.badge(jogo.status)}</div>
+      <div class="match-hero-score${UI.temPlacar(jogo) ? '' : ' vs'}">${placar}</div>
+      <div style="text-align:center;margin-top:8px;">${UI.badge(jogo.status)}</div>
     </div>
-    <div class="hero-team"><a href="time.html?id=${visitante.id}">${UI.crestHtml(visitante, 76)}<div class="name">${visitante.nome}</div></a></div>`;
+    ${ladoHero(visitante)}`;
 
-  const cartoes = (jogo.cartoesAmarelosMandante || jogo.cartoesVermelhosMandante || jogo.cartoesAmarelosVisitante || jogo.cartoesVermelhosVisitante)
-    ? `<p><strong>Cartões:</strong> ${mandante.nome} ${jogo.cartoesAmarelosMandante || 0}🟨 ${jogo.cartoesVermelhosMandante || 0}🟥
-       · ${visitante.nome} ${jogo.cartoesAmarelosVisitante || 0}🟨 ${jogo.cartoesVermelhosVisitante || 0}🟥</p>`
-    : '';
-
-  document.getElementById('detalhes-jogo').innerHTML = `
-    <p><strong>Torneio:</strong> ${DB.Torneio.nome}</p>
-    <p><strong>Fase:</strong> ${faseLabel}${jogo.fase === 'grupos' ? ` — Grupo ${jogo.grupo} (rodada ${jogo.rodada})` : ''}</p>
-    <p><strong>Data:</strong> ${DB.Util.formatarDataHora(jogo.data)}</p>
-    <p><strong>Local:</strong> ${jogo.local}</p>
-    ${jogo.projetado ? '<p><strong>Confronto:</strong> ainda projetado — pode mudar até a fase anterior terminar.</p>' : ''}
-    ${cartoes}`;
-
-  if (jogo.fase === 'grupos') {
-    document.getElementById('titulo-mini-classificacao').textContent = `Classificação — Grupo ${jogo.grupo}`;
-    document.getElementById('corpo-lateral').innerHTML = `
-      <table class="standings-table" id="tabela-mini">
-        <thead><tr><th>#</th><th>Time</th><th>P</th><th>SG</th></tr></thead>
-        <tbody>${UI.linhasClassificacao(DB.Classificacao.grupo(jogo.grupo), { colunas: 'jogo' })}</tbody>
-      </table>`;
-  } else {
-    document.getElementById('titulo-mini-classificacao').textContent = 'Chaveamento';
-    document.getElementById('corpo-lateral').innerHTML = `
-      <p style="color:var(--text-dim);font-size:13px;">Jogo da fase eliminatória — ${faseLabel}.</p>
-      <a href="chaveamento.html" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;">Ver chaveamento completo</a>`;
+  // ---------- Autores dos gols (resumo sob o placar) ----------
+  const gols = [...(jogo.gols || [])].sort((a, b) => DB.Util.minutoNumero(a.minuto) - DB.Util.minutoNumero(b.minuto));
+  const resumoAutores = timeId => {
+    const porAutor = {};
+    gols.filter(g => g.timeId === timeId).forEach(g => {
+      const j = DB.Jogadores.get(g.jogadorId);
+      const chave = g.jogadorId || 'x';
+      const sufixo = g.tipo === 'penalti' ? ' (pên.)' : g.tipo === 'contra' ? ' (contra)' : '';
+      (porAutor[chave] = porAutor[chave] || { nome: j ? j.nome : 'Gol', minutos: [] }).minutos.push(`${g.minuto ? `${g.minuto}'` : ''}${sufixo}`.trim() || '–');
+    });
+    return Object.values(porAutor).map(a => `${esc(a.nome)} ${a.minutos.join(', ')}`).join('<br>');
+  };
+  if (gols.length) {
+    document.getElementById('autores').innerHTML = `
+      <div class="home">${resumoAutores(jogo.mandanteId)}</div><div class="ball">⚽</div><div>${resumoAutores(jogo.visitanteId)}</div>`;
   }
 
-  const relacionados = jogo.fase === 'grupos'
-    ? DB.Jogos.porGrupo(jogo.grupo)
-    : DB.Jogos.porFase(jogo.fase);
-  const ordenados = [...relacionados].sort((a, b) => new Date(a.data) - new Date(b.data));
-  const indiceAtual = ordenados.findIndex(j => j.id === jogo.id);
-  const anterior = indiceAtual > 0 ? ordenados[indiceAtual - 1] : null;
-  const proximo = indiceAtual < ordenados.length - 1 ? ordenados[indiceAtual + 1] : null;
+  // ---------- Linha do tempo ----------
+  const eventos = [
+    ...gols.map(g => ({ ...g, evento: 'gol' })),
+    ...(jogo.cartoes || []).map(c => ({ ...c, evento: 'cartao' })),
+  ].sort((a, b) => DB.Util.minutoNumero(a.minuto) - DB.Util.minutoNumero(b.minuto));
 
+  const ICONE_CARTAO = { amarelo: '<span class="card-icon"></span>', segundo_amarelo: '<span class="card-icon second"></span>', vermelho: '<span class="card-icon red"></span>' };
+  const NOME_CARTAO = { amarelo: 'Cartão amarelo', segundo_amarelo: 'Segundo amarelo', vermelho: 'Cartão vermelho' };
+  const linkJogador = j => (j ? `<a href="jogador.html?id=${j.id}">${esc(j.nome)}</a>` : 'Jogador não informado');
+
+  function itemLinha(e) {
+    const jogador = DB.Jogadores.get(e.jogadorId);
+    let icone, titulo, detalhe;
+    if (e.evento === 'gol') {
+      icone = '⚽';
+      titulo = linkJogador(jogador);
+      const assist = e.assistenciaId ? DB.Jogadores.get(e.assistenciaId) : null;
+      detalhe = e.tipo === 'contra' ? 'Gol contra'
+        : e.tipo === 'penalti' ? 'Gol de pênalti'
+        : assist ? `Assistência: ${linkJogador(assist)}` : 'Gol';
+    } else {
+      icone = ICONE_CARTAO[e.tipo] || ICONE_CARTAO.amarelo;
+      titulo = linkJogador(jogador);
+      detalhe = NOME_CARTAO[e.tipo] || 'Cartão';
+    }
+    // Gol contra aparece do lado do time beneficiado (o placar); cartão, do lado do time do jogador.
+    const doMandante = e.timeId === jogo.mandanteId;
+    const conteudo = (lado) => `<span class="tl-side ${lado}">
+      ${lado === 'home' ? `<span class="txt"><b>${titulo}</b><small>${detalhe}</small></span><span class="tl-icon">${icone}</span>`
+        : `<span class="tl-icon">${icone}</span><span class="txt"><b>${titulo}</b><small>${detalhe}</small></span>`}
+    </span>`;
+    return `<li class="tl-item">
+      ${doMandante ? conteudo('home') : '<span></span>'}
+      <span class="tl-min">${e.minuto ? `${esc(e.minuto)}'` : '–'}</span>
+      ${doMandante ? '<span></span>' : conteudo('away')}
+    </li>`;
+  }
+
+  document.getElementById('timeline').innerHTML = eventos.length
+    ? `<ul class="timeline">${eventos.map(itemLinha).join('')}</ul>`
+    : UI.vazio(jogo.status === 'agendado' ? 'A partida ainda não começou' : 'Nenhum lance cadastrado',
+      jogo.status === 'agendado' ? '' : 'Gols, assistências e cartões aparecem aqui quando forem lançados no painel.');
+
+  // ---------- Informações ----------
+  const cartoesDe = (timeId, tipo) => (jogo.cartoes || []).filter(c => c.timeId === timeId && (tipo === 'amarelo' ? c.tipo === 'amarelo' : c.tipo !== 'amarelo')).length;
+  const linha = (rotulo, valor) => `<li><span>${rotulo}</span><span>${valor}</span></li>`;
+  document.getElementById('info-jogo').innerHTML = [
+    linha('Competição', DB.Torneio.nome),
+    linha('Fase', rotuloFase),
+    linha('Data', `${DB.Util.formatarData(jogo.data)} · ${DB.Util.formatarHora(jogo.data)} (Brasília)`),
+    linha('Estádio', esc(jogo.local || '—')),
+    (jogo.cartoes || []).length ? linha('Cartões', `${mandante ? mandante.codigo : ''} ${cartoesDe(jogo.mandanteId, 'amarelo')}🟨 ${cartoesDe(jogo.mandanteId, 'vermelho')}🟥 · ${visitante ? visitante.codigo : ''} ${cartoesDe(jogo.visitanteId, 'amarelo')}🟨 ${cartoesDe(jogo.visitanteId, 'vermelho')}🟥`) : '',
+    jogo.projetado ? linha('Confronto', 'Projetado — pode mudar') : '',
+  ].join('');
+
+  // ---------- Lateral ----------
+  if (jogo.fase === 'grupos') {
+    document.getElementById('titulo-lateral').textContent = `Grupo ${jogo.grupo}`;
+    document.getElementById('link-lateral').href = `grupos.html#grupo-${jogo.grupo}`;
+    document.getElementById('corpo-lateral').innerHTML = UI.tabelaGrupo(jogo.grupo, { compacta: true });
+  } else {
+    document.getElementById('titulo-lateral').textContent = 'Mata-mata';
+    document.getElementById('link-lateral').href = 'chaveamento.html';
+    document.getElementById('corpo-lateral').innerHTML = DB.Jogos.porFase(jogo.fase).map(UI.linhaJogoCompacta).join('');
+  }
+
+  // ---------- Navegação entre jogos da mesma fase/grupo ----------
+  const relacionados = (jogo.fase === 'grupos' ? DB.Jogos.porGrupo(jogo.grupo) : DB.Jogos.porFase(jogo.fase))
+    .sort((a, b) => new Date(a.data) - new Date(b.data));
+  const i = relacionados.findIndex(j => j.id === jogo.id);
+  const anterior = relacionados[i - 1], proximo = relacionados[i + 1];
+  const confronto = j => `${nome(DB.Times.get(j.mandanteId))} x ${nome(DB.Times.get(j.visitanteId))}`;
   document.getElementById('nav-jogo').innerHTML = `
-    ${anterior
-      ? `<a href="jogo.html?id=${anterior.id}">◀ <span>${confrontoLabel(anterior)}</span></a>`
-      : '<a class="disabled">◀ Jogo anterior</a>'}
-    ${proximo
-      ? `<a class="prox" href="jogo.html?id=${proximo.id}"><span>${confrontoLabel(proximo)}</span> ▶</a>`
-      : '<a class="disabled prox">Próximo jogo ▶</a>'}
-  `;
+    ${anterior ? `<a href="jogo.html?id=${anterior.id}">◀ <span>${confronto(anterior)}</span></a>` : '<a class="disabled">◀ Jogo anterior</a>'}
+    ${proximo ? `<a class="prox" href="jogo.html?id=${proximo.id}"><span>${confronto(proximo)}</span> ▶</a>` : '<a class="disabled prox">Próximo jogo ▶</a>'}`;
 
   UI.montarFooter();
 });
-
-function confrontoLabel(j) {
-  const m = DB.Times.get(j.mandanteId);
-  const v = DB.Times.get(j.visitanteId);
-  return `${m ? m.nome : '—'} x ${v ? v.nome : '—'}`;
-}

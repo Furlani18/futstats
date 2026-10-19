@@ -3,29 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chaveamento — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<title>Mata-mata — Copa do Mundo FIFA 2026 — FUTSTATS</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Mata-mata</span></div>
+    <div class="section-eyebrow">Pela primeira vez com 32avos de final</div>
+    <h1 class="section-title">Chaveamento</h1>
+    <p class="lead">Confrontos tracejados ainda são projeções pela classificação atual — viram definitivos quando a fase anterior termina.</p>
+  </div>
+</section>
 
 <main class="page">
-  <div class="breadcrumb"><a href="index.html">Início</a> / <span>Chaveamento</span></div>
-  <div class="section-eyebrow">Mata-mata — pela 1ª vez com 32avos de final</div>
-  <h1 class="section-title">Chaveamento — 32avos à Final</h1>
-
-  <div class="notice-banner">
-    32avos: 8 jogos são cruzamentos fixos entre 1ºs/2ºs colocados; outros 8 colocam um 1º colocado contra o melhor
-    3º dentre um grupo fixo de 5 possíveis grupos (mesma lógica do regulamento oficial). Confrontos em
-    <em>itálico/tracejado</em> ainda são projeções — tornam-se definitivos quando o jogo anterior termina.
-  </div>
-
-  <div class="panel" style="margin-bottom:24px;">
-    <div class="panel-header"><span class="panel-title">Final e disputa de 3º lugar</span></div>
-    <div class="panel-body" style="display:flex;gap:20px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:220px;" id="bloco-final"></div>
-      <div style="flex:1;min-width:220px;" id="bloco-terceiro"></div>
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="panel final-card">
+      <div class="panel-header"><span class="panel-title">🏆 Final</span><span class="group-status">19/07 · MetLife Stadium</span></div>
+      <div class="panel-body" id="bloco-final"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Disputa de 3º lugar</span><span class="group-status">18/07 · Miami</span></div>
+      <div class="panel-body" id="bloco-terceiro"></div>
     </div>
   </div>
 
@@ -41,6 +44,7 @@
 
 <div id="footer-mount"></div>
 
+<script src="js/elencos.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/chaveamento.js"></script>

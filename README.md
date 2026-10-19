@@ -5,16 +5,18 @@ Site de estatísticas da Copa do Mundo 2026 inspirado no SofaScore: grupos, jogo
 **🔗 Demo:** https://furlani18.github.io/futstats/
 
 ## Funcionalidades
-- Tabela de classificação calculada a partir dos placares, com critérios de desempate
-- Ranking dos melhores terceiros colocados
-- Chaveamento do mata-mata
-- Faixa de placares ao vivo
-- Painel administrativo com CRUD de times, jogadores e jogos
+- **Elencos oficiais** das 48 seleções (26 convocados cada, com número, posição, clube, idade, jogos/gols pela seleção, técnico e capitão)
+- Cadastro de jogos com **gols, assistências e cartões** por jogador (minuto, pênalti, gol contra)
+- **Estatísticas**: artilharia, assistências, gols + assistências, cartões e números por seleção
+- Páginas de partida (lance a lance), seleção (elenco e campanha) e jogador
+- Classificação calculada pelos placares, com os critérios de desempate da FIFA e o ranking dos terceiros
+- Chaveamento do mata-mata (32avos à final), gerado quando a fase de grupos termina
+- Importação opcional do calendário oficial da fase de grupos (datas, horários de Brasília e estádios, sem placares)
 
 ## Acesso de demonstração
 Área administrativa → usuário `admin`, senha `futstats2026`.
 
-Os dados ficam salvos no próprio navegador (localStorage); os resultados da fase de grupos são simulados para demonstrar a classificação e o chaveamento.
+Os dados ficam salvos no próprio navegador (localStorage). Elencos e calendário: listas oficiais da FIFA, via Wikipedia (`js/elencos.js` e `js/calendario.js`).
 
 ## Tecnologias
 HTML · CSS · JavaScript puro · localStorage

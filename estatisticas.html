@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatísticas — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Estatísticas</span></div>
+    <div class="section-eyebrow">Números da Copa</div>
+    <h1 class="section-title">Estatísticas</h1>
+    <div class="kpi-strip" id="kpis" style="margin-top:18px;"></div>
+  </div>
+</section>
+
+<main class="page">
+  <div class="grid-3">
+    <div class="panel" id="artilharia">
+      <div class="panel-header"><span class="panel-title">⚽ Artilharia</span></div>
+      <div id="lista-gols"></div>
+    </div>
+    <div class="panel" id="assistencias">
+      <div class="panel-header"><span class="panel-title">🎯 Assistências</span></div>
+      <div id="lista-assist"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Gols + assistências</span></div>
+      <div id="lista-part"></div>
+    </div>
+  </div>
+
+  <div class="section-head" id="jogadores">
+    <div>
+      <div class="section-eyebrow">Todos os jogadores com participação</div>
+      <h2 class="section-title">Tabela de jogadores</h2>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="stats-table" id="tabela-jogadores">
+        <thead><tr>
+          <th>#</th><th class="left">Jogador</th><th class="left">Seleção</th><th>Pos.</th>
+          <th class="strong">Gols</th><th>Pên.</th><th>Assist.</th><th>G+A</th><th>🟨</th><th>🟥</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-head" id="selecoes">
+    <div>
+      <div class="section-eyebrow">Desempenho coletivo</div>
+      <h2 class="section-title">Seleções</h2>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="stats-table" id="tabela-times">
+        <thead><tr>
+          <th>#</th><th class="left">Seleção</th><th>J</th><th>V</th><th>E</th><th>D</th>
+          <th class="strong">Gols</th><th>Sofridos</th><th>SG</th><th>Média</th><th>Sem sofrer</th><th>🟨</th><th>🟥</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">Disciplina</div>
+      <h2 class="section-title">Cartões</h2>
+    </div>
+  </div>
+  <div class="panel" id="lista-cartoes"></div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/elencos.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/estatisticas.js"></script>
+</body>
+</html>

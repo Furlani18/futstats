@@ -73,13 +73,13 @@ const AdminUI = (() => {
     if (existente) existente.remove();
   }
 
-  function abrirModal({ titulo, corpoHtml, aoSalvar }) {
+  function abrirModal({ titulo, corpoHtml, aoSalvar, largo }) {
     fecharModal();
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.id = 'modal-overlay';
     overlay.innerHTML = `
-      <div class="modal">
+      <div class="modal${largo ? ' modal-largo' : ''}">
         <div class="modal-header">
           <span class="modal-title">${titulo}</span>
           <button type="button" class="btn-icon" id="modal-fechar">✕</button>
@@ -95,7 +95,8 @@ const AdminUI = (() => {
     document.body.appendChild(overlay);
     document.getElementById('modal-fechar').addEventListener('click', fecharModal);
     document.getElementById('modal-cancelar').addEventListener('click', fecharModal);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(); });
+    // No formulário largo (jogo com lances) um clique fora não descarta o que foi digitado.
+    if (!largo) overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(); });
     document.getElementById('modal-form').addEventListener('submit', (e) => {
       e.preventDefault();
       aoSalvar(new FormData(e.target));

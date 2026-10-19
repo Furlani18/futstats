@@ -1,5 +1,5 @@
 const DB = (() => {
-  const SEED_VERSION = 'wc2026-1';
+  const SEED_VERSION = 'wc2026-2';
 
   function ler(chave) {
     const raw = localStorage.getItem(chave);
@@ -37,13 +37,6 @@ const DB = (() => {
         gravar(chave, this.all().filter(item => item.id !== id));
       },
     };
-  }
-
-  function hashStr(str) {
-    let h = 0;
-    const s = String(str);
-    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-    return h;
   }
 
   // ==========================================================================
@@ -112,60 +105,78 @@ const DB = (() => {
     'Nova Zelândia', 'Bósnia e Herzegovina', 'Coreia do Sul', 'RD Congo', 'Cabo Verde', 'Curaçao', 'Haiti', 'Tchéquia',
   ];
 
+  // Código FIFA de 3 letras de cada seleção (usado em placares compactos).
+  const CODIGO_FIFA = {
+    'México': 'MEX', 'África do Sul': 'RSA', 'Coreia do Sul': 'KOR', 'Tchéquia': 'CZE',
+    'Canadá': 'CAN', 'Suíça': 'SUI', 'Catar': 'QAT', 'Bósnia e Herzegovina': 'BIH',
+    'Brasil': 'BRA', 'Marrocos': 'MAR', 'Haiti': 'HAI', 'Escócia': 'SCO',
+    'Estados Unidos': 'USA', 'Paraguai': 'PAR', 'Austrália': 'AUS', 'Turquia': 'TUR',
+    'Alemanha': 'GER', 'Curaçao': 'CUW', 'Costa do Marfim': 'CIV', 'Equador': 'ECU',
+    'Países Baixos': 'NED', 'Japão': 'JPN', 'Tunísia': 'TUN', 'Suécia': 'SWE',
+    'Bélgica': 'BEL', 'Egito': 'EGY', 'Irã': 'IRN', 'Nova Zelândia': 'NZL',
+    'Espanha': 'ESP', 'Cabo Verde': 'CPV', 'Arábia Saudita': 'KSA', 'Uruguai': 'URU',
+    'França': 'FRA', 'Senegal': 'SEN', 'Noruega': 'NOR', 'Iraque': 'IRQ',
+    'Argentina': 'ARG', 'Argélia': 'ALG', 'Áustria': 'AUT', 'Jordânia': 'JOR',
+    'Portugal': 'POR', 'Uzbequistão': 'UZB', 'Colômbia': 'COL', 'RD Congo': 'COD',
+    'Inglaterra': 'ENG', 'Croácia': 'CRO', 'Gana': 'GHA', 'Panamá': 'PAN',
+  };
+
+  // País do clube (código FIFA → ISO para a bandeira via flagcdn).
+  const ISO_POR_FIFA = {
+    ENG: 'gb-eng', SCO: 'gb-sct', WAL: 'gb-wls', GER: 'de', ESP: 'es', FRA: 'fr', ITA: 'it', KSA: 'sa', TUR: 'tr',
+    USA: 'us', NED: 'nl', BRA: 'br', POR: 'pt', QAT: 'qa', BEL: 'be', MEX: 'mx', IRN: 'ir', CZE: 'cz',
+    EGY: 'eg', RSA: 'za', UZB: 'uz', ARG: 'ar', UAE: 'ae', IRQ: 'iq', DEN: 'dk', SUI: 'ch', RUS: 'ru',
+    JOR: 'jo', GRE: 'gr', CYP: 'cy', NZL: 'nz', KOR: 'kr', AUT: 'at', TUN: 'tn', NOR: 'no', JPN: 'jp',
+    AUS: 'au', CRO: 'hr', CAN: 'ca', POL: 'pl', ECU: 'ec', SWE: 'se', ISR: 'il', PAR: 'py', MAS: 'my',
+    MAR: 'ma', HUN: 'hu', ALG: 'dz', VEN: 've', SVN: 'si', SVK: 'sk', SRB: 'rs', ROU: 'ro', PAN: 'pa',
+    IRL: 'ie', CRC: 'cr', CHI: 'cl', BUL: 'bg', URU: 'uy', THA: 'th', KAZ: 'kz', IDN: 'id', HON: 'hn',
+    HAI: 'ht', GHA: 'gh', FIN: 'fi', COL: 'co', CHN: 'cn', BIH: 'ba', AZE: 'az', ARM: 'am',
+  };
+
+  const ELENCOS = typeof ELENCOS_2026 !== 'undefined' ? ELENCOS_2026 : {};
+
   const TIMES_SEED = [];
   LETRAS_GRUPOS.forEach((letra, gi) => {
     GRUPOS_SEED[letra].forEach((nome, pos) => {
       TIMES_SEED.push({
         id: `t${gi * 4 + pos + 1}`,
         nome,
+        codigo: CODIGO_FIFA[nome],
         grupo: letra,
         posicaoPote: pos + 1,
         confederacao: CONFEDERACOES[nome] || '—',
         rankingFifa: RANKING_ORDER.indexOf(nome) + 1,
         iso: ISO_PAIS[nome] || null,
+        tecnico: ELENCOS[nome] ? ELENCOS[nome].tecnico : '',
       });
     });
   });
 
-  const PRIMEIRO_NOMES = ['Lucas', 'Gabriel', 'Matheus', 'Rafael', 'Bruno', 'Diego', 'Thiago', 'André', 'Felipe', 'Rodrigo', 'Vinícius', 'Gustavo', 'Eduardo', 'Marcelo', 'Fábio', 'Renato', 'Carlos', 'Paulo', 'João', 'Pedro'];
-  const SOBRENOMES = ['Silva', 'Souza', 'Oliveira', 'Santos', 'Pereira', 'Costa', 'Almeida', 'Ferreira', 'Rodrigues', 'Gomes', 'Martins', 'Araújo', 'Barbosa', 'Ribeiro', 'Carvalho'];
-  const POSICOES = ['Goleiro', 'Zagueiro', 'Lateral', 'Meio-campo', 'Atacante'];
-
-  function gerarJogadoresPara(timeId, seedIndex, qtd = 5) {
-    const jogadores = [];
-    for (let i = 0; i < qtd; i++) {
-      const nomeIdx = (seedIndex * 7 + i * 3) % PRIMEIRO_NOMES.length;
-      const sobrenomeIdx = (seedIndex * 5 + i * 11) % SOBRENOMES.length;
-      const posicao = POSICOES[i % POSICOES.length];
-      const idade = 18 + ((seedIndex * 3 + i * 7) % 20);
-      const rolo = (seedIndex + i) % 9;
-      const status = rolo === 0 ? 'lesionado' : rolo === 5 ? 'suspenso' : 'ativo';
-      jogadores.push({
-        id: `p_${timeId}_${i + 1}`,
-        nome: `${PRIMEIRO_NOMES[nomeIdx]} ${SOBRENOMES[sobrenomeIdx]}`,
-        timeId,
-        posicao,
-        idade,
-        status,
-      });
-    }
-    return jogadores;
+  // Idade calculada na data de abertura da Copa (11/06/2026), como na lista oficial da FIFA.
+  function idadeEm(nascimento, referencia = '2026-06-11') {
+    if (!nascimento) return null;
+    const [ay, am, ad] = nascimento.split('-').map(Number);
+    const [ry, rm, rd] = referencia.split('-').map(Number);
+    return ry - ay - ((rm < am || (rm === am && rd < ad)) ? 1 : 0);
   }
 
-  const JOGADORES_SEED = TIMES_SEED.flatMap((time, idx) => gerarJogadoresPara(time.id, idx + 1));
-
-  // ---------- Sedes (16 cidades-sede reais: EUA, México e Canadá) ----------
-  const SEDES = [
-    'Atlanta', 'Boston', 'Dallas', 'Houston', 'Kansas City', 'Los Angeles', 'Miami',
-    'Nova York/Nova Jersey', 'Filadélfia', 'São Francisco', 'Seattle',
-    'Guadalajara', 'Cidade do México', 'Monterrey', 'Vancouver', 'Toronto',
-  ];
+  const JOGADORES_SEED = TIMES_SEED.flatMap(time => (ELENCOS[time.nome]?.jogadores || []).map(j => ({
+    id: `p_${time.id}_${j.n}`,
+    timeId: time.id,
+    numero: j.n,
+    nome: j.nome,
+    posicao: j.p,
+    nascimento: j.nasc,
+    idade: idadeEm(j.nasc),
+    clube: j.clube,
+    clubePais: j.cp,
+    jogosSelecao: j.caps,
+    golsSelecao: j.gs,
+    capitao: !!j.cap,
+    status: 'ativo',
+  })));
 
   const HORARIOS = ['13:00', '16:00', '19:00', '22:00'];
-
-  const DATAS_MD1 = ['2026-06-11', '2026-06-12', '2026-06-13', '2026-06-14'];
-  const DATAS_MD2 = ['2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20'];
-  const DATAS_MD3 = ['2026-06-24', '2026-06-25', '2026-06-26', '2026-06-27'];
 
   const FASES_LABELS = {
     grupos: 'Fase de grupos',
@@ -177,68 +188,6 @@ const DB = (() => {
     final: 'Final',
   };
 
-  let _venueIdx = 0;
-  function proximaSede() {
-    const sede = SEDES[_venueIdx % SEDES.length];
-    _venueIdx++;
-    return sede;
-  }
-
-  // Resultado simulado e determinístico (para popular o site com dados de
-  // demonstração desde o início). Fica claro na UI que são dados ilustrativos.
-  function golsSimulados(seed) {
-    return hashStr(`${seed}:gols`) % 5;
-  }
-  function cartaoAmareloSimulado(seed) {
-    return hashStr(`${seed}:ca`) % 3;
-  }
-  function cartaoVermelhoSimulado(seed) {
-    return hashStr(`${seed}:cv`) % 6 === 0 ? 1 : 0;
-  }
-
-  function gerarJogosGrupo(letra, gi) {
-    const ids = TIMES_SEED.filter(t => t.grupo === letra).sort((a, b) => a.posicaoPote - b.posicaoPote).map(t => t.id);
-    const [a, b, c, d] = ids;
-    const rodadas = [
-      [[a, d], [b, c]],
-      [[a, c], [d, b]],
-      [[a, b], [c, d]],
-    ];
-    const jogos = [];
-    rodadas.forEach((confrontos, rIdx) => {
-      const dataBase = rIdx === 0 ? DATAS_MD1[gi % 4] : rIdx === 1 ? DATAS_MD2[gi % 4] : DATAS_MD3[gi % 4];
-      confrontos.forEach(([mandanteId, visitanteId], cIdx) => {
-        // Regra oficial: os 2 jogos da rodada decisiva de cada grupo (rodada 3)
-        // acontecem sempre no mesmo horário.
-        const horario = rIdx === 2
-          ? HORARIOS[gi % 2 === 0 ? 1 : 2]
-          : HORARIOS[(gi + rIdx + cIdx) % HORARIOS.length];
-        const id = `j_grp_${letra}_${rIdx + 1}_${cIdx + 1}`;
-        const gm = golsSimulados(`${id}:m`);
-        const gv = golsSimulados(`${id}:v`);
-        jogos.push({
-          id,
-          fase: 'grupos',
-          grupo: letra,
-          rodada: rIdx + 1,
-          mandanteId, visitanteId,
-          golsMandante: gm, golsVisitante: gv,
-          data: `${dataBase}T${horario}`,
-          local: proximaSede(),
-          status: 'encerrado',
-          penaltisMandante: null, penaltisVisitante: null,
-          cartoesAmarelosMandante: cartaoAmareloSimulado(`${id}:m`),
-          cartoesVermelhosMandante: cartaoVermelhoSimulado(`${id}:m`),
-          cartoesAmarelosVisitante: cartaoAmareloSimulado(`${id}:v`),
-          cartoesVermelhosVisitante: cartaoVermelhoSimulado(`${id}:v`),
-        });
-      });
-    });
-    return jogos;
-  }
-
-  const JOGOS_GRUPOS_SEED = LETRAS_GRUPOS.flatMap((letra, gi) => gerarJogosGrupo(letra, gi));
-
   const TORNEIO_SEED = {
     id: 'wc2026',
     nome: 'Copa do Mundo FIFA 2026',
@@ -248,11 +197,14 @@ const DB = (() => {
     periodo: '11 de junho – 19 de julho de 2026',
   };
 
+  // Versão 2: elencos oficiais no lugar dos jogadores fictícios e fim dos
+  // resultados simulados — os jogos passam a ser cadastrados no painel.
   function inicializarSeed() {
     if (localStorage.getItem('fs_seed_version') === SEED_VERSION) return;
+    if (!JOGADORES_SEED.length) return; // elencos.js não carregado nesta página
     gravar('fs_times', TIMES_SEED);
     gravar('fs_jogadores', JOGADORES_SEED);
-    gravar('fs_jogos', JOGOS_GRUPOS_SEED);
+    gravar('fs_jogos', []);
     gravar('fs_torneio', TORNEIO_SEED);
     localStorage.setItem('fs_seed_version', SEED_VERSION);
   }
@@ -278,6 +230,43 @@ const DB = (() => {
     },
     porFase(fase) {
       return this.all().filter(j => j.fase === fase).sort((a, b) => (a.matchNum || a.numero) - (b.matchNum || b.numero));
+    },
+    doTime(timeId) {
+      return this.all()
+        .filter(j => j.mandanteId === timeId || j.visitanteId === timeId)
+        .sort((a, b) => new Date(a.data) - new Date(b.data));
+    },
+    comPlacar() {
+      return this.all().filter(j => j.status === 'encerrado' || j.status === 'ao_vivo');
+    },
+    criarJogoDeGrupo({ grupo, rodada, mandanteId, visitanteId, data, local }) {
+      return this.create({
+        fase: 'grupos', grupo, rodada, mandanteId, visitanteId, data, local,
+        status: 'agendado',
+        golsMandante: null, golsVisitante: null, penaltisMandante: null, penaltisVisitante: null,
+        gols: [], cartoes: [],
+      });
+    },
+    // Importa o calendário oficial da fase de grupos (js/calendario.js), sem placares.
+    // Confrontos que já existem no mesmo grupo são mantidos como estão.
+    importarCalendario(calendario) {
+      const porNome = Object.fromEntries(Times.all().map(t => [t.nome, t]));
+      const existentes = new Set(this.all().filter(j => j.fase === 'grupos')
+        .map(j => [j.mandanteId, j.visitanteId].sort().join('|')));
+      let criados = 0;
+      calendario.forEach(c => {
+        const m = porNome[c.mandante], v = porNome[c.visitante];
+        if (!m || !v) return;
+        const chave = [m.id, v.id].sort().join('|');
+        if (existentes.has(chave)) return;
+        existentes.add(chave);
+        this.criarJogoDeGrupo({
+          grupo: c.grupo, rodada: c.rodada, mandanteId: m.id, visitanteId: v.id,
+          data: c.data, local: `${c.estadio}, ${c.cidade}`,
+        });
+        criados++;
+      });
+      return criados;
     },
   };
 
@@ -371,6 +360,9 @@ const DB = (() => {
     return resultado.map((t, idx) => ({ ...t, posicao: idx + 1 }));
   }
 
+  // Pontos de conduta do regulamento: amarelo −1, vermelho por 2º amarelo −3, vermelho direto −4.
+  const PONTOS_FAIR_PLAY = { amarelo: 1, segundo_amarelo: 3, vermelho: 4 };
+
   const Classificacao = {
     grupo(letra) {
       const times = Grupos.times(letra);
@@ -388,14 +380,19 @@ const DB = (() => {
         m.J++; v.J++;
         m.GP += j.golsMandante; m.GC += j.golsVisitante;
         v.GP += j.golsVisitante; v.GC += j.golsMandante;
-        m.CA += j.cartoesAmarelosMandante || 0; m.CV += j.cartoesVermelhosMandante || 0;
-        v.CA += j.cartoesAmarelosVisitante || 0; v.CV += j.cartoesVermelhosVisitante || 0;
+        (j.cartoes || []).forEach(c => {
+          const alvo = base[c.timeId];
+          if (!alvo) return;
+          if (c.tipo === 'amarelo') alvo.CA++;
+          else alvo.CV++;
+          alvo.fairPlay -= PONTOS_FAIR_PLAY[c.tipo] || 0;
+        });
         if (j.golsMandante > j.golsVisitante) { m.V++; m.P += 3; v.D++; }
         else if (j.golsMandante < j.golsVisitante) { v.V++; v.P += 3; m.D++; }
         else { m.E++; v.E++; m.P++; v.P++; }
       });
       const lista = Object.values(base);
-      lista.forEach(t => { t.SG = t.GP - t.GC; t.fairPlay = -(t.CA * 1 + t.CV * 4); });
+      lista.forEach(t => { t.SG = t.GP - t.GC; });
       return ordenarComDesempate(lista, jogos);
     },
 
@@ -453,10 +450,19 @@ const DB = (() => {
     return `${dia}T${horario}`;
   }
 
+  // Estádios do mata-mata (a final é no MetLife e a disputa de 3º no Hard Rock).
+  const SEDES_MATA_MATA = [
+    'SoFi Stadium, Los Angeles', 'Gillette Stadium, Boston', 'Estadio BBVA, Monterrey', 'NRG Stadium, Houston',
+    'MetLife Stadium, Nova York/Nova Jersey', 'AT&T Stadium, Dallas', 'Estadio Azteca, Cidade do México',
+    'Mercedes-Benz Stadium, Atlanta', "Levi's Stadium, São Francisco", 'Lumen Field, Seattle', 'BMO Field, Toronto',
+    'BC Place, Vancouver', 'Arrowhead Stadium, Kansas City', 'Lincoln Financial Field, Filadélfia',
+    'Hard Rock Stadium, Miami', 'Estadio Akron, Guadalajara',
+  ];
+
   function sedeChave(fase, numero) {
-    if (fase === 'final') return 'Nova York/Nova Jersey';
-    if (fase === 'terceiro') return 'Miami';
-    return SEDES[(numero * 3 + fase.length) % SEDES.length];
+    if (fase === 'final') return 'MetLife Stadium, Nova York/Nova Jersey';
+    if (fase === 'terceiro') return 'Hard Rock Stadium, Miami';
+    return SEDES_MATA_MATA[(numero * 3 + fase.length) % SEDES_MATA_MATA.length];
   }
 
   function resolverPoolsTerceiros(gruposClassificados) {
@@ -486,18 +492,19 @@ const DB = (() => {
   function ensureJogo(id, fase, numero, mandanteId, visitanteId, projetado) {
     const existente = Jogos.get(id);
     if (existente && existente.status === 'encerrado') return existente;
-    const dados = {
-      fase, numero, mandanteId, visitanteId,
-      data: dataChave(fase, numero), local: sedeChave(fase, numero), projetado,
-    };
-    if (fase === 'r32') dados.matchNum = numero;
-    if (existente) return Jogos.update(id, dados);
+    if (existente) {
+      // Mantém data/local editados no painel; se o confronto mudou, os lances antigos deixam de valer.
+      const mudou = existente.mandanteId !== mandanteId || existente.visitanteId !== visitanteId;
+      if (!mudou && existente.projetado === projetado) return existente;
+      return Jogos.update(id, { mandanteId, visitanteId, projetado, ...(mudou ? { gols: [], cartoes: [] } : {}) });
+    }
     const registro = {
-      id, ...dados,
+      id, fase, numero, mandanteId, visitanteId, projetado,
+      ...(fase === 'r32' ? { matchNum: numero } : {}),
+      data: dataChave(fase, numero), local: sedeChave(fase, numero),
       golsMandante: null, golsVisitante: null, penaltisMandante: null, penaltisVisitante: null,
       status: 'agendado',
-      cartoesAmarelosMandante: 0, cartoesVermelhosMandante: 0,
-      cartoesAmarelosVisitante: 0, cartoesVermelhosVisitante: 0,
+      gols: [], cartoes: [],
     };
     const itens = ler('fs_jogos') || [];
     itens.push(registro);
@@ -531,27 +538,38 @@ const DB = (() => {
     const terceiros = Classificacao.terceiros();
     const classificados3 = terceiros.filter(t => t.classificado).map(t => t.grupo);
     const atribuicao = classificados3.length === 8 ? resolverPoolsTerceiros(classificados3) : {};
+    // Enquanto o grupo não teve jogos, mostra só a vaga ("1º Grupo A"); depois, o time que ocupa a vaga hoje.
+    const rotulo = (time, pos, letra) => (time && Jogos.porGrupo(letra).some(j => j.status !== 'agendado'))
+      ? `${time.nome} (${pos}º ${letra})`
+      : `${pos}º Grupo ${letra}`;
     return POOLS_R32.map(slot => {
       const timeA = timePorPosicao(slot.a.pos, slot.a.grupo);
       let timeB = null;
       let labelVisitante;
       if (slot.tipo === 'cruzamento') {
         timeB = timePorPosicao(slot.b.pos, slot.b.grupo);
-        labelVisitante = `${slot.b.pos}º Grupo ${slot.b.grupo}`;
+        labelVisitante = rotulo(timeB, slot.b.pos, slot.b.grupo);
       } else {
         const letraAtribuida = atribuicao[slot.matchNum];
         timeB = letraAtribuida ? timePorPosicao(3, letraAtribuida) : null;
-        labelVisitante = letraAtribuida ? `3º Grupo ${letraAtribuida}` : `3º colocado (${slot.pool.join('/')})`;
+        labelVisitante = letraAtribuida ? rotulo(timeB, 3, letraAtribuida) : `3º colocado (${slot.pool.join('/')})`;
       }
       return {
         matchNum: slot.matchNum,
         mandanteId: timeA ? timeA.timeId : null,
         visitanteId: timeB ? timeB.timeId : null,
-        labelMandante: `${slot.a.pos}º Grupo ${slot.a.grupo}`,
+        labelMandante: rotulo(timeA, slot.a.pos, slot.a.grupo),
         labelVisitante,
         projetado: !completos,
       };
     });
+  }
+
+  // "Venc. BRA/NED" quando o jogo anterior já tem confronto; senão, só "A definir".
+  function rotuloVencedor(jogo) {
+    if (!jogo) return 'A definir';
+    const codigo = id => (Times.get(id) || {}).codigo || '?';
+    return `Venc. ${codigo(jogo.mandanteId)}/${codigo(jogo.visitanteId)}`;
   }
 
   function propagar(anterior, fase) {
@@ -572,8 +590,8 @@ const DB = (() => {
       }
       resultado.push({
         numero, jogoId,
-        labelMandante: vA ? nomeTime(vA) : `Vencedor — ${a.labelMandante || ''} / ${a.labelVisitante || ''}`,
-        labelVisitante: vB ? nomeTime(vB) : `Vencedor — ${b.labelMandante || ''} / ${b.labelVisitante || ''}`,
+        labelMandante: vA ? nomeTime(vA) : rotuloVencedor(jogoA),
+        labelVisitante: vB ? nomeTime(vB) : rotuloVencedor(jogoB),
         projetado,
       });
     }
@@ -608,8 +626,13 @@ const DB = (() => {
     perdedor: perdedorId,
     sincronizar() {
       const r32Slots = montarR32();
+      if (!Grupos.todosCompletos()) {
+        // Grupos reabertos (jogo apagado/editado): descarta 32avos ainda não disputados.
+        const restantes = Jogos.all().filter(j => !(j.fase === 'r32' && j.status === 'agendado'));
+        if (restantes.length !== Jogos.all().length) gravar('fs_jogos', restantes);
+      }
       const r32 = r32Slots.map(slot => {
-        if (slot.mandanteId && slot.visitanteId) {
+        if (!slot.projetado && slot.mandanteId && slot.visitanteId) {
           const id = `j_r32_${slot.matchNum}`;
           ensureJogo(id, 'r32', slot.matchNum, slot.mandanteId, slot.visitanteId, slot.projetado);
           return { matchNum: slot.matchNum, jogoId: id, labelMandante: slot.labelMandante, labelVisitante: slot.labelVisitante, projetado: slot.projetado };
@@ -621,6 +644,134 @@ const DB = (() => {
       const sf = propagar(qf, 'sf');
       const { final, terceiro } = propagarFinais(sf);
       return { r32, r16, qf, sf, final, terceiro };
+    },
+  };
+
+  // ==========================================================================
+  // Estatísticas — calculadas a partir dos lances cadastrados em cada jogo:
+  //   jogo.gols    = [{ id, timeId, jogadorId, assistenciaId, minuto, tipo: normal|penalti|contra }]
+  //   jogo.cartoes = [{ id, timeId, jogadorId, minuto, tipo: amarelo|segundo_amarelo|vermelho }]
+  // Em gol contra, timeId é a seleção beneficiada e jogadorId é o autor (do adversário).
+  // ==========================================================================
+
+  function minutoNumero(minuto) {
+    if (!minuto) return 999; // lance sem minuto vai para o fim
+    const [base = 0, acrescimo = 0] = String(minuto || '0').split('+').map(n => parseInt(n, 10) || 0);
+    return base + acrescimo / 100;
+  }
+
+  function linhaJogadorVazia(jogador) {
+    return {
+      jogador, gols: 0, penaltis: 0, golsContra: 0, assistencias: 0,
+      amarelos: 0, vermelhos: 0, jogosComGol: 0, participacoes: 0,
+    };
+  }
+
+  const Estatisticas = {
+    porJogador() {
+      const jogadores = Object.fromEntries(Jogadores.all().map(j => [j.id, j]));
+      const linhas = {};
+      const linha = id => {
+        if (!jogadores[id]) return null;
+        return linhas[id] || (linhas[id] = linhaJogadorVazia(jogadores[id]));
+      };
+      Jogos.comPlacar().forEach(jogo => {
+        const marcaramNoJogo = new Set();
+        (jogo.gols || []).forEach(g => {
+          const autor = linha(g.jogadorId);
+          if (autor) {
+            if (g.tipo === 'contra') autor.golsContra++;
+            else {
+              autor.gols++;
+              if (g.tipo === 'penalti') autor.penaltis++;
+              marcaramNoJogo.add(g.jogadorId);
+            }
+          }
+          const assistente = g.assistenciaId && g.tipo !== 'contra' ? linha(g.assistenciaId) : null;
+          if (assistente) assistente.assistencias++;
+        });
+        marcaramNoJogo.forEach(id => { linhas[id].jogosComGol++; });
+        (jogo.cartoes || []).forEach(c => {
+          const l = linha(c.jogadorId);
+          if (!l) return;
+          if (c.tipo === 'amarelo') l.amarelos++;
+          else l.vermelhos++;
+        });
+      });
+      return Object.values(linhas).map(l => ({ ...l, participacoes: l.gols + l.assistencias }));
+    },
+
+    ranking(criterio, limite) {
+      const desempate = {
+        gols: (a, b) => b.gols - a.gols || b.assistencias - a.assistencias || a.penaltis - b.penaltis,
+        assistencias: (a, b) => b.assistencias - a.assistencias || b.gols - a.gols,
+        participacoes: (a, b) => b.participacoes - a.participacoes || b.gols - a.gols,
+        cartoes: (a, b) => (b.vermelhos * 3 + b.amarelos) - (a.vermelhos * 3 + a.amarelos) || b.vermelhos - a.vermelhos,
+      }[criterio];
+      const valor = l => criterio === 'cartoes' ? l.amarelos + l.vermelhos : l[criterio];
+      const lista = this.porJogador()
+        .filter(l => valor(l) > 0)
+        .sort((a, b) => desempate(a, b) || a.jogador.nome.localeCompare(b.jogador.nome));
+      return limite ? lista.slice(0, limite) : lista;
+    },
+
+    doJogador(jogadorId) {
+      const jogador = Jogadores.get(jogadorId);
+      const linha = this.porJogador().find(l => l.jogador.id === jogadorId) || linhaJogadorVazia(jogador);
+      const lances = [];
+      Jogos.comPlacar().forEach(jogo => {
+        (jogo.gols || []).forEach(g => {
+          if (g.jogadorId === jogadorId) lances.push({ jogo, tipo: g.tipo === 'contra' ? 'gol_contra' : 'gol', detalhe: g });
+          else if (g.assistenciaId === jogadorId && g.tipo !== 'contra') lances.push({ jogo, tipo: 'assistencia', detalhe: g });
+        });
+        (jogo.cartoes || []).forEach(c => {
+          if (c.jogadorId === jogadorId) lances.push({ jogo, tipo: c.tipo, detalhe: c });
+        });
+      });
+      lances.sort((a, b) => new Date(a.jogo.data) - new Date(b.jogo.data) || minutoNumero(a.detalhe.minuto) - minutoNumero(b.detalhe.minuto));
+      return { ...linha, lances };
+    },
+
+    porTime() {
+      const linhas = Object.fromEntries(Times.all().map(t => [t.id, {
+        time: t, J: 0, V: 0, E: 0, D: 0, GP: 0, GC: 0, semSofrer: 0, CA: 0, CV: 0,
+      }]));
+      Jogos.comPlacar().forEach(j => {
+        const m = linhas[j.mandanteId], v = linhas[j.visitanteId];
+        if (!m || !v || j.golsMandante == null || j.golsVisitante == null) return;
+        [[m, j.golsMandante, j.golsVisitante], [v, j.golsVisitante, j.golsMandante]].forEach(([l, pro, contra]) => {
+          l.J++; l.GP += pro; l.GC += contra;
+          if (contra === 0) l.semSofrer++;
+          if (pro > contra) l.V++; else if (pro < contra) l.D++; else l.E++;
+        });
+        (j.cartoes || []).forEach(c => {
+          const l = linhas[c.timeId];
+          if (!l) return;
+          if (c.tipo === 'amarelo') l.CA++; else l.CV++;
+        });
+      });
+      return Object.values(linhas).map(l => ({ ...l, SG: l.GP - l.GC, media: l.J ? l.GP / l.J : 0 }));
+    },
+
+    resumo() {
+      const jogos = Jogos.comPlacar().filter(j => j.golsMandante != null && j.golsVisitante != null);
+      const gols = jogos.reduce((soma, j) => soma + j.golsMandante + j.golsVisitante, 0);
+      const cartoes = jogos.flatMap(j => j.cartoes || []);
+      const lances = jogos.flatMap(j => j.gols || []);
+      const maiorGoleada = [...jogos].sort((a, b) =>
+        Math.abs(b.golsMandante - b.golsVisitante) - Math.abs(a.golsMandante - a.golsVisitante)
+        || (b.golsMandante + b.golsVisitante) - (a.golsMandante + a.golsVisitante))[0] || null;
+      return {
+        jogos: jogos.length,
+        totalJogos: Jogos.all().length,
+        gols,
+        media: jogos.length ? gols / jogos.length : 0,
+        amarelos: cartoes.filter(c => c.tipo === 'amarelo').length,
+        vermelhos: cartoes.filter(c => c.tipo !== 'amarelo').length,
+        penaltis: lances.filter(g => g.tipo === 'penalti').length,
+        golsContra: lances.filter(g => g.tipo === 'contra').length,
+        maiorGoleada,
+      };
     },
   };
 
@@ -658,6 +809,20 @@ const DB = (() => {
   const CORES = ['#33e08a', '#ff8a3d', '#5b8cff', '#ff5470', '#c792ea', '#ffd166'];
 
   const Util = {
+    minutoNumero,
+    escapar(texto) {
+      return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    },
+    bandeiraFifa(codigo, largura = 40) {
+      const iso = ISO_POR_FIFA[codigo];
+      return iso ? `https://flagcdn.com/w${largura}/${iso}.png` : null;
+    },
+    formatarDiaLongo(iso) {
+      return new Date(iso).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+    },
+    formatarHora(iso) {
+      return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    },
     formatarData(iso) {
       return new Date(iso).toLocaleDateString('pt-BR');
     },
@@ -683,5 +848,5 @@ const DB = (() => {
     },
   };
 
-  return { Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Torneio, Auth, Util };
+  return { Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Torneio, Auth, Util };
 })();

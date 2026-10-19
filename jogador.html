@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Jogador — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb" id="breadcrumb"><a href="index.html">Início</a> / <span>Jogador</span></div>
+    <div class="profile-head">
+      <div id="avatar-mount"></div>
+      <div>
+        <div class="section-eyebrow" id="eyebrow-jogador"></div>
+        <h1 class="section-title" id="nome-jogador">Carregando...</h1>
+        <div class="profile-facts" id="fatos-jogador"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="page">
+  <div class="stat-tiles" id="tiles-jogador" style="margin-bottom:20px;"></div>
+  <div class="grid-main">
+    <section class="panel">
+      <div class="panel-header"><span class="panel-title">Lances na Copa</span></div>
+      <div id="lances"></div>
+    </section>
+    <aside class="panel">
+      <div class="panel-header"><span class="panel-title">Pela seleção</span></div>
+      <ul class="info-list" id="info-jogador"></ul>
+    </aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/elencos.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/jogador.js"></script>
+</body>
+</html>

@@ -1,53 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
   UI.montarTopbar();
-
+  UI.montarTicker();
   DB.MataMata.sincronizar();
 
-  document.getElementById('grid-grupos').innerHTML = DB.Grupos.letras.map(letra => cardGrupo(letra)).join('');
+  document.getElementById('grid-grupos').innerHTML = DB.Grupos.letras.map(cardGrupo).join('');
 
-  const terceiros = DB.Classificacao.terceiros();
-  document.querySelector('#tabela-terceiros tbody').innerHTML = terceiros.map(t => `
-    <tr class="terceiros-row ${t.classificado ? 'classificado' : 'eliminado'}">
-      <td>${t.posicaoGeral}</td><td>${t.nome}</td><td>${t.grupo}</td>
-      <td>${t.P}</td><td>${t.J}</td><td>${t.V}</td><td>${t.E}</td><td>${t.D}</td><td>${t.SG}</td><td>${t.GP}</td>
-    </tr>`).join('');
+  const algumJogo = DB.Jogos.porFase('grupos').some(j => j.status !== 'agendado');
+  document.querySelector('#tabela-terceiros tbody').innerHTML = DB.Classificacao.terceiros().map(t => {
+    const time = DB.Times.get(t.timeId);
+    const classe = !algumJogo ? '' : t.classificado ? 'zona-3' : 'eliminado';
+    return `<tr class="${classe}">
+      <td class="pos">${t.posicaoGeral}</td><td class="left">${UI.timeLink(time)}</td><td>${t.grupo}</td>
+      <td>${t.J}</td><td>${t.V}</td><td>${t.E}</td><td>${t.D}</td><td class="dim">${t.GP}:${t.GC}</td>
+      <td>${t.SG > 0 ? '+' : ''}${t.SG}</td><td class="strong">${t.P}</td>
+    </tr>`;
+  }).join('');
+
+  // Rola até o grupo do link (#grupo-X) depois de montar a página.
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 
   UI.montarFooter();
 });
 
 function cardGrupo(letra) {
-  const tabela = DB.Classificacao.grupo(letra);
-  const jogos = DB.Jogos.porGrupo(letra);
+  const jogos = [...DB.Jogos.porGrupo(letra)].sort((a, b) => new Date(a.data) - new Date(b.data));
+  const encerrados = jogos.filter(j => j.status === 'encerrado').length;
   const completo = DB.Grupos.completo(letra);
 
-  const linhasTabela = tabela.map(t => `
-    <tr><td>${t.posicao}</td><td>${t.nome}</td><td>${t.P}</td><td>${t.J}</td><td>${t.V}</td><td>${t.E}</td><td>${t.D}</td><td>${t.SG}</td></tr>`).join('');
-
-  const linhasJogos = jogos.map(j => {
-    const m = DB.Times.get(j.mandanteId), v = DB.Times.get(j.visitanteId);
-    const placar = (j.status === 'agendado' || j.status === 'adiado') ? 'vs' : `${j.golsMandante} - ${j.golsVisitante}`;
-    return `<a href="jogo.html?id=${j.id}" class="panel-body" style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:8px 4px;font-size:12.5px;">
-      <span>${m ? m.nome : '—'}</span><strong>${placar}</strong><span>${v ? v.nome : '—'}</span>
-    </a>`;
-  }).join('');
+  const linhasJogos = jogos.map(UI.linhaJogoCompacta).join('');
 
   return `
     <div class="panel" id="grupo-${letra}">
       <div class="panel-header">
-        <span class="group-card-header">
-          <span class="group-letter">Grupo ${letra}</span>
-        </span>
-        <span class="group-status">${completo ? 'Encerrado' : 'Em andamento'}</span>
+        <span class="group-title"><span class="group-letter">${letra}</span><span class="panel-title">Grupo ${letra}</span></span>
+        <span class="group-status${completo ? ' done' : ''}">${completo ? 'Encerrado' : `${encerrados}/6 jogos`}</span>
       </div>
-      <div class="panel-body">
-        <table class="standings-table">
-          <thead><tr><th>#</th><th>Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead>
-          <tbody>${linhasTabela}</tbody>
-        </table>
-        <details style="margin-top:10px;">
-          <summary style="cursor:pointer;color:var(--text-dim);font-size:12.5px;font-weight:700;">Jogos do grupo</summary>
-          <div style="margin-top:6px;">${linhasJogos}</div>
-        </details>
-      </div>
+      ${UI.tabelaGrupo(letra, { forma: true })}
+      ${UI.legendaZonas()}
+      <details class="group-games"${jogos.length ? '' : ' hidden'}>
+        <summary>Jogos do grupo (${jogos.length})</summary>
+        ${linhasJogos}
+      </details>
     </div>`;
 }

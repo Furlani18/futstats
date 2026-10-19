@@ -9,40 +9,44 @@
 <body>
 
 <div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Grupos</span></div>
+    <div class="section-eyebrow">Fase de grupos</div>
+    <h1 class="section-title">12 grupos · 48 seleções</h1>
+    <p class="lead">Os dois primeiros de cada grupo e os 8 melhores terceiros colocados avançam aos 32avos de final.</p>
+  </div>
+</section>
 
 <main class="page">
-  <div class="breadcrumb"><a href="index.html">Início</a> / <span>Grupos</span></div>
-  <div class="section-eyebrow">Copa do Mundo FIFA 2026</div>
-  <h1 class="section-title">Fase de grupos — 12 grupos de 4 seleções</h1>
-
-  <div class="notice-banner">
-    Critério de desempate oficial: pontos → saldo de gols → gols pró (calculados primeiro entre os times empatados,
-    reaplicado ao subgrupo remanescente) → saldo de gols geral → gols pró geral → conduta (fair play) → ranking FIFA.
-  </div>
-
   <div class="groups-grid" id="grid-grupos"></div>
 
-  <div style="margin-top:40px;">
-    <div class="section-eyebrow">Vagas dos 32avos</div>
-    <h2 class="section-title" style="font-size:26px;">Melhores terceiros colocados</h2>
-    <p style="color:var(--text-dim);font-size:13.5px;margin-top:-14px;margin-bottom:16px;">
-      Os 8 melhores terceiros colocados (dentre os 12 grupos) avançam junto com os 1ºs e 2ºs colocados.
-    </p>
-    <div class="panel">
-      <div class="panel-body">
-        <table class="standings-table" id="tabela-terceiros">
-          <thead>
-            <tr><th>#</th><th>Time</th><th>Grupo</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th><th>GP</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">Vagas nos 32avos</div>
+      <h2 class="section-title">Ranking dos terceiros colocados</h2>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="table-scroll">
+      <table class="stats-table" id="tabela-terceiros">
+        <thead>
+          <tr><th>#</th><th class="left">Seleção</th><th>Grupo</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Gols</th><th>SG</th><th class="strong">Pts</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      Desempate: pontos → saldo → gols pró (primeiro só entre os empatados) → saldo geral → gols pró geral → fair play (cartões) → ranking FIFA.
     </div>
   </div>
 </main>
 
 <div id="footer-mount"></div>
 
+<script src="js/elencos.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/grupos.js"></script>

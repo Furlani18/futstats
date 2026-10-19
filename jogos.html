@@ -19,6 +19,17 @@
         <div class="admin-panel-header">
           <span class="admin-panel-title">Jogos da Copa 2026</span>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btn-novo">+ Novo jogo</button>
+            <button class="btn btn-ghost" id="btn-importar">Importar calendário oficial</button>
+            <button class="btn btn-ghost" id="btn-sincronizar">Atualizar chaveamento</button>
+          </div>
+        </div>
+        <div class="admin-toolbar-hint">
+          Cadastre os jogos da fase de grupos (ou importe o calendário oficial, sem placares) e lance placar, gols, assistências e cartões em <strong>Editar</strong>.
+          Os jogos do mata-mata são criados sozinhos quando os 12 grupos terminam.
+        </div>
+        <div class="admin-panel-header" style="border-top:none;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <select class="search-input" id="filtro-fase" style="min-width:170px;"></select>
             <select class="search-input" id="filtro-grupo" style="min-width:130px;"></select>
             <select class="search-input" id="filtro-status" style="min-width:150px;">
@@ -28,12 +39,11 @@
               <option value="encerrado">Encerrado</option>
               <option value="adiado">Adiado</option>
             </select>
-            <button class="btn btn-ghost" id="btn-sincronizar">Atualizar chaveamento</button>
           </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Data / Hora</th><th>Fase</th><th>Confronto</th><th>Placar</th><th>Status</th><th></th></tr>
+            <tr><th>Data / Hora</th><th>Fase</th><th>Confronto</th><th>Placar</th><th>Lances</th><th>Status</th><th></th></tr>
           </thead>
           <tbody id="tbody-jogos"></tbody>
         </table>
@@ -42,6 +52,8 @@
   </div>
 </div>
 
+<script src="js/elencos.js"></script>
+<script src="js/calendario.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/admin-ui.js"></script>

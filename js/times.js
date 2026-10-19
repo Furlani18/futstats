@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <td>${t.nome}</td>
       <td>Grupo ${t.grupo}</td>
       <td>${t.confederacao}</td>
+      <td>${DB.Util.escapar(t.tecnico || '—')}</td>
       <td>#${t.rankingFifa}</td>
       <td>${totalJogadores}</td>
       <td class="row-actions">
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function linhaVazia() {
-    return '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:24px;">Nenhuma seleção encontrada.</td></tr>';
+    return '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">Nenhuma seleção encontrada.</td></tr>';
   }
 
   function abrirFormulario(id) {
@@ -48,11 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ${CONFEDERACOES_OPCOES.map(c => `<option value="${c}" ${t.confederacao === c ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
         </div>
+        <div class="field"><label>Técnico</label><input type="text" name="tecnico" value="${DB.Util.escapar(t.tecnico || '')}"></div>
         <div class="field"><label>Ranking FIFA</label><input type="number" name="rankingFifa" min="1" max="48" value="${t.rankingFifa}" required></div>
       `,
       aoSalvar(dados) {
         DB.Times.update(t.id, {
           confederacao: dados.get('confederacao'),
+          tecnico: dados.get('tecnico').trim(),
           rankingFifa: Number(dados.get('rankingFifa')),
         });
         AdminUI.fecharModal();

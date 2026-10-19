@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FUTSTATS — Copa do Mundo FIFA 2026</title>
+<meta name="description" content="Resultados, classificação, artilharia, assistências e elencos da Copa do Mundo FIFA 2026.">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -11,65 +12,65 @@
 <div id="topbar-mount"></div>
 <div id="ticker-mount"></div>
 
-<main class="page">
-  <div class="section-eyebrow" id="eyebrow-torneio">Copa do Mundo FIFA 2026</div>
-  <h1 class="section-title" id="titulo-hero">EUA, México e Canadá · 11 jun – 19 jul</h1>
-
-  <div class="notice-banner">
-    <strong>Dados de demonstração:</strong> os resultados da fase de grupos são simulados para exibir o funcionamento
-    da classificação, do desempate oficial e do chaveamento. Edite qualquer placar no painel administrativo.
+<section class="hero">
+  <div class="container">
+    <div class="section-eyebrow" id="hero-fase">Fase de grupos</div>
+    <h1 class="hero-title">Copa do Mundo<br><span class="gold">FIFA 2026</span></h1>
+    <p class="hero-sub"><strong>Estados Unidos, México e Canadá</strong> · 11 de junho a 19 de julho · 48 seleções · 104 jogos</p>
+    <div class="kpi-strip" id="kpis"></div>
   </div>
+</section>
 
-  <div class="layout-grid">
-
-    <!-- Sidebar esquerda: preview dos grupos -->
-    <aside class="panel" id="grupos-preview">
-      <div class="panel-header"><span class="panel-title">Grupos</span></div>
-      <div id="lista-grupos"></div>
-      <div style="padding:12px 18px;">
-        <a href="grupos.html" class="btn btn-ghost" style="width:100%;justify-content:center;">Ver todos os grupos</a>
-      </div>
-    </aside>
-
-    <!-- Centro: jogos -->
-    <section>
-      <div class="section-eyebrow" id="eyebrow-fase">Fase de grupos</div>
-      <h2 class="section-title" style="font-size:24px;">Próximos e últimos jogos</h2>
+<main class="page">
+  <div class="grid-main">
+    <section class="stack">
       <div class="panel">
-        <div id="lista-jogos"></div>
+        <div class="panel-header">
+          <span class="panel-title" id="titulo-jogos">Partidas</span>
+          <a href="partidas.html">Todas as partidas →</a>
+        </div>
+        <div class="match-list" id="lista-jogos"></div>
       </div>
 
-      <div id="secao-times" style="margin-top:32px;">
-        <div class="section-eyebrow">48 seleções</div>
-        <h2 class="section-title" style="font-size:24px;">Seleções classificadas</h2>
-        <div class="player-grid" id="grid-times"></div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Grupos</span>
+          <a href="grupos.html">Classificação completa →</a>
+        </div>
+        <div class="grid-2" id="mini-grupos" style="gap:0;"></div>
+        <div id="legenda-grupos"></div>
       </div>
     </section>
 
-    <!-- Sidebar direita: melhores terceiros / chaveamento -->
-    <aside class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Melhores terceiros</span>
+    <aside class="stack">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Artilharia</span><a href="estatisticas.html">Ver tudo →</a></div>
+        <div id="top-artilheiros"></div>
       </div>
-      <div class="panel-body">
-        <table class="standings-table" id="tabela-terceiros-mini">
-          <thead>
-            <tr><th>#</th><th>Time</th><th>Grupo</th><th>P</th><th>SG</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
-          <a href="grupos.html" class="btn btn-ghost" style="width:100%;justify-content:center;">Classificação completa</a>
-          <a href="chaveamento.html" class="btn btn-primary" style="width:100%;justify-content:center;">Ver chaveamento</a>
-        </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Assistências</span><a href="estatisticas.html#assistencias">Ver tudo →</a></div>
+        <div id="top-assistencias"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Melhores ataques</span><a href="estatisticas.html#selecoes">Ver tudo →</a></div>
+        <div id="top-ataques"></div>
       </div>
     </aside>
-
   </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">48 seleções · 12 grupos</div>
+      <h2 class="section-title">Seleções</h2>
+    </div>
+    <a class="link-more" href="selecoes.html">Ver por confederação →</a>
+  </div>
+  <div class="team-grid" id="grid-times"></div>
 </main>
 
 <div id="footer-mount"></div>
 
+<script src="js/elencos.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
