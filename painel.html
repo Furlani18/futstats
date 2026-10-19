@@ -116,7 +116,34 @@
   </div>
 </template>
 
+<template id="tpl-dados">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <span class="admin-panel-title">Backup e publicação dos dados</span>
+    </div>
+    <div class="dados-grid">
+      <div class="dados-card">
+        <h3>💾 Baixar backup</h3>
+        <p>Salva seleções, jogadores e jogos (com gols, cartões e escalações) num arquivo <code>.json</code>. Os dados vivem só neste navegador — limpar o histórico apaga tudo, então guarde um backup de vez em quando.</p>
+        <button type="button" class="btn btn-primary" id="btn-exportar">Baixar backup</button>
+      </div>
+      <div class="dados-card">
+        <h3>📂 Restaurar backup</h3>
+        <p>Carrega um arquivo de backup e <strong>substitui</strong> tudo o que está cadastrado neste navegador. Serve também para levar os dados para outro computador.</p>
+        <label class="btn btn-ghost" style="justify-content:center;">Escolher arquivo…<input type="file" id="arquivo-backup" accept=".json,application/json" hidden></label>
+      </div>
+      <div class="dados-card">
+        <h3>🌐 Publicar para os visitantes</h3>
+        <p>Gera o arquivo <code>dados.js</code>. Substitua o <code>js/dados.js</code> do projeto por ele e envie para o GitHub: quem abrir o site passa a ver estes jogos e estatísticas. Gere de novo a cada atualização.</p>
+        <button type="button" class="btn btn-ghost" id="btn-publicar">Gerar dados.js</button>
+      </div>
+    </div>
+    <div class="dados-status" id="dados-status"></div>
+  </div>
+</template>
+
 <script src="js/elencos.js"></script>
+<script src="js/dados.js"></script>
 <script src="js/calendario.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
@@ -125,5 +152,6 @@
 <script src="js/times.js"></script>
 <script src="js/jogadores.js"></script>
 <script src="js/jogos.js"></script>
+<script src="js/dados-admin.js"></script>
 </body>
 </html>

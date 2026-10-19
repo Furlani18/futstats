@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="squad-pos">${ROTULOS[pos] || pos}</div>
       <div class="squad-row head"><span>Nº</span><span>Jogador</span><span class="club">Clube</span>
         <span class="c col-extra" title="Jogos pela seleção antes da Copa">Jogos</span><span class="c col-extra" title="Gols pela seleção antes da Copa">Gols sel.</span>
+        <span class="c" title="Jogos na Copa">J</span>
         <span class="c" title="Gols na Copa">G</span><span class="c" title="Assistências na Copa">A</span></div>
       ${doSetor.map(j => {
         const s = stats[j.id] || {};
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="club">${UI.bandeiraClube(j.clubePais)}<span>${esc(j.clube || '—')}</span></span>
           <span class="c col-extra">${j.jogosSelecao ?? '–'}</span>
           <span class="c col-extra">${j.golsSelecao ?? '–'}</span>
-          ${celula(s.gols, true)}${celula(s.assistencias, true)}
+          ${celula(s.jogos)}${celula(s.gols, true)}${celula(s.assistencias, true)}
         </a>`;
       }).join('')}`;
   }).join('') : UI.vazio('Elenco não cadastrado', '');

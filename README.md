@@ -12,6 +12,12 @@ Site de estatísticas da Copa do Mundo 2026 inspirado no SofaScore: grupos, jogo
 - Classificação calculada pelos placares, com os critérios de desempate da FIFA e o ranking dos terceiros
 - Chaveamento do mata-mata (32avos à final), gerado quando a fase de grupos termina
 - Importação opcional do calendário oficial da fase de grupos (datas, horários de Brasília e estádios, sem placares)
+- **Escalações e substituições** por jogo: campinho com a formação, minutos jogados e gols por 90 minutos
+- **Prêmios**: Chuteira de Ouro, Luva de Ouro, melhor jovem e seleção de cada rodada
+- **Simulador** da fase de grupos: palpites para os jogos restantes, com classificação, terceiros e 32avos projetados
+- **Busca global** de jogadores, seleções e clubes (Ctrl+K)
+- **Imagem para compartilhar** o resultado de cada jogo
+- Painel em página única, com **backup/restauração** e geração do `js/dados.js` para publicar os dados aos visitantes
 
 ## Acesso de demonstração
 Área administrativa → usuário `admin`, senha `futstats2026`.

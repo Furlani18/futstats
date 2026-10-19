@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   document.getElementById('tiles-jogador').innerHTML = [
+    tile('Jogos', s.jogos), tile('Minutos', s.minutos), tile('Titular', s.titular),
     tile('Gols', s.gols, 'gold'), tile('Assistências', s.assistencias, 'gold'), tile('Participações', s.participacoes),
     tile('De pênalti', s.penaltis), tile('Jogos com gol', s.jogosComGol), tile('Amarelos', s.amarelos), tile('Vermelhos', s.vermelhos),
   ].join('');

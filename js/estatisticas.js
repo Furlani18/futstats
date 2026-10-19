@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Tabela completa de jogadores ----------
   const jogadores = DB.Estatisticas.porJogador()
-    .filter(l => l.gols || l.assistencias || l.amarelos || l.vermelhos)
+    .filter(l => l.gols || l.assistencias || l.amarelos || l.vermelhos || l.minutos)
     .sort((a, b) => b.gols - a.gols || b.assistencias - a.assistencias || a.jogador.nome.localeCompare(b.jogador.nome));
   const zero = v => (v ? v : '<span style="color:var(--text-faint)">0</span>');
   document.querySelector('#tabela-jogadores tbody').innerHTML = jogadores.length
@@ -32,11 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="left"><a class="team-inline" href="jogador.html?id=${l.jogador.id}"><span class="nome">${esc(l.jogador.nome)}</span></a></td>
         <td class="left">${UI.timeLink(time)}</td>
         <td class="dim">${esc(l.jogador.posicao)}</td>
+        <td>${zero(l.jogos)}</td><td>${zero(l.minutos)}</td>
         <td class="strong">${zero(l.gols)}</td><td>${zero(l.penaltis)}</td><td>${zero(l.assistencias)}</td>
-        <td>${zero(l.participacoes)}</td><td>${zero(l.amarelos)}</td><td>${zero(l.vermelhos)}</td>
+        <td>${zero(l.participacoes)}</td><td class="dim">${l.golsPor90 != null && l.gols ? l.golsPor90.toFixed(2).replace('.', ',') : '–'}</td><td>${zero(l.amarelos)}</td><td>${zero(l.vermelhos)}</td>
       </tr>`;
     }).join('')
-    : `<tr><td colspan="10">${UI.vazio('Nenhum lance cadastrado ainda', 'Gols, assistências e cartões aparecem aqui conforme forem lançados nos jogos.')}</td></tr>`;
+    : `<tr><td colspan="13">${UI.vazio('Nenhum lance cadastrado ainda', 'Gols, assistências e cartões aparecem aqui conforme forem lançados nos jogos.')}</td></tr>`;
 
   // ---------- Seleções ----------
   const times = DB.Estatisticas.porTime()

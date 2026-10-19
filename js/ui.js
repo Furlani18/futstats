@@ -12,6 +12,8 @@ const UI = (() => {
     'chaveamento.html': 'chaveamento',
     'estatisticas.html': 'estatisticas', 'jogador.html': 'estatisticas',
     'selecoes.html': 'selecoes', 'time.html': 'selecoes',
+    'premios.html': 'premios',
+    'simulador.html': 'simulador',
   };
 
   const NAV = [
@@ -20,6 +22,8 @@ const UI = (() => {
     ['grupos', 'grupos.html', 'Grupos'],
     ['chaveamento', 'chaveamento.html', 'Mata-mata'],
     ['estatisticas', 'estatisticas.html', 'Estatísticas'],
+    ['premios', 'premios.html', 'Prêmios'],
+    ['simulador', 'simulador.html', 'Simulador'],
     ['selecoes', 'selecoes.html', 'Seleções'],
   ];
 
@@ -48,6 +52,9 @@ const UI = (() => {
             <span class="logo-mark">⚽</span>FUT<span class="accent">STATS</span>
             <span class="logo-tag">Copa 2026</span>
           </a>
+          <button type="button" class="search-btn" id="btn-busca" aria-label="Buscar jogador ou seleção" title="Buscar (Ctrl+K)">
+            <span aria-hidden="true">⌕</span><span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
+          </button>
           <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
           <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menu">☰</label>
           <nav class="topbar-nav">
@@ -56,6 +63,87 @@ const UI = (() => {
           </nav>
         </div>
       </div>`;
+    ativarBusca();
+  }
+
+  // ---------- Busca global (jogadores e seleções) ----------
+  const normalizar = texto => String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  function buscar(termo) {
+    const t = normalizar(termo).trim();
+    if (t.length < 2) return [];
+    const times = DB.Times.all();
+    const porId = Object.fromEntries(times.map(x => [x.id, x]));
+    const resultados = [];
+    times.forEach(time => {
+      const alvo = normalizar(`${time.nome} ${time.codigo}`);
+      if (alvo.includes(t)) resultados.push({ tipo: 'time', peso: alvo.startsWith(t) ? 0 : 1, time });
+    });
+    DB.Jogadores.all().forEach(jogador => {
+      const nome = normalizar(jogador.nome);
+      const clube = normalizar(jogador.clube);
+      const casaNome = nome.includes(t);
+      if (!casaNome && !clube.includes(t)) return;
+      const inicioPalavra = nome.split(/\s+/).some(parte => parte.startsWith(t));
+      resultados.push({ tipo: 'jogador', peso: !casaNome ? 4 : nome.startsWith(t) ? 1 : inicioPalavra ? 2 : 3, jogador, time: porId[jogador.timeId] });
+    });
+    return resultados.sort((a, b) => a.peso - b.peso || (a.tipo === 'time' ? -1 : 1)).slice(0, 12);
+  }
+
+  function itemBusca(r, i) {
+    if (r.tipo === 'time') {
+      return `<a class="busca-item" href="time.html?id=${r.time.id}" data-i="${i}">
+        ${bandeira(r.time)}<span class="busca-txt"><b>${esc(r.time.nome)}</b><small>Seleção · Grupo ${r.time.grupo} · ${r.time.confederacao}</small></span></a>`;
+    }
+    return `<a class="busca-item" href="jogador.html?id=${r.jogador.id}" data-i="${i}">
+      ${avatar(r.jogador)}<span class="busca-txt"><b>${esc(r.jogador.nome)}</b>
+      <small>${r.time ? esc(r.time.nome) : ''} · ${esc(r.jogador.posicao)}${r.jogador.clube ? ` · ${esc(r.jogador.clube)}` : ''}</small></span></a>`;
+  }
+
+  function abrirBusca() {
+    if (document.getElementById('busca-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'busca-overlay';
+    overlay.className = 'busca-overlay';
+    overlay.innerHTML = `
+      <div class="busca-box" role="dialog" aria-label="Buscar">
+        <input type="search" id="busca-input" placeholder="Buscar jogador, seleção ou clube…" autocomplete="off">
+        <div class="busca-resultados" id="busca-resultados"><div class="busca-dica">Digite ao menos 2 letras. Ex.: <b>Vini</b>, <b>Japão</b>, <b>Real Madrid</b></div></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const input = document.getElementById('busca-input');
+    const lista = document.getElementById('busca-resultados');
+    let ativo = 0;
+    const marcar = () => lista.querySelectorAll('.busca-item').forEach((el, i) => el.classList.toggle('ativo', i === ativo));
+    input.addEventListener('input', () => {
+      const r = buscar(input.value);
+      ativo = 0;
+      lista.innerHTML = r.length ? r.map(itemBusca).join('')
+        : `<div class="busca-dica">${input.value.trim().length < 2 ? 'Digite ao menos 2 letras.' : 'Nada encontrado.'}</div>`;
+      marcar();
+    });
+    input.addEventListener('keydown', e => {
+      const itens = lista.querySelectorAll('.busca-item');
+      if (e.key === 'ArrowDown' && itens.length) { ativo = (ativo + 1) % itens.length; marcar(); e.preventDefault(); }
+      if (e.key === 'ArrowUp' && itens.length) { ativo = (ativo - 1 + itens.length) % itens.length; marcar(); e.preventDefault(); }
+      if (e.key === 'Enter' && itens[ativo]) window.location.href = itens[ativo].href;
+    });
+    overlay.addEventListener('click', e => { if (e.target === overlay) fecharBusca(); });
+    input.focus();
+  }
+
+  function fecharBusca() {
+    document.getElementById('busca-overlay')?.remove();
+  }
+
+  function ativarBusca() {
+    document.getElementById('btn-busca')?.addEventListener('click', abrirBusca);
+    document.addEventListener('keydown', e => {
+      const digitando = /input|textarea|select/i.test(document.activeElement?.tagName || '');
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); abrirBusca(); }
+      else if (e.key === '/' && !digitando) { e.preventDefault(); abrirBusca(); }
+      else if (e.key === 'Escape') fecharBusca();
+    });
   }
 
   function montarTicker() {
@@ -89,6 +177,8 @@ const UI = (() => {
           <div class="footer-links">
             <a href="partidas.html">Partidas</a>
             <a href="estatisticas.html">Estatísticas</a>
+            <a href="premios.html">Prêmios</a>
+            <a href="simulador.html">Simulador</a>
             <a href="selecoes.html">Seleções</a>
             <a href="login.html">Painel administrativo</a>
           </div>
@@ -269,6 +359,28 @@ const UI = (() => {
     return `<ol class="leader-list">${lista.map((l, i) => linhaLider(l, i, criterio, rotulo)).join('')}</ol>`;
   }
 
+  // Nome curto para caber no campinho: "Vinícius Júnior" → "Vinícius Júnior"; "Gabriel Magalhães" → "G. Magalhães".
+  function nomeCurto(nome) {
+    const partes = String(nome).split(' ').filter(Boolean);
+    if (partes.length <= 1 || nome.length <= 13) return nome;
+    return `${partes[0][0]}. ${partes.slice(1).join(' ')}`;
+  }
+
+  // Campinho: `linhas` vai do ataque (topo) ao goleiro (base); cada item é
+  // { jogador, tags, pts } ou null (vaga não preenchida).
+  function campinho(linhas) {
+    const jogadorHtml = item => {
+      if (!item) return '<span class="pitch-player vazio"><span class="shirt"></span><span class="nome">—</span></span>';
+      const j = item.jogador;
+      return `<a class="pitch-player${j.posicao === 'Goleiro' ? ' gk' : ''}" href="jogador.html?id=${j.id}" title="${esc(j.nome)}">
+        <span class="shirt">${j.numero ?? ''}${item.pts != null ? `<span class="pts">${item.pts}</span>` : ''}</span>
+        <span class="nome">${esc(nomeCurto(j.nome))}</span>
+        <span class="tags">${item.tags || ''}</span>
+      </a>`;
+    };
+    return `<div class="pitch">${linhas.filter(l => l.length).map(l => `<div class="pitch-row">${l.map(jogadorHtml).join('')}</div>`).join('')}</div>`;
+  }
+
   function vazio(titulo, texto) {
     return `<div class="empty"><strong>${titulo}</strong>${texto || ''}</div>`;
   }
@@ -277,6 +389,6 @@ const UI = (() => {
     montarTopbar, montarTicker, montarFooter,
     bandeira, bandeiraClube, crestHtml, timeLink, avatar,
     badge, rotuloJogo, temPlacar, placarHtml, linhaJogo, linhaJogoCompacta, listaPorDia, formaRecente,
-    tabelaGrupo, legendaZonas, listaLideres, vazio,
+    tabelaGrupo, legendaZonas, listaLideres, vazio, campinho, nomeCurto,
   };
 })();

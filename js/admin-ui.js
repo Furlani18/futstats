@@ -6,6 +6,7 @@ const AdminUI = (() => {
     times: 'Seleções',
     jogadores: 'Jogadores',
     jogos: 'Jogos',
+    dados: 'Dados',
   };
   const inicializadores = {};
 

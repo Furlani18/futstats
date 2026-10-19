@@ -16,6 +16,7 @@
     <div class="match-hero-meta" id="meta-jogo"></div>
     <div class="match-hero-inner" id="hero-jogo"></div>
     <div class="scorers" id="autores"></div>
+    <div class="share-row" id="compartilhar"></div>
   </div>
 </section>
 
@@ -26,6 +27,10 @@
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Lance a lance</span></div>
         <div id="timeline"></div>
+      </div>
+      <div class="panel" id="painel-escalacoes" hidden>
+        <div class="panel-header"><span class="panel-title">Escalações</span></div>
+        <div class="lineups" id="escalacoes"></div>
       </div>
     </section>
 
@@ -45,8 +50,10 @@
 <div id="footer-mount"></div>
 
 <script src="js/elencos.js"></script>
+<script src="js/dados.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/compartilhar.js"></script>
 <script src="js/jogo.js"></script>
 </body>
 </html>

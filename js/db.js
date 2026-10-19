@@ -207,6 +207,7 @@ const DB = (() => {
     gravar('fs_jogos', []);
     gravar('fs_torneio', TORNEIO_SEED);
     localStorage.setItem('fs_seed_version', SEED_VERSION);
+    localStorage.removeItem('fs_dados_publicados');
   }
 
   inicializarSeed();
@@ -363,8 +364,14 @@ const DB = (() => {
   // Pontos de conduta do regulamento: amarelo −1, vermelho por 2º amarelo −3, vermelho direto −4.
   const PONTOS_FAIR_PLAY = { amarelo: 1, segundo_amarelo: 3, vermelho: 4 };
 
+  // `fonte` (opcional): lista de jogos a usar no lugar dos cadastrados — o simulador
+  // passa os jogos reais + palpites sem gravar nada.
+  function jogosDoGrupo(letra, fonte) {
+    return fonte ? fonte.filter(j => j.fase === 'grupos' && j.grupo === letra) : Jogos.porGrupo(letra);
+  }
+
   const Classificacao = {
-    grupo(letra) {
+    grupo(letra, fonte) {
       const times = Grupos.times(letra);
       const base = {};
       times.forEach(t => {
@@ -373,7 +380,7 @@ const DB = (() => {
           P: 0, J: 0, V: 0, E: 0, D: 0, GP: 0, GC: 0, SG: 0, CA: 0, CV: 0, fairPlay: 0,
         };
       });
-      const jogos = Jogos.porGrupo(letra).filter(j => j.status === 'encerrado');
+      const jogos = jogosDoGrupo(letra, fonte).filter(j => j.status === 'encerrado');
       jogos.forEach(j => {
         const m = base[j.mandanteId], v = base[j.visitanteId];
         if (!m || !v) return;
@@ -396,9 +403,9 @@ const DB = (() => {
       return ordenarComDesempate(lista, jogos);
     },
 
-    terceiros() {
+    terceiros(fonte) {
       const linhas = LETRAS_GRUPOS.map(letra => {
-        const tabela = Classificacao.grupo(letra);
+        const tabela = Classificacao.grupo(letra, fonte);
         return tabela[2];
       });
       const ordenados = [...linhas].sort((a, b) =>
@@ -484,8 +491,8 @@ const DB = (() => {
     return atribuicao;
   }
 
-  function timePorPosicao(pos, letra) {
-    const tabela = Classificacao.grupo(letra);
+  function timePorPosicao(pos, letra, fonte) {
+    const tabela = Classificacao.grupo(letra, fonte);
     return tabela[pos - 1] || null;
   }
 
@@ -533,25 +540,27 @@ const DB = (() => {
     return t ? t.nome : null;
   }
 
-  function montarR32() {
-    const completos = Grupos.todosCompletos();
-    const terceiros = Classificacao.terceiros();
+  function montarR32(fonte) {
+    const completos = fonte
+      ? LETRAS_GRUPOS.every(l => { const js = jogosDoGrupo(l, fonte); return js.length === 6 && js.every(j => j.status === 'encerrado'); })
+      : Grupos.todosCompletos();
+    const terceiros = Classificacao.terceiros(fonte);
     const classificados3 = terceiros.filter(t => t.classificado).map(t => t.grupo);
     const atribuicao = classificados3.length === 8 ? resolverPoolsTerceiros(classificados3) : {};
     // Enquanto o grupo não teve jogos, mostra só a vaga ("1º Grupo A"); depois, o time que ocupa a vaga hoje.
-    const rotulo = (time, pos, letra) => (time && Jogos.porGrupo(letra).some(j => j.status !== 'agendado'))
+    const rotulo = (time, pos, letra) => (time && jogosDoGrupo(letra, fonte).some(j => j.status !== 'agendado'))
       ? `${time.nome} (${pos}º ${letra})`
       : `${pos}º Grupo ${letra}`;
     return POOLS_R32.map(slot => {
-      const timeA = timePorPosicao(slot.a.pos, slot.a.grupo);
+      const timeA = timePorPosicao(slot.a.pos, slot.a.grupo, fonte);
       let timeB = null;
       let labelVisitante;
       if (slot.tipo === 'cruzamento') {
-        timeB = timePorPosicao(slot.b.pos, slot.b.grupo);
+        timeB = timePorPosicao(slot.b.pos, slot.b.grupo, fonte);
         labelVisitante = rotulo(timeB, slot.b.pos, slot.b.grupo);
       } else {
         const letraAtribuida = atribuicao[slot.matchNum];
-        timeB = letraAtribuida ? timePorPosicao(3, letraAtribuida) : null;
+        timeB = letraAtribuida ? timePorPosicao(3, letraAtribuida, fonte) : null;
         labelVisitante = letraAtribuida ? rotulo(timeB, 3, letraAtribuida) : `3º colocado (${slot.pool.join('/')})`;
       }
       return {
@@ -622,6 +631,8 @@ const DB = (() => {
 
   const MataMata = {
     POOLS_R32,
+    // 32avos projetados a partir de uma lista de jogos (sem criar nada no armazenamento).
+    projetarR32: fonte => montarR32(fonte),
     vencedor: vencedorId,
     perdedor: perdedorId,
     sincronizar() {
@@ -664,8 +675,69 @@ const DB = (() => {
     return {
       jogador, gols: 0, penaltis: 0, golsContra: 0, assistencias: 0,
       amarelos: 0, vermelhos: 0, jogosComGol: 0, participacoes: 0,
+      jogos: 0, titular: 0, minutos: 0,
     };
   }
+
+  // ---------- Escalações e minutos ----------
+  //   jogo.escalacoes = { [timeId]: { titulares: [jogadorId…], substituicoes: [{ saiId, entraId, minuto }] } }
+  //   jogo.prorrogacao = true quando o jogo foi a 120 minutos.
+  // Titular joga do 0' até sair (substituição ou expulsão); reserva entra no minuto da troca.
+  function duracaoJogo(jogo) {
+    return jogo.prorrogacao ? 120 : 90;
+  }
+
+  function minutoInteiro(minuto, duracao) {
+    const base = parseInt(String(minuto || '').split('+')[0], 10);
+    return Number.isFinite(base) ? Math.max(0, Math.min(base, duracao)) : duracao;
+  }
+
+  function minutosNoJogo(jogo) {
+    const resultado = {};
+    const duracao = duracaoJogo(jogo);
+    const expulsoEm = {};
+    (jogo.cartoes || []).forEach(c => {
+      if (c.tipo !== 'amarelo') expulsoEm[c.jogadorId] = minutoInteiro(c.minuto, duracao);
+    });
+    Object.entries(jogo.escalacoes || {}).forEach(([timeId, esc]) => {
+      const entrada = {};
+      (esc.titulares || []).forEach(id => { entrada[id] = 0; });
+      const subs = [...(esc.substituicoes || [])].sort((a, b) => minutoNumero(a.minuto) - minutoNumero(b.minuto));
+      const saida = {};
+      subs.forEach(sub => {
+        const m = minutoInteiro(sub.minuto, duracao);
+        if (sub.saiId && entrada[sub.saiId] != null && saida[sub.saiId] == null) saida[sub.saiId] = m;
+        if (sub.entraId && entrada[sub.entraId] == null) entrada[sub.entraId] = m;
+      });
+      Object.entries(entrada).forEach(([id, inicio]) => {
+        const fim = Math.min(saida[id] ?? duracao, expulsoEm[id] ?? duracao);
+        resultado[id] = {
+          timeId, titular: inicio === 0 && (esc.titulares || []).includes(id),
+          entrou: inicio, saiu: saida[id] ?? null, minutos: Math.max(0, fim - inicio),
+        };
+      });
+    });
+    return resultado;
+  }
+
+  function temEscalacao(jogo, timeId) {
+    return !!(jogo.escalacoes && jogo.escalacoes[timeId] && (jogo.escalacoes[timeId].titulares || []).length);
+  }
+
+  // Rodadas para a "seleção da rodada": 3 da fase de grupos + cada fase do mata-mata.
+  const RODADAS = [
+    { id: 'g1', label: '1ª rodada', filtro: j => j.fase === 'grupos' && j.rodada === 1 },
+    { id: 'g2', label: '2ª rodada', filtro: j => j.fase === 'grupos' && j.rodada === 2 },
+    { id: 'g3', label: '3ª rodada', filtro: j => j.fase === 'grupos' && j.rodada === 3 },
+    { id: 'r32', label: '32avos', filtro: j => j.fase === 'r32' },
+    { id: 'r16', label: 'Oitavas', filtro: j => j.fase === 'r16' },
+    { id: 'qf', label: 'Quartas', filtro: j => j.fase === 'qf' },
+    { id: 'sf', label: 'Semifinais', filtro: j => j.fase === 'sf' },
+    { id: 'finais', label: 'Finais', filtro: j => j.fase === 'final' || j.fase === 'terceiro' },
+  ];
+
+  // Prêmio de melhor jovem da FIFA: nascidos a partir de 1º de janeiro de 2005.
+  const NASCIMENTO_JOVEM = '2005-01-01';
 
   const Estatisticas = {
     porJogador() {
@@ -676,6 +748,13 @@ const DB = (() => {
         return linhas[id] || (linhas[id] = linhaJogadorVazia(jogadores[id]));
       };
       Jogos.comPlacar().forEach(jogo => {
+        Object.entries(minutosNoJogo(jogo)).forEach(([id, p]) => {
+          const l = linha(id);
+          if (!l) return;
+          l.jogos++;
+          if (p.titular) l.titular++;
+          l.minutos += p.minutos;
+        });
         const marcaramNoJogo = new Set();
         (jogo.gols || []).forEach(g => {
           const autor = linha(g.jogadorId);
@@ -698,7 +777,95 @@ const DB = (() => {
           else l.vermelhos++;
         });
       });
-      return Object.values(linhas).map(l => ({ ...l, participacoes: l.gols + l.assistencias }));
+      return Object.values(linhas).map(l => ({
+        ...l,
+        participacoes: l.gols + l.assistencias,
+        golsPor90: l.minutos ? (l.gols * 90) / l.minutos : null,
+      }));
+    },
+
+    minutosNoJogo,
+    temEscalacao,
+    rodadas: RODADAS,
+
+    // Chuteira de Ouro (critério FIFA: gols → assistências → menos minutos),
+    // Luva de Ouro (jogos sem sofrer gol como goleiro titular que jogou até o fim)
+    // e Melhor Jovem (nascidos em 2005 ou depois, por gols + assistências).
+    premios() {
+      const linhas = this.porJogador();
+      const chuteira = linhas.filter(l => l.gols > 0).sort((a, b) =>
+        b.gols - a.gols || b.assistencias - a.assistencias || (a.minutos || 9999) - (b.minutos || 9999)
+        || a.jogador.nome.localeCompare(b.jogador.nome)).slice(0, 10);
+
+      const luvas = {};
+      Jogos.all().filter(j => j.status === 'encerrado').forEach(jogo => {
+        const mins = minutosNoJogo(jogo);
+        [[jogo.mandanteId, jogo.golsVisitante], [jogo.visitanteId, jogo.golsMandante]].forEach(([timeId, sofridos]) => {
+          if (sofridos !== 0) return;
+          Object.entries(mins).forEach(([id, p]) => {
+            const jogador = Jogadores.get(id);
+            if (!jogador || jogador.posicao !== 'Goleiro' || p.timeId !== timeId) return;
+            if (!p.titular || p.saiu != null || p.minutos < duracaoJogo(jogo)) return;
+            luvas[id] = luvas[id] || { jogador, semSofrer: 0, jogos: 0 };
+            luvas[id].semSofrer++;
+          });
+        });
+      });
+      linhas.forEach(l => { if (luvas[l.jogador.id]) luvas[l.jogador.id].jogos = l.jogos; });
+      const luva = Object.values(luvas).sort((a, b) => b.semSofrer - a.semSofrer || a.jogos - b.jogos
+        || a.jogador.nome.localeCompare(b.jogador.nome)).slice(0, 10);
+
+      const jovem = linhas.filter(l => l.jogador.nascimento && l.jogador.nascimento >= NASCIMENTO_JOVEM && (l.participacoes || l.minutos))
+        .sort((a, b) => b.participacoes - a.participacoes || b.gols - a.gols || b.minutos - a.minutos
+          || a.jogador.nome.localeCompare(b.jogador.nome)).slice(0, 10);
+
+      return { chuteira, luva, jovem };
+    },
+
+    // Seleção da rodada no 4-3-3, por uma pontuação simples:
+    // jogou +2 · gol +4 · assistência +3 · sem sofrer gol (GOL/DEF titular) +3 · vitória +1 · amarelo −1 · vermelho −3.
+    selecaoDaRodada(rodadaId) {
+      const rodada = RODADAS.find(r => r.id === rodadaId);
+      if (!rodada) return null;
+      const jogos = Jogos.all().filter(j => j.status === 'encerrado' && rodada.filtro(j));
+      const pontos = {};
+      const somar = (id, valor) => {
+        const jogador = Jogadores.get(id);
+        if (!jogador) return null;
+        const p = pontos[id] || (pontos[id] = { jogador, pontos: 0, gols: 0, assistencias: 0 });
+        p.pontos += valor;
+        return p;
+      };
+      jogos.forEach(jogo => {
+        const sofridos = { [jogo.mandanteId]: jogo.golsVisitante, [jogo.visitanteId]: jogo.golsMandante };
+        const venceu = vencedorId(jogo);
+        Object.entries(minutosNoJogo(jogo)).forEach(([id, p]) => {
+          const jogador = Jogadores.get(id);
+          if (!jogador) return;
+          let valor = 2;
+          if (sofridos[p.timeId] === 0 && p.titular && ['Goleiro', 'Defensor'].includes(jogador.posicao)) valor += 3;
+          if (venceu === p.timeId) valor += 1;
+          somar(id, valor);
+        });
+        (jogo.gols || []).forEach(g => {
+          if (g.tipo === 'contra') return;
+          const autor = somar(g.jogadorId, 4);
+          if (autor) autor.gols++;
+          const assistente = g.assistenciaId ? somar(g.assistenciaId, 3) : null;
+          if (assistente) assistente.assistencias++;
+        });
+        (jogo.cartoes || []).forEach(c => somar(c.jogadorId, c.tipo === 'amarelo' ? -1 : -3));
+      });
+      const ordenados = Object.values(pontos).sort((a, b) => b.pontos - a.pontos || b.gols - a.gols || a.jogador.nome.localeCompare(b.jogador.nome));
+      const escolher = (posicao, n) => {
+        const lista = ordenados.filter(p => p.jogador.posicao === posicao).slice(0, n);
+        while (lista.length < n) lista.push(null);
+        return lista;
+      };
+      return {
+        rodada, jogos: jogos.length,
+        linhas: [escolher('Atacante', 3), escolher('Meio-campo', 3), escolher('Defensor', 4), escolher('Goleiro', 1)],
+      };
     },
 
     ranking(criterio, limite) {
@@ -775,6 +942,57 @@ const DB = (() => {
     },
   };
 
+  // ==========================================================================
+  // Dados — backup em arquivo e publicação opcional via js/dados.js.
+  // Se js/dados.js tiver dados publicados mais novos do que os que este navegador
+  // já carregou, eles substituem os locais (é assim que os visitantes os recebem).
+  // ==========================================================================
+
+  const Dados = {
+    exportar() {
+      return {
+        formato: 'futstats',
+        versao: SEED_VERSION,
+        geradoEm: new Date().toISOString(),
+        times: Times.all(),
+        jogadores: Jogadores.all(),
+        jogos: Jogos.all(),
+      };
+    },
+    validar(dados) {
+      if (!dados || dados.formato !== 'futstats') return 'Arquivo não é um backup do FUTSTATS.';
+      if (!Array.isArray(dados.times) || !Array.isArray(dados.jogadores) || !Array.isArray(dados.jogos)) return 'Backup incompleto.';
+      return null;
+    },
+    importar(dados) {
+      const erro = this.validar(dados);
+      if (erro) throw new Error(erro);
+      gravar('fs_times', dados.times);
+      gravar('fs_jogadores', dados.jogadores);
+      gravar('fs_jogos', dados.jogos);
+      if (dados.geradoEm) localStorage.setItem('fs_dados_publicados', dados.geradoEm);
+    },
+    // Conteúdo do arquivo js/dados.js para publicar no repositório.
+    arquivoPublicacao() {
+      const dados = this.exportar();
+      // Quem gera o arquivo já está com esses dados: não deve recarregá-los depois.
+      localStorage.setItem('fs_dados_publicados', dados.geradoEm);
+      return `// Dados publicados pelo painel do FUTSTATS em ${dados.geradoEm}.\n`
+        + `// Substitua este arquivo para atualizar o que os visitantes veem.\n`
+        + `window.DADOS_PUBLICADOS = ${JSON.stringify(dados)};\n`;
+    },
+  };
+
+  function carregarDadosPublicados() {
+    const publicados = typeof window !== 'undefined' ? window.DADOS_PUBLICADOS : null;
+    if (!publicados || Dados.validar(publicados)) return;
+    const jaCarregado = localStorage.getItem('fs_dados_publicados');
+    if (jaCarregado && jaCarregado >= publicados.geradoEm) return;
+    Dados.importar(publicados);
+  }
+
+  carregarDadosPublicados();
+
   const Torneio = {
     ...TORNEIO_SEED,
     faseAtual() {
@@ -848,5 +1066,5 @@ const DB = (() => {
     },
   };
 
-  return { Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Torneio, Auth, Util };
+  return { Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Util };
 })();

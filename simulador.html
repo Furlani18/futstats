@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Simulador</span></div>
+    <div class="section-eyebrow">E se…?</div>
+    <h1 class="section-title">Simulador da fase de grupos</h1>
+    <p class="lead">Dê seus palpites para os jogos que faltam e veja na hora como ficam os grupos, os melhores terceiros e os confrontos dos 32avos. Os resultados reais não podem ser alterados, e seus palpites ficam salvos só neste navegador.</p>
+  </div>
+</section>
+
+<main class="page">
+  <div class="sim-toolbar">
+    <button type="button" class="btn btn-ghost" id="btn-aleatorio">🎲 Preencher o que falta</button>
+    <button type="button" class="btn btn-ghost" id="btn-limpar">Limpar palpites</button>
+    <span class="kpi-note" id="sim-progresso" style="align-self:center;"></span>
+  </div>
+  <div class="chips" id="chips-grupo"></div>
+
+  <div class="sim-layout">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="titulo-jogos">Jogos</span></div>
+      <div id="sim-jogos"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="titulo-tabela">Classificação</span></div>
+      <div id="sim-tabela"></div>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>Classificado</span>
+        <span><i style="background:var(--blue)"></i>Entre os 8 melhores 3ºs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">Com os seus palpites</div>
+      <h2 class="section-title">Melhores terceiros</h2>
+    </div>
+  </div>
+  <div class="panel"><div class="table-scroll" id="sim-terceiros"></div></div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">Projeção</div>
+      <h2 class="section-title">Confrontos dos 32avos</h2>
+    </div>
+  </div>
+  <div class="panel"><div id="sim-r32"></div></div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/elencos.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/calendario.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/simulador.js"></script>
+</body>
+</html>

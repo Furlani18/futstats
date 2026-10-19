@@ -7,6 +7,7 @@ AdminUI.registrar('jogos', () => {
   DB.MataMata.sincronizar();
 
   const esc = DB.Util.escapar;
+  const esc_ = esc; // nome alternativo onde `esc` é a escalação
   const filtroFase = document.getElementById('filtro-fase');
   const filtroGrupo = document.getElementById('filtro-grupo');
   const filtroStatus = document.getElementById('filtro-status');
@@ -75,6 +76,7 @@ AdminUI.registrar('jogos', () => {
       visitanteId: existente ? existente.visitanteId : '',
       gols: existente ? (existente.gols || []).map(g => ({ ...g })) : [],
       cartoes: existente ? (existente.cartoes || []).map(c => ({ ...c })) : [],
+      escalacoes: existente ? JSON.parse(JSON.stringify(existente.escalacoes || {})) : {},
     };
 
     const opcoesStatus = Object.entries(LABELS_STATUS_JOGO).map(([v, l]) =>
@@ -109,7 +111,9 @@ AdminUI.registrar('jogos', () => {
           <div class="field"><label id="rot-gv">Gols visitante</label><input type="number" name="golsVisitante" id="f-gv" min="0" value="${existente?.golsVisitante ?? ''}"></div>
           ${eliminatoria ? `
           <div class="field"><label>Pênaltis mandante</label><input type="number" name="penaltisMandante" min="0" value="${existente.penaltisMandante ?? ''}"></div>
-          <div class="field"><label>Pênaltis visitante</label><input type="number" name="penaltisVisitante" min="0" value="${existente.penaltisVisitante ?? ''}"></div>` : ''}
+          <div class="field"><label>Pênaltis visitante</label><input type="number" name="penaltisVisitante" min="0" value="${existente.penaltisVisitante ?? ''}"></div>
+          <div class="field"><label>Prorrogação</label>
+            <select name="prorrogacao"><option value="">Não (90 min)</option><option value="1" ${existente.prorrogacao ? 'selected' : ''}>Sim (120 min)</option></select></div>` : ''}
         </div>
 
         <div class="lances-box">
@@ -133,6 +137,12 @@ AdminUI.registrar('jogos', () => {
           </div>
           <div class="lances-lista" id="lista-cartoes"></div>
         </div>
+        <details class="lances-box" id="box-escalacoes">
+          <summary class="lances-head" style="cursor:pointer;">
+            <span>👕 Escalações e substituições <span class="lances-hint">(opcional — gera minutos jogados, prêmios e o campinho)</span></span>
+          </summary>
+          <div class="escalacoes-grid" id="escalacoes"></div>
+        </details>
         <div class="field-error" id="erro-jogo" style="display:none;"></div>
       `,
       aoSalvar(dados) {
@@ -171,7 +181,7 @@ AdminUI.registrar('jogos', () => {
         estado.mandanteId = fM.value;
         estado.visitanteId = fV.value;
         // Lances de outro confronto não fazem sentido: começa do zero.
-        if (mudou) { estado.gols = []; estado.cartoes = []; }
+        if (mudou) { estado.gols = []; estado.cartoes = []; estado.escalacoes = {}; }
         atualizarRotulos();
         renderLances();
       };
@@ -269,6 +279,7 @@ AdminUI.registrar('jogos', () => {
         return false;
       });
       ajustarPlacar();
+      renderEscalacoes();
     }
 
     const uid = () => `l_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -287,6 +298,73 @@ AdminUI.registrar('jogos', () => {
     }));
     fGm.addEventListener('input', ajustarPlacar);
     fGv.addEventListener('input', ajustarPlacar);
+
+    // ----- Escalações -----
+    function escalacaoDe(timeId) {
+      return estado.escalacoes[timeId] || (estado.escalacoes[timeId] = { titulares: [], substituicoes: [] });
+    }
+
+    function elencoOrdenado(timeId) {
+      const ordem = { Goleiro: 0, Defensor: 1, 'Meio-campo': 2, Atacante: 3 };
+      return DB.Jogadores.all().filter(j => j.timeId === timeId)
+        .sort((a, b) => (ordem[a.posicao] ?? 9) - (ordem[b.posicao] ?? 9) || (a.numero ?? 99) - (b.numero ?? 99));
+    }
+
+    function colunaEscalacao(timeId, lado) {
+      const esc = escalacaoDe(timeId);
+      const elenco = elencoOrdenado(timeId);
+      const sigla = { Goleiro: 'GOL', Defensor: 'DEF', 'Meio-campo': 'MEI', Atacante: 'ATA' };
+      const titulares = new Set(esc.titulares);
+      const reservas = elenco.filter(j => !titulares.has(j.id));
+      const opcoes = (lista, sel, vazio) => `<option value="">${vazio}</option>` + lista.map(j =>
+        `<option value="${j.id}" ${j.id === sel ? 'selected' : ''}>${j.numero ?? ''} · ${esc_(j.nome)}</option>`).join('');
+      return `<div class="escalacao-col" data-lado="${lado}">
+        <div class="escalacao-titulo">${esc_(nomeTime(timeId))} <span class="lances-hint ${esc.titulares.length > 11 ? 'erro' : ''}">${esc.titulares.length}/11 titulares</span></div>
+        <div class="escalacao-lista">
+          ${elenco.map(j => `<label class="escalado"><input type="checkbox" data-titular="${j.id}" ${titulares.has(j.id) ? 'checked' : ''}>
+            <span class="pos">${sigla[j.posicao] || ''}</span><span class="num">${j.numero ?? ''}</span><span class="nm">${esc_(j.nome)}</span></label>`).join('')}
+        </div>
+        <div class="escalacao-subs">
+          <div class="escalacao-titulo">Substituições <button type="button" class="btn btn-ghost btn-sm" data-add-sub>+ Troca</button></div>
+          ${esc.substituicoes.map((sub, i) => `<div class="lance sub" data-sub="${i}">
+            <select data-campo="saiId" title="Sai">${opcoes(elenco.filter(j => titulares.has(j.id) || esc.substituicoes.some(x => x.entraId === j.id)), sub.saiId, 'Sai…')}</select>
+            <select data-campo="entraId" title="Entra">${opcoes(reservas, sub.entraId, 'Entra…')}</select>
+            <input data-campo="minuto" value="${esc_(sub.minuto || '')}" placeholder="Min.">
+            <button type="button" class="btn btn-icon btn-sm" data-remover-sub title="Remover">✕</button>
+          </div>`).join('') || '<div class="lances-vazio">Nenhuma troca.</div>'}
+        </div>
+      </div>`;
+    }
+
+    function renderEscalacoes() {
+      const box = document.getElementById('escalacoes');
+      if (!estado.mandanteId || !estado.visitanteId) { box.innerHTML = ''; return; }
+      box.innerHTML = colunaEscalacao(estado.mandanteId, 'm') + colunaEscalacao(estado.visitanteId, 'v');
+      box.querySelectorAll('.escalacao-col').forEach(col => {
+        const timeId = col.dataset.lado === 'm' ? estado.mandanteId : estado.visitanteId;
+        const esc = escalacaoDe(timeId);
+        col.querySelectorAll('[data-titular]').forEach(cb => cb.addEventListener('change', () => {
+          const id = cb.dataset.titular;
+          esc.titulares = cb.checked ? [...esc.titulares, id] : esc.titulares.filter(x => x !== id);
+          renderEscalacoes();
+        }));
+        col.querySelector('[data-add-sub]').addEventListener('click', () => {
+          esc.substituicoes.push({ saiId: null, entraId: null, minuto: '' });
+          renderEscalacoes();
+        });
+        col.querySelectorAll('[data-sub]').forEach(linhaSub => {
+          const sub = esc.substituicoes[Number(linhaSub.dataset.sub)];
+          linhaSub.querySelectorAll('[data-campo]').forEach(campo => campo.addEventListener('change', () => {
+            sub[campo.dataset.campo] = campo.value || null;
+            if (campo.dataset.campo !== 'minuto') renderEscalacoes();
+          }));
+          linhaSub.querySelector('[data-remover-sub]').addEventListener('click', () => {
+            esc.substituicoes.splice(Number(linhaSub.dataset.sub), 1);
+            renderEscalacoes();
+          });
+        });
+      });
+    }
 
     atualizarRotulos();
     renderLances();
@@ -307,6 +385,12 @@ AdminUI.registrar('jogos', () => {
       if (m > Number(gm || 0) || v > Number(gv || 0)) return 'Há mais gols lançados do que o placar informa.';
       if (estado.gols.some(g => !g.jogadorId)) return 'Escolha o autor de cada gol (ou remova a linha).';
       if (estado.cartoes.some(c => !c.jogadorId)) return 'Escolha o jogador de cada cartão (ou remova a linha).';
+      for (const timeId of [estado.mandanteId, estado.visitanteId]) {
+        const esc = estado.escalacoes[timeId];
+        if (!esc) continue;
+        if (esc.titulares.length > 11) return `${nomeTime(timeId)} tem mais de 11 titulares marcados.`;
+        if (esc.substituicoes.some(sub => !sub.saiId || !sub.entraId)) return `Complete quem sai e quem entra em cada troca de ${nomeTime(timeId)}.`;
+      }
       if (eliminatoria && status === 'encerrado' && Number(gm) === Number(gv)) {
         const pm = dados.get('penaltisMandante'), pv = dados.get('penaltisVisitante');
         if (pm === '' || pv === '' || Number(pm) === Number(pv)) return 'Jogo de mata-mata empatado precisa de um vencedor nos pênaltis.';
@@ -324,10 +408,14 @@ AdminUI.registrar('jogos', () => {
         golsVisitante: numero(dados.get('golsVisitante')),
         gols: estado.gols.map(g => ({ ...g, assistenciaId: g.tipo === 'contra' ? null : g.assistenciaId })),
         cartoes: estado.cartoes,
+        // Guarda só as escalações preenchidas.
+        escalacoes: Object.fromEntries(Object.entries(estado.escalacoes)
+          .filter(([timeId, esc]) => [estado.mandanteId, estado.visitanteId].includes(timeId) && (esc.titulares.length || esc.substituicoes.length))),
       };
       if (eliminatoria) {
         payload.penaltisMandante = numero(dados.get('penaltisMandante'));
         payload.penaltisVisitante = numero(dados.get('penaltisVisitante'));
+        payload.prorrogacao = dados.get('prorrogacao') === '1';
       }
       if (novo) {
         const criado = DB.Jogos.criarJogoDeGrupo({
