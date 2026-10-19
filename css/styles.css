@@ -1428,6 +1428,101 @@ a.featured:hover { border-color: var(--gold); transform: translateY(-2px); }
   height: 4px;
   background: linear-gradient(90deg, var(--time-1) 0 50%, var(--time-2) 50% 100%);
 }
+/* faixas diagonais nas cores do time */
+.page-hero.hero-time::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(112deg,
+    transparent 56%,
+    color-mix(in srgb, var(--time-1) 16%, transparent) 56% 62%,
+    color-mix(in srgb, var(--time-2) 14%, transparent) 62% 68%,
+    transparent 68%);
+}
+.page-hero.hero-time .container { padding-top: 30px; padding-bottom: 38px; }
+.page-hero .time-marca { width: 420px; right: -40px; opacity: .08; }
+.page-hero .time-marca.bandeira { border-radius: 12px; opacity: .06; }
+
+.time-hero-grid { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-top: 6px; }
+.time-hero-grid .profile-head { gap: 26px; flex-wrap: nowrap; min-width: 0; }
+.time-hero-grid .profile-head > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+
+.time-hero-escudo { position: relative; flex-shrink: 0; display: grid; place-items: center; }
+.time-hero-escudo::before {
+  content: '';
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--time-1) 45%, transparent), transparent 68%);
+  z-index: -1;
+}
+.hero-time .flag-xl.crest-img { width: 124px; height: 124px; }
+.hero-time .flag-xl.crest-img img { filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .45)); }
+.hero-time .flag-xl.crest { width: 108px; height: 108px; font-size: 30px; }
+.hero-time .flag-xl:not(.crest):not(.crest-img) { width: 120px; height: 82px; }
+
+.hero-time .section-eyebrow { color: color-mix(in srgb, var(--time-1) 55%, var(--text)); }
+.hero-time .profile-head .section-title {
+  font-size: clamp(38px, 6vw, 68px);
+  line-height: .95;
+  text-shadow: 0 0 40px color-mix(in srgb, var(--time-1) 40%, transparent);
+}
+.hero-time .profile-facts { margin-top: 14px; }
+.hero-time .fact {
+  font-size: 13px;
+  padding: 6px 13px;
+  border-color: color-mix(in srgb, var(--time-1) 30%, var(--border));
+  backdrop-filter: blur(6px);
+}
+.hero-time a.fact:hover { border-color: var(--time-1); color: var(--text); }
+.fact-ico { font-size: 13px; line-height: 1; }
+
+/* Forma recente / próximo jogo */
+.time-forma {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 230px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--glass);
+  border: 1px solid color-mix(in srgb, var(--time-1) 28%, var(--border));
+  backdrop-filter: blur(8px);
+}
+.forma-rotulo { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); }
+.forma-pills { display: flex; gap: 6px; }
+.forma-pill {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: #0b0f1a;
+  transition: transform .15s ease;
+}
+.forma-pill:hover { transform: translateY(-2px); }
+.forma-V { background: var(--accent); }
+.forma-E { background: #9aa3b5; }
+.forma-D { background: var(--danger); color: #fff; }
+.forma-prox { display: grid; gap: 4px; padding-top: 10px; border-top: 1px solid var(--border-soft); color: var(--text); }
+.forma-pills + .forma-prox { margin-top: 2px; }
+.time-forma > .forma-prox:first-child { padding-top: 0; border-top: 0; }
+.forma-adv { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.forma-data { font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.forma-prox:hover .forma-adv strong { color: var(--gold); }
+
+@media (max-width: 760px) {
+  .time-hero-grid .profile-head { gap: 16px; }
+  .hero-time .flag-xl.crest-img { width: 84px; height: 84px; }
+  .hero-time .flag-xl.crest { width: 76px; height: 76px; font-size: 22px; }
+  .hero-time .flag-xl:not(.crest):not(.crest-img) { width: 84px; height: 58px; }
+  .time-forma { width: 100%; }
+  .page-hero .time-marca { width: 300px; right: -80px; }
+}
 
 /* ---------- Chaveamento em árvore ---------- */
 .tree-wrap { overflow-x: auto; padding: 6px 2px 16px; }

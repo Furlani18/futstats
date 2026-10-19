@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
     topo.classList.add('hero-time');
     topo.style.setProperty('--time-1', c.primaria);
     topo.style.setProperty('--time-2', c.secundaria);
+    // Escudo (ou bandeira) gigante e apagado ao fundo.
+    const marca = ehClube ? time.escudo : DB.Util.bandeiraUrl(time.iso, 640);
+    if (marca) {
+      topo.insertAdjacentHTML('afterbegin', `<img class="hero-marca time-marca${ehClube ? '' : ' bandeira'}" src="${esc(marca)}" alt="" aria-hidden="true" onerror="this.remove()">`);
+    }
   };
   pintarTopo(time);
 
@@ -35,16 +40,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const capitao = elenco.find(j => j.capitao);
   const comIdade = elenco.filter(j => j.idade != null);
   const mediaIdade = comIdade.length ? comIdade.reduce((s, j) => s + j.idade, 0) / comIdade.length : null;
-  const fato = (rotulo, valor) => (valor ? `<span class="fact">${rotulo} <strong>${esc(valor)}</strong></span>` : '');
+  const fato = (icone, rotulo, valor) => (valor ? `<span class="fact"><span class="fact-ico" aria-hidden="true">${icone}</span>${rotulo} <strong>${esc(valor)}</strong></span>` : '');
   const outrasComps = ehClube ? DB.Contexto.competicoesDoTime(time.id).filter(c => c.id !== comp.id) : [];
   document.getElementById('fatos-time').innerHTML = [
-    fato('Grupo', DB.Grupos.deTime(time.id)),
-    fato('Técnico', time.tecnico),
-    fato('Capitão', capitao && capitao.nome),
-    ehClube ? fato('Estádio', time.estadio) : fato('Ranking FIFA', `#${time.rankingFifa}`),
-    fato('Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
+    fato('🔠', 'Grupo', DB.Grupos.deTime(time.id)),
+    fato('📋', 'Técnico', time.tecnico),
+    fato('©️', 'Capitão', capitao && capitao.nome),
+    ehClube ? fato('🏟️', 'Estádio', time.estadio) : fato('🌍', 'Ranking FIFA', time.rankingFifa && `#${time.rankingFifa}`),
+    fato('🎂', 'Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
     ...outrasComps.map(c => `<a class="fact" href="time.html?id=${time.id}&c=${c.id}">${UI.iconeCampeonato(c)} <strong>${esc(c.curto)}</strong></a>`),
   ].join('');
+
+  // ---------- Forma recente e próximo jogo (no topo) ----------
+  const jogosDoTime = DB.Jogos.doTime(time.id);
+  const encerrados = jogosDoTime.filter(j => j.status === 'encerrado' && j.golsMandante != null && j.golsVisitante != null);
+  const proximo = jogosDoTime.find(j => j.status !== 'encerrado');
+  if (encerrados.length || proximo) {
+    const resultado = j => {
+      const casa = j.mandanteId === time.id;
+      const pro = casa ? j.golsMandante : j.golsVisitante, contra = casa ? j.golsVisitante : j.golsMandante;
+      const r = pro > contra ? 'V' : pro < contra ? 'D' : 'E';
+      const adv = DB.Times.get(casa ? j.visitanteId : j.mandanteId);
+      return `<a class="forma-pill forma-${r}" href="jogo.html?id=${j.id}" title="${pro}–${contra} ${casa ? 'x' : '@'} ${esc(adv ? adv.nome : 'A definir')}">${r}</a>`;
+    };
+    let proxHtml = '';
+    if (proximo) {
+      const adv = DB.Times.get(proximo.mandanteId === time.id ? proximo.visitanteId : proximo.mandanteId);
+      const aoVivo = proximo.status === 'ao_vivo';
+      proxHtml = `<a class="forma-prox" href="jogo.html?id=${proximo.id}">
+        <span class="forma-rotulo">${aoVivo ? '<span class="live-dot"></span> Ao vivo' : 'Próximo jogo'}</span>
+        <span class="forma-adv">${UI.bandeira(adv, 'sm')}<strong>${esc(adv ? adv.nome : 'A definir')}</strong></span>
+        <span class="forma-data">${aoVivo ? `${proximo.golsMandante ?? 0} – ${proximo.golsVisitante ?? 0}` : DB.Util.formatarData(proximo.data)}</span>
+      </a>`;
+    }
+    const forma = document.getElementById('forma-time');
+    forma.innerHTML = `
+      ${encerrados.length ? `<div class="forma-rotulo">Últimos jogos</div>
+      <div class="forma-pills">${encerrados.slice(-5).map(resultado).join('')}</div>` : ''}
+      ${proxHtml}`;
+    forma.hidden = false;
+  }
 
   // ---------- Números no campeonato ----------
   const st = DB.Estatisticas.porTime().find(t => t.time.id === time.id);
