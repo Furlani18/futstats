@@ -269,7 +269,7 @@ AdminUI.registrar('jogos', () => {
         <select data-campo="tipo">${Object.entries(TIPOS_GOL).map(([v, l]) => `<option value="${v}" ${g.tipo === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <select data-campo="jogadorId" title="Autor">${opcoesJogadores(timeAutor, g.jogadorId, 'Autor do gol…')}</select>
         <select data-campo="assistenciaId" title="Assistência" ${g.tipo === 'contra' ? 'disabled' : ''}>${opcoesJogadores(g.timeId, g.assistenciaId, 'Sem assistência')}</select>
-        <input data-campo="minuto" value="${esc(g.minuto || '')}" placeholder="Min." title="Minuto (ex.: 45+2)">
+        <input data-campo="minuto" value="${esc(g.minuto || '')}" placeholder="Minuto" title="Minuto do lance (ex.: 67 ou 90+2)" title="Minuto (ex.: 45+2)">
         <button type="button" class="btn btn-icon btn-sm" data-remover title="Remover">✕</button>
       </div>`;
     }
@@ -279,7 +279,7 @@ AdminUI.registrar('jogos', () => {
         <select data-campo="timeId">${opcaoTime(c.timeId)}</select>
         <select data-campo="tipo">${Object.entries(TIPOS_CARTAO).map(([v, l]) => `<option value="${v}" ${c.tipo === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <select data-campo="jogadorId">${opcoesJogadores(c.timeId, c.jogadorId, 'Jogador…')}</select>
-        <input data-campo="minuto" value="${esc(c.minuto || '')}" placeholder="Min.">
+        <input data-campo="minuto" value="${esc(c.minuto || '')}" placeholder="Minuto" title="Minuto do lance (ex.: 67 ou 90+2)">
         <button type="button" class="btn btn-icon btn-sm" data-remover title="Remover">✕</button>
       </div>`;
     }
@@ -386,7 +386,7 @@ AdminUI.registrar('jogos', () => {
           ${esc.substituicoes.map((sub, i) => `<div class="lance sub" data-sub="${i}">
             <select data-campo="saiId" title="Sai">${opcoes(elenco.filter(j => titulares.has(j.id) || esc.substituicoes.some(x => x.entraId === j.id)), sub.saiId, 'Sai…')}</select>
             <select data-campo="entraId" title="Entra">${opcoes(reservas, sub.entraId, 'Entra…')}</select>
-            <input data-campo="minuto" value="${esc_(sub.minuto || '')}" placeholder="Min.">
+            <input data-campo="minuto" value="${esc_(sub.minuto || '')}" placeholder="Minuto" title="Minuto do lance (ex.: 67 ou 90+2)">
             <button type="button" class="btn btn-icon btn-sm" data-remover-sub title="Remover">✕</button>
           </div>`).join('') || '<div class="lances-vazio">Nenhuma troca.</div>'}
         </div>
