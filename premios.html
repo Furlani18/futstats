@@ -29,7 +29,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Prêmios</span></div>
     <div class="section-eyebrow">Corrida pelos troféus</div>
-    <h1 class="section-title">Prêmios da Copa</h1>
+    <h1 class="section-title" id="titulo-premios">Prêmios da Copa</h1>
     <p class="lead">Chuteira de Ouro, Luva de Ouro, melhor jovem e a seleção de cada rodada, atualizados a cada jogo cadastrado.</p>
   </div>
 </section>
@@ -68,15 +68,17 @@
     <aside class="panel">
       <div class="panel-header"><span class="panel-title">Como é calculada</span></div>
       <ul class="info-list">
-        <li><span>Jogou a partida</span><span>+2</span></li>
-        <li><span>Gol</span><span>+4</span></li>
-        <li><span>Assistência</span><span>+3</span></li>
-        <li><span>Sem sofrer gol (goleiro/defensor titular)</span><span>+3</span></li>
-        <li><span>Vitória</span><span>+1</span></li>
-        <li><span>Cartão amarelo</span><span>−1</span></li>
-        <li><span>Cartão vermelho</span><span>−3</span></li>
+        <li><span>Nota base</span><span>6,0</span></li>
+        <li><span>Gol (atacante · meia · defensor/goleiro)</span><span>+1,0 · +1,2 · +1,5</span></li>
+        <li><span>Gol de pênalti</span><span>75% do gol</span></li>
+        <li><span>Assistência</span><span>+0,8</span></li>
+        <li><span>Vitória · derrota</span><span>+0,4 · −0,4</span></li>
+        <li><span>Sem sofrer gol (goleiro · defensor · meio)</span><span>+1,0 · +0,6 · +0,2</span></li>
+        <li><span>Gol sofrido (goleiro · defensor)</span><span>−0,3 · −0,2</span></li>
+        <li><span>Amarelo · 2º amarelo · vermelho</span><span>−0,3 · −1,2 · −1,5</span></li>
+        <li><span>Gol contra</span><span>−1,0</span></li>
       </ul>
-      <div class="award-crit">Sem escalação cadastrada, só contam gols, assistências e cartões daquele jogo.</div>
+      <div class="award-crit">Resultado e defesa pesam pelos minutos jogados. O painel pode substituir qualquer nota à mão. Entram os de maior nota em cada posição; quem jogou mais de uma vez na rodada fica com a média.</div>
     </aside>
   </div>
 </main>

@@ -2,7 +2,11 @@ const LABELS_STATUS_JOGO = { agendado: 'Agendado', ao_vivo: 'Ao vivo', encerrado
 const FASES_FILTRO = ['grupos', 'r32', 'r16', 'qf', 'sf', 'terceiro', 'final'];
 const TIPOS_GOL = { normal: 'Gol', penalti: 'Pênalti', contra: 'Gol contra' };
 const POSICOES_JOGO = [['Goleiro', 'GOL'], ['Defensor', 'DEF'], ['Meio-campo', 'MEI'], ['Meia ofensivo', 'MOF'], ['Atacante', 'ATA']];
-const TIPOS_CARTAO ={ amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
+const ESTATISTICAS_JOGO = [
+  ['posse', 'Posse de bola (%)', 100], ['finalizacoes', 'Finalizações'], ['noAlvo', 'No alvo'],
+  ['escanteios', 'Escanteios'], ['faltas', 'Faltas'], ['impedimentos', 'Impedimentos'], ['defesas', 'Defesas do goleiro'],
+];
+const TIPOS_CARTAO = { amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
 
 AdminUI.registrar('jogos', () => {
   DB.MataMata.sincronizar();
@@ -109,6 +113,7 @@ AdminUI.registrar('jogos', () => {
       gols: existente ? (existente.gols || []).map(g => ({ ...g })) : [],
       cartoes: existente ? (existente.cartoes || []).map(c => ({ ...c })) : [],
       escalacoes: existente ? JSON.parse(JSON.stringify(existente.escalacoes || {})) : {},
+      notas: existente ? { ...(existente.notas || {}) } : {},
     };
 
     const opcoesStatus = Object.entries(LABELS_STATUS_JOGO).map(([v, l]) =>
@@ -180,6 +185,26 @@ AdminUI.registrar('jogos', () => {
           </summary>
           <div class="escalacoes-grid" id="escalacoes"></div>
         </details>
+        <details class="lances-box" id="box-estatisticas" ${Object.keys(existente?.estatisticas || {}).length ? 'open' : ''}>
+          <summary class="lances-head" style="cursor:pointer;">
+            <span>📊 Estatísticas da partida <span class="lances-hint">(opcional — aparecem em barras na página do jogo)</span></span>
+          </summary>
+          <div class="est-form">
+            <div class="est-form-linha cab"><span></span><span id="est-rot-m">Mandante</span><span id="est-rot-v">Visitante</span></div>
+            ${ESTATISTICAS_JOGO.map(([chave, rotulo, max]) => {
+              const par = (existente?.estatisticas || {})[chave] || ['', ''];
+              return `<div class="est-form-linha"><span>${rotulo}</span>
+                <input type="number" min="0" ${max ? `max="${max}"` : ''} name="est_${chave}_m" data-est="${chave}" data-lado="0" value="${par[0] ?? ''}">
+                <input type="number" min="0" ${max ? `max="${max}"` : ''} name="est_${chave}_v" data-est="${chave}" data-lado="1" value="${par[1] ?? ''}"></div>`;
+            }).join('')}
+          </div>
+        </details>
+        <details class="lances-box" id="box-notas">
+          <summary class="lances-head" style="cursor:pointer;">
+            <span>⭐ Notas dos jogadores <span class="lances-hint">(opcional — em branco usa a nota automática, mostrada em cinza)</span></span>
+          </summary>
+          <div class="notas-grid" id="notas-jogadores"></div>
+        </details>
         <div class="field-error" id="erro-jogo" style="display:none;"></div>
       `,
       aoSalvar(dados) {
@@ -230,7 +255,7 @@ AdminUI.registrar('jogos', () => {
         estado.mandanteId = fM.value;
         estado.visitanteId = fV.value;
         // Lances de outro confronto não fazem sentido: começa do zero.
-        if (mudou) { estado.gols = []; estado.cartoes = []; estado.escalacoes = {}; }
+        if (mudou) { estado.gols = []; estado.cartoes = []; estado.escalacoes = {}; estado.notas = {}; }
         // Clube: sugere o estádio do mandante (se o campo ainda não foi digitado à mão).
         const campoLocal = document.querySelector('input[name="local"]');
         const mandante = DB.Times.get(fM.value);
@@ -252,6 +277,8 @@ AdminUI.registrar('jogos', () => {
     function atualizarRotulos() {
       document.getElementById('rot-gm').textContent = `Gols ${nomeTime(estado.mandanteId)}`;
       document.getElementById('rot-gv').textContent = `Gols ${nomeTime(estado.visitanteId)}`;
+      document.getElementById('est-rot-m').textContent = nomeTime(estado.mandanteId);
+      document.getElementById('est-rot-v').textContent = nomeTime(estado.visitanteId);
       document.querySelectorAll('[data-add-gol="m"]').forEach(b => { b.textContent = `+ Gol ${nomeTime(estado.mandanteId)}`; });
       document.querySelectorAll('[data-add-gol="v"]').forEach(b => { b.textContent = `+ Gol ${nomeTime(estado.visitanteId)}`; });
       document.querySelectorAll('[data-add-cartao="m"]').forEach(b => { b.textContent = `+ Cartão ${nomeTime(estado.mandanteId)}`; });
@@ -436,6 +463,44 @@ AdminUI.registrar('jogos', () => {
       });
     }
 
+    document.querySelectorAll('[data-est="posse"]').forEach(campo => campo.addEventListener('input', () => {
+      const outro = document.querySelector(`[data-est="posse"][data-lado="${campo.dataset.lado === '0' ? 1 : 0}"]`);
+      const v = Number(campo.value);
+      if (campo.value !== '' && v >= 0 && v <= 100) outro.value = 100 - v;
+    }));
+
+    // ----- Notas: lista quem jogou, com a nota automática como dica -----
+    function renderNotas() {
+      const box = document.getElementById('notas-jogadores');
+      if (!estado.mandanteId || !estado.visitanteId) { box.innerHTML = ''; return; }
+      const form = box.closest('form');
+      const valor = nome => (form && form.elements[nome] ? form.elements[nome].value : '');
+      const numero = v => (v === '' || v == null ? null : Number(v));
+      // Jogo "provisório" com o que está no formulário, para calcular a nota automática.
+      const provisorio = {
+        ...(existente || {}), mandanteId: estado.mandanteId, visitanteId: estado.visitanteId,
+        status: valor('status') || 'encerrado', golsMandante: numero(valor('golsMandante')), golsVisitante: numero(valor('golsVisitante')),
+        gols: estado.gols, cartoes: estado.cartoes, escalacoes: estado.escalacoes, notas: {},
+      };
+      if (provisorio.status === 'agendado' || provisorio.status === 'adiado') provisorio.status = 'encerrado';
+      const auto = DB.Estatisticas.notasDoJogo(provisorio);
+      const colunas = [estado.mandanteId, estado.visitanteId].map(timeId => {
+        const esc = estado.escalacoes[timeId] || { titulares: [], substituicoes: [] };
+        const ids = [...esc.titulares, ...esc.substituicoes.map(s => s.entraId).filter(Boolean)];
+        Object.keys(auto).forEach(id => { const j = DB.Jogadores.get(id); if (j && j.timeId === timeId && !ids.includes(id)) ids.push(id); });
+        const linhas = ids.map(id => DB.Jogadores.get(id)).filter(Boolean).map(j => `<label class="nota-linha"><span class="num">${j.numero ?? ''}</span><span class="nm">${esc_(j.nome)}</span>
+          <input type="number" min="1" max="10" step="0.1" data-nota="${j.id}" value="${estado.notas[j.id] ?? ''}" placeholder="${auto[j.id] != null ? auto[j.id].toFixed(1) : '—'}"></label>`).join('');
+        return `<div><div class="escalacao-titulo">${esc_(nomeTime(timeId))}</div>${linhas || '<div class="lances-vazio">Marque a escalação ou lance gols/cartões para listar os jogadores.</div>'}</div>`;
+      });
+      box.innerHTML = colunas.join('');
+      box.querySelectorAll('[data-nota]').forEach(campo => campo.addEventListener('change', () => {
+        const v = Number(campo.value);
+        if (campo.value === '' || !Number.isFinite(v)) delete estado.notas[campo.dataset.nota];
+        else estado.notas[campo.dataset.nota] = Math.max(1, Math.min(10, Math.round(v * 10) / 10));
+      }));
+    }
+    document.getElementById('box-notas').addEventListener('toggle', e => { if (e.target.open) renderNotas(); });
+
     atualizarRotulos();
     renderLances();
 
@@ -488,6 +553,13 @@ AdminUI.registrar('jogos', () => {
         // Guarda só as escalações preenchidas.
         escalacoes: Object.fromEntries(Object.entries(estado.escalacoes)
           .filter(([timeId, esc]) => [estado.mandanteId, estado.visitanteId].includes(timeId) && (esc.titulares.length || esc.substituicoes.length))),
+        // Estatísticas: guarda só os pares com algum valor.
+        estatisticas: Object.fromEntries(ESTATISTICAS_JOGO.map(([chave]) => [chave, [numero(dados.get(`est_${chave}_m`)), numero(dados.get(`est_${chave}_v`))]])
+          .filter(([, par]) => par.some(v => v != null))),
+        notas: Object.fromEntries(Object.entries(estado.notas).filter(([id]) => {
+          const j = DB.Jogadores.get(id);
+          return j && [estado.mandanteId, estado.visitanteId].includes(j.timeId);
+        })),
       };
       if (eliminatoria) {
         payload.penaltisMandante = numero(dados.get('penaltisMandante'));

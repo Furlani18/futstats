@@ -33,7 +33,7 @@
         <div id="flag-mount" class="time-hero-escudo"></div>
         <div>
           <div class="section-eyebrow" id="eyebrow-time"></div>
-          <h1 class="section-title" id="nome-time">Carregando...</h1>
+          <div class="titulo-favorito"><h1 class="section-title" id="nome-time">Carregando...</h1><button type="button" class="btn-favorito" id="btn-favorito" aria-pressed="false" title="Seguir este time" hidden>☆</button></div>
           <div class="profile-facts" id="fatos-time"></div>
         </div>
       </div>
@@ -44,6 +44,11 @@
 
 <main class="page">
   <div class="stat-tiles" id="tiles-time" style="margin-bottom:20px;"></div>
+
+  <div class="panel" id="painel-campanha" style="margin-bottom:20px;" hidden>
+    <div class="panel-header"><span class="panel-title">Campanha · posição rodada a rodada</span><span class="campanha-resumo" id="campanha-resumo"></span></div>
+    <div class="campanha" id="grafico-campanha"></div>
+  </div>
 
   <div class="grid-main">
     <section class="panel">

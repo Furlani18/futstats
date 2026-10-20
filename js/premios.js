@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   DB.MataMata.sincronizar();
 
   const esc = DB.Util.escapar;
+  if (!DB.Contexto.ehCopa()) document.getElementById('titulo-premios').textContent = `Prêmios · ${DB.Contexto.get().curto}`;
   const { chuteira, luva, jovem } = DB.Estatisticas.premios();
 
   function lista(itens, valor, sub, vazio) {
@@ -56,13 +57,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const sel = DB.Estatisticas.selecaoDaRodada(atual);
     document.getElementById('titulo-rodada').textContent = `Seleção da rodada · ${sel.rodada.label}`;
     const vazia = sel.linhas.every(l => l.every(x => !x));
+    // Campinho no estilo Google: goleiro em cima, nota embaixo da "foto" e o escudo do time abaixo do nome.
+    const conta = n => (n > 1 ? `<b>${n}</b>` : '');
+    const item = p => (p
+      ? UI.jogadorNoCampo(p.jogador, {
+        nota: p.nota,
+        numero: false,
+        cantos: `${p.gols ? `<span class="lu-ic lu-gol" title="${p.gols} gol(s)">⚽${conta(p.gols)}</span>` : ''}${p.assistencias ? `<span class="lu-ic lu-assist" title="${p.assistencias} assistência(s)">👟${conta(p.assistencias)}</span>` : ''}`,
+        extra: `<span class="lu-clube">${UI.bandeira(DB.Times.get(p.jogador.timeId), 'sm')}</span>`,
+      })
+      : '<span class="lu-jogador vazio"><span class="lu-foto"></span><span class="lu-nome">—</span></span>');
+    const linhas = [...sel.linhas].reverse().map(l => l.map(item));
     document.getElementById('campo-rodada').innerHTML = vazia
       ? UI.vazio('Nenhum jogo encerrado nesta rodada', '')
-      : UI.campinho(sel.linhas.map(l => l.map(p => (p ? {
-        jogador: p.jogador,
-        pts: p.pontos,
-        tags: `${UI.bandeira(DB.Times.get(p.jogador.timeId), 'sm').replace('class="flag flag-sm"', 'class="flag flag-sm" style="display:inline-block;vertical-align:middle;"')}${'⚽'.repeat(p.gols)}${p.assistencias ? '<span class="tag-a">A</span>'.repeat(p.assistencias) : ''}`,
-      } : null))));
+      : `<div class="lu-rodada">${UI.campoGoogle(linhas, `<div class="lu-topo"><span class="lu-time">Os melhores de ${esc(sel.rodada.label.toLowerCase())}</span><span class="lu-formacao">4-3-3</span></div>`)}</div>`;
   }
 
   render();

@@ -33,10 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     <a class="fact" href="time.html?id=${time.id}">${UI.bandeira(time, 'sm')} <strong>${esc(time.nome)}</strong></a>
     ${jogador.clube ? `<span class="fact">${UI.bandeiraClube(jogador.clubePais)} <strong>${esc(jogador.clube)}</strong></span>` : ''}
     ${jogador.nacionalidade ? `<span class="fact">${UI.bandeiraPais(jogador.nacionalidade)} <strong>${esc(UI.nomePais(jogador.nacionalidade))}</strong></span>` : ''}
-    ${jogador.idade != null ? `<span class="fact">Idade <strong>${jogador.idade}</strong></span>` : ''}`;
+    ${jogador.idade != null ? `<span class="fact">Idade <strong>${jogador.idade}</strong></span>` : ''}
+    <a class="fact fact-acao" href="comparar.html?a=${jogador.id}">⚖️ <strong>Comparar</strong></a>`;
 
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  const nota = DB.Estatisticas.notasTemporada()[jogador.id];
   document.getElementById('tiles-jogador').innerHTML = [
+    nota ? tile('Nota média', UI.notaHtml(Math.round(nota.media * 10) / 10, 'nota-grande'), 'nota') : '',
     tile('Jogos', s.jogos), tile('Minutos', s.minutos), tile('Titular', s.titular),
     tile('Gols', s.gols, 'gold'), tile('Assistências', s.assistencias, 'gold'), tile('Participações', s.participacoes),
     tile('De pênalti', s.penaltis), tile('Jogos com gol', s.jogosComGol), tile('Amarelos', s.amarelos), tile('Vermelhos', s.vermelhos),

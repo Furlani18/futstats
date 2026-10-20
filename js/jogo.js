@@ -101,24 +101,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Escalações (campinho + banco, no estilo do Google) ----------
   const minutos = DB.Estatisticas.minutosNoJogo(jogo);
+  const notas = DB.Estatisticas.notasDoJogo(jogo);
   const ORDEM_LINHAS = ['Goleiro', 'Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'];
   const POS_CURTA = { Goleiro: 'Goleiro', Defensor: 'Defensor', 'Meio-campo': 'Meio-campo', 'Meia ofensivo': 'Meia', Atacante: 'Atacante' };
   const esc_ = esc;
 
-  // Foto do jogador: iniciais nas cores do time, com ícones de gol, assistência, cartão e substituição nos cantos.
-  function fotoJogador(j, { saida = true } = {}) {
+  // Ícones nos cantos da "foto": substituição, cartão, gol e assistência.
+  function cantos(j, { saida = true } = {}) {
     const golsJ = gols.filter(x => x.jogadorId === j.id && x.tipo !== 'contra').length;
     const assist = gols.filter(x => x.assistenciaId === j.id && x.tipo !== 'contra').length;
     const cartoes = (jogo.cartoes || []).filter(c => c.jogadorId === j.id);
     const vermelho = cartoes.some(c => c.tipo !== 'amarelo');
     const p = minutos[j.id];
     const conta = n => (n > 1 ? `<b>${n}</b>` : '');
-    return `<span class="lu-foto" style="${UI.estiloCores(j.timeId)}">${esc_(DB.Util.iniciais(j.nome))}
-      ${saida && p && p.saiu != null ? `<span class="lu-ic lu-saiu" title="Substituído aos ${p.saiu}'">↓</span>` : ''}
-      ${cartoes.length ? `<span class="lu-ic lu-cartao${vermelho ? ' vermelho' : ''}" title="${vermelho ? 'Cartão vermelho' : 'Cartão amarelo'}"></span>` : ''}
-      ${golsJ ? `<span class="lu-ic lu-gol" title="${golsJ} gol${golsJ > 1 ? 's' : ''}">⚽${conta(golsJ)}</span>` : ''}
-      ${assist ? `<span class="lu-ic lu-assist" title="${assist} assistência${assist > 1 ? 's' : ''}">👟${conta(assist)}</span>` : ''}
-    </span>`;
+    return [
+      saida && p && p.saiu != null ? `<span class="lu-ic lu-saiu" title="Substituído aos ${p.saiu}'">↓</span>` : '',
+      cartoes.length ? `<span class="lu-ic lu-cartao${vermelho ? ' vermelho' : ''}" title="${vermelho ? 'Cartão vermelho' : 'Cartão amarelo'}"></span>` : '',
+      golsJ ? `<span class="lu-ic lu-gol" title="${golsJ} gol${golsJ > 1 ? 's' : ''}">⚽${conta(golsJ)}</span>` : '',
+      assist ? `<span class="lu-ic lu-assist" title="${assist} assistência${assist > 1 ? 's' : ''}">👟${conta(assist)}</span>` : '',
+    ].join('');
   }
 
   function campinhoTime(time, escTime) {
@@ -127,17 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const posicaoNoJogo = j => (escTime.posicoes || {})[j.id] || j.posicao;
     const porLinha = pos => titulares.filter(j => posicaoNoJogo(j) === pos);
     const formacao = ['Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'].map(pos => porLinha(pos).length).filter(Boolean).join('-');
-    const jogadorHtml = j => `<a class="lu-jogador" href="jogador.html?id=${j.id}" title="${esc_(j.nome)}">
-      ${fotoJogador(j)}
-      <span class="lu-nome">${j.numero != null ? `${j.numero} ` : ''}${esc_(UI.nomeCurto(j.nome))}</span>
-    </a>`;
-    const linhas = ORDEM_LINHAS.map(porLinha).filter(l => l.length);
-    return `
-      <div class="lu-topo">${UI.bandeira(time, 'sm')}<span class="lu-time">${esc_(time.nome)}</span>${formacao ? `<span class="lu-formacao">${formacao}</span>` : ''}</div>
-      <div class="lu-campo">
-        <span class="lu-area" aria-hidden="true"></span><span class="lu-pequena" aria-hidden="true"></span><span class="lu-meia-lua" aria-hidden="true"></span><span class="lu-circulo" aria-hidden="true"></span>
-        ${linhas.map(l => `<div class="lu-linha">${l.map(jogadorHtml).join('')}</div>`).join('')}
-      </div>`;
+    const notasTime = titulares.map(j => notas[j.id]).filter(n => n != null);
+    const media = notasTime.length ? notasTime.reduce((s, n) => s + n, 0) / notasTime.length : null;
+    const topo = `<div class="lu-topo">${UI.bandeira(time, 'sm')}<span class="lu-time">${esc_(time.nome)}</span>
+      ${media != null ? `<span class="lu-media" title="Nota média dos titulares">${UI.notaHtml(Math.round(media * 10) / 10)}</span>` : ''}
+      ${formacao ? `<span class="lu-formacao">${formacao}</span>` : ''}</div>`;
+    return UI.campoGoogle(ORDEM_LINHAS.map(pos => porLinha(pos).map(j => UI.jogadorNoCampo(j, { cantos: cantos(j), nota: notas[j.id] }))), topo);
   }
 
   // Banco: quem entrou (com o minuto) e depois quem não saiu do banco.
@@ -155,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<span class="lu-entrou" title="${saiu ? `Entrou no lugar de ${esc_(saiu.nome)}` : 'Entrou'}"><span class="lu-seta">↑</span>${sub.minuto ? `${esc_(sub.minuto)}'` : ''}${saiu ? `<span class="lu-lugar"> · ${esc_(UI.nomeCurto(saiu.nome))}</span>` : ''}</span>`
         : `<span class="lu-pos">${POS_CURTA[j.posicao] || esc_(j.posicao || '')}${j.numero != null ? ` nº${j.numero}` : ''}</span>`;
       return `<a class="lu-reserva" href="jogador.html?id=${j.id}">
-        ${fotoJogador(j, { saida: false })}
+        ${UI.fotoJogador(j, { cantos: cantos(j, { saida: false }), nota: sub ? notas[j.id] : null })}
         <span class="lu-info"><span class="lu-rnome">${esc_(j.nome)}</span>${detalhe}</span>
       </a>`;
     });
@@ -192,6 +188,86 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>`).join('')}
         </div>`;
     }
+  }
+
+  // ---------- Estatísticas da partida (barras comparativas) ----------
+  const est = jogo.estatisticas || {};
+  const contaCartoes = (timeId, amarelo) => (jogo.cartoes || []).filter(c => c.timeId === timeId && (amarelo ? c.tipo === 'amarelo' : c.tipo !== 'amarelo')).length;
+  const linhasEst = [
+    ['posse', 'Posse de bola', '%'],
+    ['finalizacoes', 'Finalizações'],
+    ['noAlvo', 'Finalizações no alvo'],
+    ['escanteios', 'Escanteios'],
+    ['faltas', 'Faltas'],
+    ['impedimentos', 'Impedimentos'],
+    ['defesas', 'Defesas do goleiro'],
+  ].filter(([k]) => Array.isArray(est[k]) && est[k].some(v => v != null && v !== ''))
+    .map(([k, rotulo, sufixo = '']) => [rotulo, Number(est[k][0]) || 0, Number(est[k][1]) || 0, sufixo]);
+  if (linhasEst.length) {
+    linhasEst.push(['Cartões amarelos', contaCartoes(jogo.mandanteId, true), contaCartoes(jogo.visitanteId, true), '']);
+    const vm = contaCartoes(jogo.mandanteId, false), vv = contaCartoes(jogo.visitanteId, false);
+    if (vm || vv) linhasEst.push(['Cartões vermelhos', vm, vv, '']);
+  }
+  if (linhasEst.length && mandante && visitante) {
+    const corM = DB.Util.coresTime(mandante).primaria;
+    const corV = DB.Util.coresTime(visitante).primaria;
+    // Times com a mesma cor principal: o visitante usa a secundária.
+    const corV2 = corV.toLowerCase() === corM.toLowerCase() ? DB.Util.coresTime(visitante).secundaria : corV;
+    document.getElementById('painel-estatisticas').hidden = false;
+    document.getElementById('estatisticas-jogo').innerHTML = `
+      <div class="est-cabeca">${UI.timeLink(mandante)}${UI.timeLink(visitante)}</div>
+      ${linhasEst.map(([rotulo, a, b, suf]) => {
+        const total = a + b;
+        const pa = total ? (a / total) * 100 : 50;
+        return `<div class="est-linha">
+          <div class="est-valores"><b class="${a > b ? 'lider' : ''}" style="--c:${corM}">${a}${suf}</b><span>${rotulo}</span><b class="${b > a ? 'lider' : ''}" style="--c:${corV2}">${b}${suf}</b></div>
+          <div class="est-barras"><span class="est-barra" style="width:${pa}%;background:${corM}"></span><span class="est-barra" style="width:${100 - pa}%;background:${corV2}"></span></div>
+        </div>`;
+      }).join('')}`;
+  }
+
+  // ---------- Forma recente e confronto direto ----------
+  if (mandante && visitante) {
+    const formaDe = time => DB.Jogos.doTime(time.id)
+      .filter(j => j.status === 'encerrado' && j.id !== jogo.id && new Date(j.data) <= new Date(jogo.data))
+      .slice(-5)
+      .map(j => {
+        const casa = j.mandanteId === time.id;
+        const pro = casa ? j.golsMandante : j.golsVisitante;
+        const contra = casa ? j.golsVisitante : j.golsMandante;
+        const r = pro > contra ? 'V' : pro < contra ? 'D' : 'E';
+        const adv = DB.Times.get(casa ? j.visitanteId : j.mandanteId);
+        return `<a class="forma-pill forma-${r}" href="jogo.html?id=${j.id}" title="${pro}–${contra} ${casa ? 'x' : '@'} ${esc(adv ? adv.nome : '')}">${r}</a>`;
+      }).join('');
+    const fm = formaDe(mandante), fv = formaDe(visitante);
+    // Só os encontros anteriores a este jogo.
+    const h2h = DB.Estatisticas.confrontoDireto(mandante.id, visitante.id);
+    const anteriores = h2h.jogos.filter(j => j.id !== jogo.id && new Date(j.data) <= new Date(jogo.data));
+    let vA = 0, vB = 0, emp = 0;
+    anteriores.forEach(j => {
+      const ga = j.mandanteId === mandante.id ? j.golsMandante : j.golsVisitante;
+      const gb = j.mandanteId === mandante.id ? j.golsVisitante : j.golsMandante;
+      if (ga > gb) vA++; else if (gb > ga) vB++; else emp++;
+    });
+    const corA = DB.Util.coresTime(mandante).primaria, corB = DB.Util.coresTime(visitante).primaria;
+    const resumoH2h = anteriores.length
+      ? `<div class="h2h-placar">
+          <div><b>${vA}</b><span>${esc(mandante.nome)}</span></div>
+          <div><b>${emp}</b><span>Empates</span></div>
+          <div><b>${vB}</b><span>${esc(visitante.nome)}</span></div>
+        </div>
+        <div class="h2h-barra"><span style="flex:${vA};background:${corA}"></span><span style="flex:${emp};background:var(--text-faint)"></span><span style="flex:${vB};background:${corB}"></span></div>
+        <div class="match-list">${anteriores.slice(0, 5).map(UI.linhaJogoCompacta).join('')}</div>`
+      : '<div class="h2h-vazio">Nenhum encontro anterior cadastrado entre os dois.</div>';
+    document.getElementById('painel-h2h').hidden = false;
+    document.getElementById('corpo-h2h').innerHTML = `
+      ${fm || fv ? `<div class="h2h-titulo">Últimos jogos</div>
+      <div class="h2h-forma">
+        <div class="h2h-forma-time">${UI.bandeira(mandante, 'sm')}<span>${esc(mandante.nome)}</span><div class="forma-pills">${fm || '<small>—</small>'}</div></div>
+        <div class="h2h-forma-time">${UI.bandeira(visitante, 'sm')}<span>${esc(visitante.nome)}</span><div class="forma-pills">${fv || '<small>—</small>'}</div></div>
+      </div>` : ''}
+      <div class="h2h-titulo">Confronto direto</div>
+      ${resumoH2h}`;
   }
 
   // ---------- Compartilhar ----------

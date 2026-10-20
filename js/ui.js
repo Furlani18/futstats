@@ -10,7 +10,7 @@ const UI = (() => {
     'partidas.html': 'partidas', 'jogo.html': 'partidas',
     'grupos.html': 'grupos',
     'chaveamento.html': 'chaveamento',
-    'estatisticas.html': 'estatisticas', 'jogador.html': 'estatisticas',
+    'estatisticas.html': 'estatisticas', 'jogador.html': 'estatisticas', 'comparar.html': 'estatisticas',
     'selecoes.html': 'selecoes', 'time.html': 'selecoes',
     'premios.html': 'premios',
     'simulador.html': 'simulador',
@@ -125,6 +125,11 @@ const UI = (() => {
     if (!mount) return;
     aplicarTemaCampeonato();
     ativarPreCarregamento();
+    // Títulos de aba escritos para a Copa: troca pelo campeonato aberto.
+    const compAberto = DB.Contexto.get();
+    if (!DB.Contexto.ehCopa() && document.title.includes('Copa do Mundo FIFA 2026')) {
+      document.title = document.title.replace('Copa do Mundo FIFA 2026', `${compAberto.curto} ${compAberto.temporada}`);
+    }
     const secao = SECOES[paginaAtual()] || '';
     mount.innerHTML = `
       <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -647,6 +652,78 @@ const UI = (() => {
     return `<div class="pitch">${linhas.filter(l => l.length).map(l => `<div class="pitch-row">${l.map(jogadorHtml).join('')}</div>`).join('')}</div>`;
   }
 
+  // ---------- Campinho no estilo Google (goleiro em cima) ----------
+  // Pílula da nota: verde ≥ 6,5 · amarela 6,0–6,4 · laranja abaixo · azul ≥ 9.
+  function notaHtml(nota, classe = '') {
+    if (nota == null) return '';
+    const faixa = nota >= 9 ? 'top' : nota >= 6.5 ? 'boa' : nota >= 6 ? 'media' : 'ruim';
+    return `<span class="nota nota-${faixa} ${classe}" title="Nota">${nota.toFixed(1)}</span>`;
+  }
+
+  // "Foto" do jogador (iniciais nas cores do time) com ícones nos cantos e a nota embaixo.
+  function fotoJogador(jogador, { cantos = '', nota = null } = {}) {
+    return `<span class="lu-foto" style="${estiloCores(jogador.timeId)}">${esc(DB.Util.iniciais(jogador.nome))}${cantos}${notaHtml(nota, 'lu-nota')}</span>`;
+  }
+
+  function jogadorNoCampo(jogador, opts = {}) {
+    return `<a class="lu-jogador" href="jogador.html?id=${jogador.id}" title="${esc(jogador.nome)}">
+      ${fotoJogador(jogador, opts)}
+      <span class="lu-nome">${jogador.numero != null && opts.numero !== false ? `${jogador.numero} ` : ''}${esc(nomeCurto(jogador.nome))}</span>
+      ${opts.extra || ''}
+    </a>`;
+  }
+
+  // `linhas`: listas de HTML de jogadores, do goleiro (topo) ao ataque.
+  function campoGoogle(linhas, topoHtml = '') {
+    return `${topoHtml}
+      <div class="lu-campo">
+        <span class="lu-area" aria-hidden="true"></span><span class="lu-pequena" aria-hidden="true"></span><span class="lu-meia-lua" aria-hidden="true"></span><span class="lu-circulo" aria-hidden="true"></span>
+        ${linhas.filter(l => l.length).map(l => `<div class="lu-linha">${l.join('')}</div>`).join('')}
+      </div>`;
+  }
+
+  // ---------- Times favoritos (ficam só neste navegador) ----------
+  const Favoritos = {
+    lista() {
+      try { return JSON.parse(localStorage.getItem('fs_favoritos')) || []; } catch (e) { return []; }
+    },
+    tem(id) { return this.lista().includes(id); },
+    alternar(id) {
+      const atual = this.lista();
+      const nova = atual.includes(id) ? atual.filter(x => x !== id) : [...atual, id];
+      try { localStorage.setItem('fs_favoritos', JSON.stringify(nova)); } catch (e) { /* sem armazenamento */ }
+      return nova.includes(id);
+    },
+  };
+
+  // Gráfico de linha simples em SVG (sem bibliotecas). `pontos`: [{x, y, rotulo}]; y invertido opcional.
+  function graficoLinha(pontos, { yMin, yMax, inverter = false, altura = 200, largura = 600, rotuloY = v => v, cor = 'var(--gold)', marcasY = [] } = {}) {
+    if (!pontos.length) return '';
+    // Largura em pixels reais do contêiner: o SVG fica 1:1 e o texto não encolhe no celular.
+    const L = Math.max(280, Math.round(largura)), A = altura, m = { e: 34, d: 14, t: 14, b: 26 };
+    const xs = pontos.map(p => p.x);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const px = x => m.e + (xMax === xMin ? (L - m.e - m.d) / 2 : ((x - xMin) / (xMax - xMin)) * (L - m.e - m.d));
+    const py = y => {
+      const t = (y - yMin) / ((yMax - yMin) || 1);
+      return m.t + (inverter ? t : 1 - t) * (A - m.t - m.b);
+    };
+    const caminho = pontos.map((p, i) => `${i ? 'L' : 'M'}${px(p.x).toFixed(1)},${py(p.y).toFixed(1)}`).join(' ');
+    const area = `${caminho} L${px(pontos[pontos.length - 1].x).toFixed(1)},${A - m.b} L${px(pontos[0].x).toFixed(1)},${A - m.b} Z`;
+    const passoX = Math.max(1, Math.ceil(pontos.length / 10));
+    const gid = `gl-${Math.random().toString(36).slice(2, 8)}`;
+    return `<svg class="grafico-linha" viewBox="0 0 ${L} ${A}" width="${L}" height="${A}" role="img" style="color:${cor}">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+      <g>
+        ${marcasY.map(v => `<line class="gl-grade" x1="${m.e}" x2="${L - m.d}" y1="${py(v)}" y2="${py(v)}"/><text class="gl-eixo" x="${m.e - 8}" y="${py(v) + 4}" text-anchor="end">${rotuloY(v)}</text>`).join('')}
+        ${pontos.map((p, i) => (i % passoX === 0 || i === pontos.length - 1) ? `<text class="gl-eixo" x="${px(p.x)}" y="${A - 6}" text-anchor="middle">${p.x}</text>` : '').join('')}
+        <path d="${area}" fill="url(#${gid})" stroke="none"/>
+        <path d="${caminho}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${pontos.map(p => `<circle cx="${px(p.x)}" cy="${py(p.y)}" r="4" fill="currentColor"><title>${esc(p.rotulo || '')}</title></circle>`).join('')}
+      </g>
+    </svg>`;
+  }
+
   function vazio(titulo, texto) {
     return `<div class="empty"><strong>${titulo}</strong>${texto || ''}</div>`;
   }
@@ -657,5 +734,6 @@ const UI = (() => {
     badge, rotuloJogo, temPlacar, placarHtml, linhaJogo, linhaJogoCompacta, listaPorDia, formaRecente,
     tabelaGrupo, tabelaLiga, cartaoConfronto, legendaZonas, listaLideres, vazio, campinho, nomeCurto, rotuloTimes, iconeCampeonato,
     autoresResumo, animarNumeros, estiloCores,
+    notaHtml, fotoJogador, jogadorNoCampo, campoGoogle, Favoritos, graficoLinha,
   };
 })();

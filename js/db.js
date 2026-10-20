@@ -1024,7 +1024,101 @@ const DB = (() => {
   // Prêmio de melhor jovem da FIFA: nascidos a partir de 1º de janeiro de 2005.
   const NASCIMENTO_JOVEM = '2005-01-01';
 
+  // Nota do jogador na partida (3,0 a 10,0), calculada a partir do que foi lançado:
+  // base 6,0 · resultado (±0,4) · gol (+1,0 ATA / +1,2 MEI / +1,5 DEF-GOL; pênalti vale 75%) · assistência +0,8 ·
+  // gol contra −1,0 · cartões (−0,3 / −1,2 / −1,5) · defesa: sem sofrer gol (+1,0 GOL / +0,6 DEF / +0,2 MEI)
+  // ou gols sofridos (−0,3 GOL / −0,2 DEF por gol). Resultado e defesa pesam pelos minutos jogados.
+  // Uma nota digitada no painel (jogo.notas) substitui a calculada.
+  function notasDoJogo(jogo) {
+    if (!jogo || !['encerrado', 'ao_vivo'].includes(jogo.status) || jogo.golsMandante == null || jogo.golsVisitante == null) return {};
+    const mins = minutosNoJogo(jogo);
+    const duracao = duracaoJogo(jogo);
+    const timeDe = {};
+    Object.entries(mins).forEach(([id, p]) => { timeDe[id] = p.timeId; });
+    // Sem escalação: entra quem tem lance (gol, assistência ou cartão), como se tivesse jogado tudo.
+    const lancados = [...(jogo.gols || []).flatMap(g => [[g.jogadorId, g.timeId], [g.assistenciaId, g.timeId]]), ...(jogo.cartoes || []).map(c => [c.jogadorId, c.timeId])];
+    lancados.forEach(([id]) => {
+      if (!id || timeDe[id]) return;
+      const j = Jogadores.get(id);
+      if (j) timeDe[id] = j.timeId;
+    });
+    const sofridos = { [jogo.mandanteId]: jogo.golsVisitante, [jogo.visitanteId]: jogo.golsMandante };
+    const feitos = { [jogo.mandanteId]: jogo.golsMandante, [jogo.visitanteId]: jogo.golsVisitante };
+    const notas = {};
+    Object.entries(timeDe).forEach(([id, timeId]) => {
+      const jogador = Jogadores.get(id);
+      if (!jogador || ![jogo.mandanteId, jogo.visitanteId].includes(timeId)) return;
+      const posicao = (((jogo.escalacoes || {})[timeId] || {}).posicoes || {})[id] || jogador.posicao;
+      const minutos = mins[id] ? mins[id].minutos : duracao;
+      if (mins[id] && minutos <= 0) return;
+      const peso = Math.min(1, minutos / duracao);
+      let n = 6;
+      const saldo = feitos[timeId] - sofridos[timeId];
+      n += (saldo > 0 ? 0.4 : saldo < 0 ? -0.4 : 0) * peso;
+      const sofreu = sofridos[timeId];
+      if (posicao === 'Goleiro') n += (sofreu === 0 ? 1 : -0.3 * Math.min(sofreu, 5)) * peso;
+      else if (posicao === 'Defensor') n += (sofreu === 0 ? 0.6 : -0.2 * Math.min(sofreu, 5)) * peso;
+      else if (posicao === 'Meio-campo' && sofreu === 0) n += 0.2 * peso;
+      const valorGol = { Atacante: 1, 'Meio-campo': 1.2, 'Meia ofensivo': 1.1, Defensor: 1.5, Goleiro: 1.5 }[posicao] || 1;
+      (jogo.gols || []).forEach(g => {
+        if (g.jogadorId === id) n += g.tipo === 'contra' ? -1 : g.tipo === 'penalti' ? valorGol * 0.75 : valorGol;
+        if (g.assistenciaId === id && g.tipo !== 'contra') n += 0.8;
+      });
+      (jogo.cartoes || []).forEach(c => {
+        if (c.jogadorId === id) n += c.tipo === 'amarelo' ? -0.3 : c.tipo === 'segundo_amarelo' ? -1.2 : -1.5;
+      });
+      notas[id] = Math.round(Math.max(3, Math.min(10, n)) * 10) / 10;
+    });
+    Object.entries(jogo.notas || {}).forEach(([id, valor]) => {
+      const v = Number(valor);
+      if (Number.isFinite(v) && v > 0) notas[id] = Math.round(Math.max(1, Math.min(10, v)) * 10) / 10;
+    });
+    return notas;
+  }
+
   const Estatisticas = {
+    notasDoJogo,
+
+    // Média de notas de cada jogador nos jogos encerrados do campeonato.
+    notasTemporada() {
+      const soma = {};
+      Jogos.all().filter(j => j.status === 'encerrado').forEach(jogo => {
+        Object.entries(notasDoJogo(jogo)).forEach(([id, n]) => {
+          const s = soma[id] || (soma[id] = { total: 0, jogos: 0 });
+          s.total += n;
+          s.jogos++;
+        });
+      });
+      return Object.fromEntries(Object.entries(soma).map(([id, s]) => [id, { media: Math.round((s.total / s.jogos) * 100) / 100, jogos: s.jogos }]));
+    },
+
+    // Posição do time na tabela ao fim de cada rodada (ligas e fase de liga da Champions).
+    evolucaoPosicao(timeId) {
+      const jogos = Jogos.all().filter(j => j.fase === 'liga' && j.status === 'encerrado' && j.rodada);
+      const rodadas = [...new Set(jogos.map(j => j.rodada))].sort((a, b) => a - b);
+      return rodadas.map(r => {
+        const tabela = Classificacao.liga(jogos.filter(j => j.rodada <= r));
+        const linha = tabela.find(t => t.timeId === timeId);
+        return linha ? { rodada: r, posicao: linha.posicao, pontos: linha.P, jogos: linha.J } : null;
+      }).filter(Boolean);
+    },
+
+    // Histórico entre dois times em todos os campeonatos cadastrados.
+    confrontoDireto(aId, bId) {
+      const jogos = Jogos.todos()
+        .filter(j => j.status === 'encerrado' && j.golsMandante != null && j.golsVisitante != null
+          && ((j.mandanteId === aId && j.visitanteId === bId) || (j.mandanteId === bId && j.visitanteId === aId)))
+        .sort((x, y) => new Date(y.data) - new Date(x.data));
+      const r = { jogos, vitoriasA: 0, vitoriasB: 0, empates: 0, golsA: 0, golsB: 0 };
+      jogos.forEach(j => {
+        const ga = j.mandanteId === aId ? j.golsMandante : j.golsVisitante;
+        const gb = j.mandanteId === aId ? j.golsVisitante : j.golsMandante;
+        r.golsA += ga; r.golsB += gb;
+        if (ga > gb) r.vitoriasA++; else if (gb > ga) r.vitoriasB++; else r.empates++;
+      });
+      return r;
+    },
+
     porJogador() {
       const jogadores = Object.fromEntries(Jogadores.all().map(j => [j.id, j]));
       const linhas = {};
@@ -1107,45 +1201,34 @@ const DB = (() => {
       return { chuteira, luva, jovem };
     },
 
-    // Seleção da rodada no 4-3-3, por uma pontuação simples:
-    // jogou +2 · gol +4 · assistência +3 · sem sofrer gol (GOL/DEF titular) +3 · vitória +1 · amarelo −1 · vermelho −3.
+    // Seleção da rodada no 4-3-3: os de maior nota em cada posição (nota média, se jogou mais de uma vez).
     selecaoDaRodada(rodadaId) {
       const rodada = rodadasDoCampeonato().find(r => r.id === rodadaId);
       if (!rodada) return null;
       const jogos = Jogos.all().filter(j => j.status === 'encerrado' && rodada.filtro(j));
-      const pontos = {};
-      const somar = (id, valor) => {
-        const jogador = Jogadores.get(id);
-        if (!jogador) return null;
-        const p = pontos[id] || (pontos[id] = { jogador, pontos: 0, gols: 0, assistencias: 0 });
-        p.pontos += valor;
-        return p;
-      };
+      const dados = {};
       jogos.forEach(jogo => {
-        const sofridos = { [jogo.mandanteId]: jogo.golsVisitante, [jogo.visitanteId]: jogo.golsMandante };
-        const venceu = vencedorId(jogo);
-        Object.entries(minutosNoJogo(jogo)).forEach(([id, p]) => {
+        Object.entries(notasDoJogo(jogo)).forEach(([id, nota]) => {
           const jogador = Jogadores.get(id);
           if (!jogador) return;
-          let valor = 2;
-          if (sofridos[p.timeId] === 0 && p.titular && ['Goleiro', 'Defensor'].includes(jogador.posicao)) valor += 3;
-          if (venceu === p.timeId) valor += 1;
-          somar(id, valor);
+          // Posição em que jogou (definida no jogo); meia ofensivo conta como meio-campo no 4-3-3.
+          const noJogo = (((jogo.escalacoes || {})[jogador.timeId] || {}).posicoes || {})[id] || jogador.posicao;
+          const d = dados[id] || (dados[id] = { jogador, posicao: noJogo === 'Meia ofensivo' ? 'Meio-campo' : noJogo, soma: 0, jogos: 0, gols: 0, assistencias: 0, jogoId: jogo.id });
+          d.soma += nota;
+          d.jogos++;
         });
         (jogo.gols || []).forEach(g => {
           if (g.tipo === 'contra') return;
-          const autor = somar(g.jogadorId, 4);
-          if (autor) autor.gols++;
-          const assistente = g.assistenciaId ? somar(g.assistenciaId, 3) : null;
-          if (assistente) assistente.assistencias++;
+          if (dados[g.jogadorId]) dados[g.jogadorId].gols++;
+          if (g.assistenciaId && dados[g.assistenciaId]) dados[g.assistenciaId].assistencias++;
         });
-        (jogo.cartoes || []).forEach(c => somar(c.jogadorId, c.tipo === 'amarelo' ? -1 : -3));
       });
-      const ordenados = Object.values(pontos).sort((a, b) => b.pontos - a.pontos || b.gols - a.gols || a.jogador.nome.localeCompare(b.jogador.nome));
+      const lista = Object.values(dados).map(d => ({ ...d, nota: Math.round((d.soma / d.jogos) * 10) / 10, pontos: Math.round((d.soma / d.jogos) * 10) / 10 }));
+      const ordenados = lista.sort((a, b) => b.nota - a.nota || b.gols - a.gols || a.jogador.nome.localeCompare(b.jogador.nome));
       const escolher = (posicao, n) => {
-        const lista = ordenados.filter(p => p.jogador.posicao === posicao).slice(0, n);
-        while (lista.length < n) lista.push(null);
-        return lista;
+        const escolhidos = ordenados.filter(p => p.posicao === posicao).slice(0, n);
+        while (escolhidos.length < n) escolhidos.push(null);
+        return escolhidos;
       };
       return {
         rodada, jogos: jogos.length,

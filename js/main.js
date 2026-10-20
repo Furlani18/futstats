@@ -39,13 +39,46 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- Jogo em destaque: ao vivo › próximo › último resultado ----------
   montarDestaque();
 
+  // ---------- Seus times (favoritos deste campeonato) ----------
+  montarFavoritos();
+
+  // ---------- Partidas: rodada atual (com setas) quando o campeonato tem rodadas ----------
+  const rodadasComJogos = DB.Estatisticas.rodadas
+    .map(r => ({ ...r, jogos: DB.Jogos.all().filter(r.filtro).sort((a, b) => new Date(a.data) - new Date(b.data)) }))
+    .filter(r => r.jogos.length);
+  if (rodadasComJogos.length) {
+    // Atual = primeira com jogo por terminar; se todas acabaram, a última.
+    let indice = rodadasComJogos.findIndex(r => r.jogos.some(j => j.status !== 'encerrado'));
+    if (indice < 0) indice = rodadasComJogos.length - 1;
+    const atual = indice;
+    const titulo = document.getElementById('titulo-jogos');
+    titulo.closest('.panel-header').classList.add('rodada-header');
+    titulo.insertAdjacentHTML('beforebegin', '<button type="button" class="rodada-seta" id="rodada-ant" aria-label="Rodada anterior">‹</button>');
+    titulo.insertAdjacentHTML('afterend', '<button type="button" class="rodada-seta" id="rodada-prox" aria-label="Próxima rodada">›</button>');
+    const desenhar = () => {
+      const r = rodadasComJogos[indice];
+      const encerrados = r.jogos.filter(j => j.status === 'encerrado').length;
+      const aoVivoR = r.jogos.some(j => j.status === 'ao_vivo');
+      titulo.innerHTML = `<span class="rodada-nome">${esc(r.label)}${indice === atual ? ' <span class="rodada-tag">atual</span>' : ''}</span>
+        <small class="rodada-info">${aoVivoR ? '<span class="live-dot"></span> ao vivo · ' : ''}${encerrados}/${r.jogos.length} encerrados</small>`;
+      document.getElementById('lista-jogos').innerHTML = UI.listaPorDia(r.jogos);
+      document.getElementById('rodada-ant').disabled = indice === 0;
+      document.getElementById('rodada-prox').disabled = indice === rodadasComJogos.length - 1;
+    };
+    document.getElementById('rodada-ant').addEventListener('click', () => { if (indice > 0) { indice--; desenhar(); } });
+    document.getElementById('rodada-prox').addEventListener('click', () => { if (indice < rodadasComJogos.length - 1) { indice++; desenhar(); } });
+    desenhar();
+  }
+
   // ---------- Partidas: ao vivo + próximas; senão, últimos resultados ----------
   const todos = DB.Jogos.all().sort((a, b) => new Date(a.data) - new Date(b.data));
   const aoVivo = todos.filter(j => j.status === 'ao_vivo');
   const proximos = todos.filter(j => j.status === 'agendado').slice(0, 8);
   const ultimos = todos.filter(j => j.status === 'encerrado').slice(-6).reverse();
   const lista = document.getElementById('lista-jogos');
-  if (aoVivo.length || proximos.length) {
+  if (rodadasComJogos.length) {
+    // Já montado acima, rodada a rodada.
+  } else if (aoVivo.length || proximos.length) {
     document.getElementById('titulo-jogos').textContent = aoVivo.length ? 'Ao vivo e próximos jogos' : 'Próximos jogos';
     lista.innerHTML = UI.listaPorDia([...aoVivo, ...proximos]);
   } else if (ultimos.length) {
@@ -167,6 +200,45 @@ function montarDestaque() {
     };
     tick();
   }
+}
+
+// Times seguidos (☆ na página do time) que estão neste campeonato: último resultado e próximo jogo.
+function montarFavoritos() {
+  const esc = DB.Util.escapar;
+  const mount = document.getElementById('favoritos');
+  const ids = UI.Favoritos.lista();
+  const times = DB.Times.all().filter(t => ids.includes(t.id));
+  if (!times.length) { mount.hidden = true; return; }
+  const comp = DB.Contexto.get();
+  const tabela = comp.tipo === 'liga' || comp.tipo === 'champions' ? DB.Classificacao.liga() : null;
+  const resumoJogo = (j, timeId) => {
+    if (!j) return '<span class="fav-vazio">—</span>';
+    const casa = j.mandanteId === timeId;
+    const adv = DB.Times.get(casa ? j.visitanteId : j.mandanteId);
+    let marcador = '';
+    if (UI.temPlacar(j)) {
+      const pro = casa ? j.golsMandante : j.golsVisitante, contra = casa ? j.golsVisitante : j.golsMandante;
+      const r = j.status === 'ao_vivo' ? 'vivo' : pro > contra ? 'V' : pro < contra ? 'D' : 'E';
+      marcador = `<span class="fav-res fav-${r}">${pro}–${contra}</span>`;
+    } else {
+      marcador = `<span class="fav-data">${DB.Util.formatarData(j.data).slice(0, 5)} · ${DB.Util.formatarHora(j.data)}</span>`;
+    }
+    return `<a class="fav-jogo" href="jogo.html?id=${j.id}">${marcador}<span class="fav-adv">${casa ? 'x' : '@'} ${UI.bandeira(adv, 'sm')} ${esc(adv ? adv.nome : 'A definir')}</span></a>`;
+  };
+  document.getElementById('lista-favoritos').innerHTML = times.map(t => {
+    const jogos = DB.Jogos.doTime(t.id);
+    const ultimo = [...jogos].reverse().find(j => j.status === 'encerrado' || j.status === 'ao_vivo');
+    const proximo = jogos.find(j => j.status === 'agendado');
+    const linha = tabela && tabela.find(l => l.timeId === t.id);
+    return `<div class="fav-card">
+      <a class="fav-time" href="time.html?id=${t.id}">${UI.bandeira(t, 'lg')}<span><b>${esc(t.nome)}</b>${linha && linha.J ? `<small>${linha.posicao}º · ${linha.P} pts</small>` : ''}</span></a>
+      <div class="fav-jogos">
+        <div><span class="fav-rotulo">${ultimo && ultimo.status === 'ao_vivo' ? 'Ao vivo' : 'Último'}</span>${resumoJogo(ultimo, t.id)}</div>
+        <div><span class="fav-rotulo">Próximo</span>${resumoJogo(proximo, t.id)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  mount.hidden = false;
 }
 
 // Total de jogos previstos no campeonato (para o "x/104").

@@ -81,6 +81,41 @@ document.addEventListener('DOMContentLoaded', () => {
     forma.hidden = false;
   }
 
+  // ---------- Favorito ----------
+  const btnFav = document.getElementById('btn-favorito');
+  const pintarFav = ativo => {
+    btnFav.textContent = ativo ? '★' : '☆';
+    btnFav.classList.toggle('ativo', ativo);
+    btnFav.setAttribute('aria-pressed', ativo);
+    btnFav.title = ativo ? 'Deixar de seguir' : 'Seguir este time (aparece em destaque no início)';
+  };
+  pintarFav(UI.Favoritos.tem(time.id));
+  btnFav.hidden = false;
+  btnFav.addEventListener('click', () => pintarFav(UI.Favoritos.alternar(time.id)));
+
+  // ---------- Campanha: posição na tabela rodada a rodada ----------
+  if (comp.tipo === 'liga' || comp.tipo === 'champions') {
+    const evolucao = DB.Estatisticas.evolucaoPosicao(time.id);
+    if (evolucao.length >= 2) {
+      document.getElementById('painel-campanha').hidden = false;
+      const nTimes = DB.Times.all().length;
+      const passo = nTimes > 20 ? 6 : 4;
+      const marcas = [1, ...Array.from({ length: Math.floor((nTimes - 1) / passo) }, (_, i) => 1 + (i + 1) * passo).filter(v => v < nTimes), nTimes];
+      const cor = DB.Util.coresTime(time);
+      // Cor do time; se for branca (some no tema claro), a secundária; se as duas forem, a do tema.
+      const branca = c => /^#?f{3}(f{3})?$/i.test(c);
+      const corLinha = !branca(cor.primaria) ? cor.primaria : !branca(cor.secundaria) ? cor.secundaria : 'var(--gold)';
+      document.getElementById('grafico-campanha').innerHTML = UI.graficoLinha(
+        evolucao.map(e => ({ x: e.rodada, y: e.posicao, rotulo: `${e.rodada}ª rodada: ${e.posicao}º · ${e.pontos} pts` })),
+        { yMin: 1, yMax: nTimes, inverter: true, marcasY: marcas, rotuloY: v => `${v}º`, cor: corLinha, altura: 220,
+          largura: document.getElementById('grafico-campanha').clientWidth - 28 });
+      const ult = evolucao[evolucao.length - 1];
+      const melhor = Math.min(...evolucao.map(e => e.posicao)), pior = Math.max(...evolucao.map(e => e.posicao));
+      document.getElementById('campanha-resumo').innerHTML = `Agora <b>${ult.posicao}º</b> · melhor ${melhor}º · pior ${pior}º`;
+      document.getElementById('painel-campanha').hidden = false;
+    }
+  }
+
   // ---------- Números no campeonato ----------
   const st = DB.Estatisticas.porTime().find(t => t.time.id === time.id);
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;

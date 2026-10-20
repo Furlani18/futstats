@@ -1949,8 +1949,8 @@ a.lu-jogador:hover .lu-nome { text-decoration: underline; }
 .lu-saiu { top: -7px; left: -7px; background: #b3261e; color: #fff; font-weight: 800; }
 .lu-cartao { top: -6px; right: -5px; min-width: 11px; width: 11px; height: 15px; border-radius: 2px; background: #f9c80e; }
 .lu-cartao.vermelho { background: #e5332a; }
-.lu-gol { bottom: -6px; right: -7px; background: #fff; color: #111; padding: 0 2px; }
-.lu-assist { bottom: -6px; left: -7px; background: #fff; color: #111; padding: 0 2px; }
+.lu-gol { bottom: 4px; right: -10px; background: #fff; color: #111; padding: 0 2px; }
+.lu-assist { bottom: 4px; left: -10px; background: #fff; color: #111; padding: 0 2px; }
 
 /* Banco */
 .lu-banco-topo { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); text-align: center; }
@@ -1979,4 +1979,187 @@ a.lu-reserva:hover .lu-rnome { color: var(--gold); }
   .lu-reserva { gap: 8px; }
   .lu-rnome { font-size: 12.5px; }
   .lu-lugar { display: none; }
+}
+
+/* ---------- Notas dos jogadores ---------- */
+.nota {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  line-height: 1;
+}
+.nota-top { background: #1a5fd0; }
+.nota-boa { background: #1e7d45; }
+.nota-media { background: #f2b705; color: #1b1400; }
+.nota-ruim { background: #e2621b; }
+.lu-foto .lu-nota { position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+.lu-jogador { gap: 13px; }
+.lu-reserva .lu-foto { margin-bottom: 8px; }
+.lu-media .nota { height: 22px; font-size: 12px; }
+.nota-grande { min-width: 64px; height: 38px; font-size: 22px; border-radius: 10px; }
+.stat-tile.nota .v { display: flex; align-items: center; min-height: 33px; }
+
+/* jogador vazio / clube na seleção da rodada */
+.lu-jogador.vazio .lu-foto { background: rgba(255, 255, 255, .12); border: 2px dashed rgba(255, 255, 255, .35); }
+.lu-clube { display: flex; justify-content: center; margin-top: -8px; }
+.lu-rodada { border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+
+/* ---------- Estatísticas da partida / comparação (barras) ---------- */
+.est-jogo { padding: 6px 18px 16px; }
+.est-cabeca { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0 6px; font-weight: 800; }
+.est-cabeca .team-inline:last-child { flex-direction: row-reverse; }
+.est-linha { padding: 9px 0; }
+.est-linha + .est-linha { border-top: 1px solid var(--border-soft); }
+.est-valores { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 8px; font-size: 13px; }
+.est-valores span { text-align: center; color: var(--text-dim); font-weight: 600; }
+.est-valores b { font-family: var(--font-display); font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.est-valores b:last-child { text-align: right; }
+.est-valores b.lider { color: var(--text); }
+.est-valores b.lider::after { content: ''; display: inline-block; width: 6px; height: 6px; margin: 0 0 3px 6px; border-radius: 50%; background: var(--c); vertical-align: middle; }
+.est-valores b.lider:last-child::after { display: none; }
+.est-valores b.lider:last-child::before { content: ''; display: inline-block; width: 6px; height: 6px; margin: 0 6px 3px 0; border-radius: 50%; background: var(--c); vertical-align: middle; }
+.est-barras { display: flex; gap: 4px; height: 7px; margin-top: 7px; }
+.est-barra { display: block; height: 100%; border-radius: 999px; min-width: 4px; transition: width .4s ease; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+
+/* ---------- Retrospecto (forma + confronto direto) ---------- */
+.h2h { padding: 4px 18px 16px; }
+.h2h-titulo { font-size: 10.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); margin: 12px 0 8px; }
+.h2h-forma { display: grid; gap: 8px; }
+.h2h-forma-time { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+.h2h-forma-time > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h2h-forma .forma-pill { width: 24px; height: 24px; font-size: 12px; border-radius: 6px; }
+.h2h-forma .forma-pills { gap: 4px; }
+.h2h-placar { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; gap: 6px; }
+.h2h-placar b { display: block; font-family: var(--font-display); font-size: 30px; line-height: 1; }
+.h2h-placar span { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h2h-barra { display: flex; gap: 3px; height: 6px; margin: 10px 0 8px; border-radius: 999px; overflow: hidden; }
+.h2h-barra span { min-width: 0; }
+.h2h .match-list { margin: 0 -18px; }
+.h2h-vazio { font-size: 13px; color: var(--text-dim); }
+
+/* ---------- Favorito e campanha (página do time) ---------- */
+.titulo-favorito { display: flex; align-items: center; gap: 12px; }
+.btn-favorito {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--time-1, var(--gold)) 40%, var(--border));
+  background: var(--glass);
+  color: var(--text-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: transform .15s ease, color .15s ease, background .15s ease;
+}
+.btn-favorito:hover { transform: scale(1.08); color: var(--text); }
+.btn-favorito.ativo { color: #f9c80e; border-color: #f9c80e; background: rgba(249, 200, 14, .12); }
+.campanha { padding: 10px 14px 6px; }
+.campanha-resumo { font-size: 12.5px; color: var(--text-dim); font-weight: 600; }
+.campanha-resumo b { color: var(--text); }
+.grafico-linha { display: block; max-width: 100%; height: auto; overflow: visible; }
+.gl-grade { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+.gl-eixo { fill: var(--text-faint); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; }
+
+/* ---------- Comparar jogadores ---------- */
+.titulo-acao { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.fact-acao { color: var(--text); }
+.fact-acao:hover { border-color: var(--gold); }
+.cmp-escolha { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 14px; margin-bottom: 18px; }
+.cmp-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cmp-campo label { font-size: 11px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; color: var(--text-dim); }
+.cmp-campo input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+.cmp-campo input:focus { outline: none; border-color: var(--gold); }
+.cmp-vs { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text-faint); padding-bottom: 10px; }
+.cmp-topo { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: 22px 18px 10px; border-bottom: 1px solid var(--border); }
+.cmp-jogador { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--text); min-width: 0; }
+.cmp-jogador .avatar { margin-bottom: 4px; }
+.cmp-nome { font-family: var(--font-display); font-size: 22px; font-weight: 800; text-transform: uppercase; line-height: 1.05; }
+.cmp-jogador:hover .cmp-nome { color: var(--gold); }
+.cmp-sub { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-dim); font-weight: 600; }
+.cmp-nota { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-nota small { font-size: 11px; color: var(--text-dim); font-weight: 700; }
+.cmp-placar { display: grid; grid-template-columns: auto auto auto; align-items: baseline; gap: 6px; text-align: center; }
+.cmp-placar b { font-family: var(--font-display); font-size: 40px; line-height: 1; }
+.cmp-placar span { color: var(--text-faint); font-weight: 800; }
+.cmp-placar small { grid-column: 1 / -1; font-size: 10.5px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; color: var(--text-dim); }
+.cmp-aviso { margin: 0; padding: 0 18px 16px; font-size: 12.5px; color: var(--text-dim); }
+
+/* ---------- Início: rodada atual e seus times ---------- */
+.rodada-header { justify-content: flex-start; }
+.rodada-header > a { margin-left: auto; }
+.rodada-seta {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.rodada-seta:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.rodada-seta:disabled { opacity: .35; cursor: default; }
+.rodada-header .panel-title { display: flex; flex-direction: column; align-items: center; min-width: 120px; text-align: center; }
+.rodada-tag { display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-size: 10px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; vertical-align: middle; }
+.rodada-nome { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.rodada-info { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: none; letter-spacing: 0; }
+
+.fav-painel { margin-bottom: 20px; }
+.fav-dica { font-size: 12px; color: var(--text-faint); font-weight: 600; }
+.fav-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.fav-card { display: flex; flex-direction: column; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border-soft); border-right: 1px solid var(--border-soft); }
+.fav-time { display: flex; align-items: center; gap: 12px; color: var(--text); }
+.fav-time b { display: block; font-size: 15px; }
+.fav-time small { display: block; font-size: 12px; color: var(--text-dim); font-weight: 600; }
+.fav-time:hover b { color: var(--gold); }
+.fav-jogos { display: grid; gap: 6px; }
+.fav-jogos > div { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 8px; }
+.fav-rotulo { font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--text-dim); }
+.fav-jogo { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 13px; min-width: 0; }
+.fav-jogo:hover .fav-adv { color: var(--gold); }
+.fav-adv { display: inline-flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+.fav-res { flex-shrink: 0; min-width: 42px; text-align: center; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-variant-numeric: tabular-nums; color: #0b0f1a; background: #9aa3b5; }
+.fav-V { background: var(--accent); }
+.fav-D { background: var(--danger); color: #fff; }
+.fav-vivo { background: var(--live); color: #fff; }
+.fav-data { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.fav-vazio { color: var(--text-faint); }
+
+@media (max-width: 760px) {
+  .cmp-escolha { grid-template-columns: 1fr; }
+  .cmp-vs { display: none; }
+  .cmp-topo { padding: 16px 10px 8px; gap: 6px; }
+  .cmp-nome { font-size: 16px; }
+  .cmp-placar b { font-size: 28px; }
+  .cmp-jogador .avatar { width: 56px !important; height: 56px !important; font-size: 22px !important; }
+  .est-valores { grid-template-columns: 52px 1fr 52px; font-size: 12px; }
+  .fav-dica { display: none; }
+  .btn-favorito { width: 36px; height: 36px; font-size: 19px; }
+  .rodada-header > a { display: none; }
 }
