@@ -1860,3 +1860,123 @@ a.perna:hover { color: var(--gold); border-color: var(--gold); }
 @media (max-width: 900px) { .page-hero-logo { display: none; } }
 .mosaico-escudos .flag.crest-img, .mosaico-escudos .flag.crest { width: 32px; height: 32px; }
 .mosaico-escudos .flag:not(.crest-img):not(.crest) { width: 36px; height: 25px; }
+
+/* ---------- Escalações da partida (campinho + banco, estilo Google) ---------- */
+.lu-abas { display: flex; gap: 6px; }
+.lu-aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.lu-aba:hover { color: var(--text); }
+.lu-aba.ativa { background: var(--gold); border-color: var(--gold); color: var(--on-gold, #0b0f1a); }
+
+.lu-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #2f5a40;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+.lu-topo .flag { flex-shrink: 0; }
+.lu-time { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-formacao { background: #1f4630; color: #b9f5cf; font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+
+.lu-campo {
+  position: relative;
+  overflow: hidden;
+  background: #437a56;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 18px;
+  min-height: 520px;
+  padding: 26px 8px 48px;
+}
+/* marcações: grande área, pequena área e meia-lua no topo; círculo central embaixo */
+.lu-campo > span[aria-hidden] { position: absolute; pointer-events: none; border: 2px solid rgba(255, 255, 255, .28); }
+.lu-area { left: 50%; top: -2px; width: 58%; height: 21%; transform: translateX(-50%); border-top: none !important; }
+.lu-pequena { left: 50%; top: -2px; width: 26%; height: 8%; transform: translateX(-50%); border-top: none !important; }
+.lu-meia-lua { left: 50%; top: calc(21% - 2px); width: 22%; aspect-ratio: 3 / 1; transform: translateX(-50%); border-radius: 0 0 50% 50% / 0 0 100% 100%; border-top: none !important; }
+.lu-circulo { left: 50%; bottom: -60px; width: 32%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; }
+
+.lu-linha { position: relative; z-index: 1; display: flex; justify-content: space-around; align-items: flex-start; }
+.lu-jogador { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 110px; text-align: center; color: #fff; }
+.lu-nome { font-size: 12px; font-weight: 600; line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+a.lu-jogador:hover .lu-nome { text-decoration: underline; }
+
+/* "foto" do jogador com os ícones nos cantos */
+.lu-foto {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .3px;
+  box-shadow: none !important;
+}
+.lu-ic {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+}
+.lu-ic b { font-size: 9px; margin-left: 1px; }
+.lu-saiu { top: -7px; left: -7px; background: #b3261e; color: #fff; font-weight: 800; }
+.lu-cartao { top: -6px; right: -5px; min-width: 11px; width: 11px; height: 15px; border-radius: 2px; background: #f9c80e; }
+.lu-cartao.vermelho { background: #e5332a; }
+.lu-gol { bottom: -6px; right: -7px; background: #fff; color: #111; padding: 0 2px; }
+.lu-assist { bottom: -6px; left: -7px; background: #fff; color: #111; padding: 0 2px; }
+
+/* Banco */
+.lu-banco-topo { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); text-align: center; }
+.lu-banco-topo .panel-title { font-size: 15px; }
+.lu-banco-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 18px; border-bottom: 1px solid var(--border-soft); }
+.lu-banco-linha:last-child { border-bottom: none; }
+.lu-lado { min-width: 0; }
+.lu-reserva { display: flex; align-items: center; gap: 12px; padding: 12px 0; color: var(--text); min-width: 0; }
+.lu-lado.direita .lu-reserva { flex-direction: row-reverse; text-align: right; }
+.lu-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lu-lado.direita .lu-info { align-items: flex-end; }
+.lu-rnome { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+a.lu-reserva:hover .lu-rnome { color: var(--gold); }
+.lu-pos { font-size: 12px; color: var(--text-dim); }
+.lu-entrou { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text-dim); min-width: 0; }
+.lu-lado.direita .lu-entrou { flex-direction: row-reverse; }
+.lu-seta { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: #1e7d45; color: #fff; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.lu-lugar { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .lu-campo { min-height: 440px; gap: 14px; padding: 22px 2px 40px; }
+  .lu-jogador { width: 72px; gap: 5px; }
+  .lu-nome { font-size: 10.5px; }
+  .lu-foto { width: 36px; height: 36px; font-size: 14px; }
+  .lu-banco-linha { gap: 8px; padding: 0 12px; }
+  .lu-reserva { gap: 8px; }
+  .lu-rnome { font-size: 12.5px; }
+  .lu-lugar { display: none; }
+}
