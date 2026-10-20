@@ -1,7 +1,8 @@
 const LABELS_STATUS_JOGO = { agendado: 'Agendado', ao_vivo: 'Ao vivo', encerrado: 'Encerrado', adiado: 'Adiado' };
 const FASES_FILTRO = ['grupos', 'r32', 'r16', 'qf', 'sf', 'terceiro', 'final'];
 const TIPOS_GOL = { normal: 'Gol', penalti: 'Pênalti', contra: 'Gol contra' };
-const TIPOS_CARTAO = { amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
+const POSICOES_JOGO = [['Goleiro', 'GOL'], ['Defensor', 'DEF'], ['Meio-campo', 'MEI'], ['Meia ofensivo', 'MOF'], ['Atacante', 'ATA']];
+const TIPOS_CARTAO ={ amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
 
 AdminUI.registrar('jogos', () => {
   DB.MataMata.sincronizar();
@@ -379,7 +380,11 @@ AdminUI.registrar('jogos', () => {
         <div class="escalacao-titulo">${esc_(nomeTime(timeId))} <span class="lances-hint ${esc.titulares.length > 11 ? 'erro' : ''}">${esc.titulares.length}/11 titulares</span></div>
         <div class="escalacao-lista">
           ${elenco.map(j => `<label class="escalado"><input type="checkbox" data-titular="${j.id}" ${titulares.has(j.id) ? 'checked' : ''}>
-            <span class="pos">${sigla[j.posicao] || ''}</span><span class="num">${j.numero ?? ''}</span><span class="nm">${esc_(j.nome)}</span></label>`).join('')}
+            ${titulares.has(j.id)
+              // Titular: escolhe onde jogou NESTA partida (pode ser diferente do cadastro).
+              ? `<select class="pos-jogo" data-pos="${j.id}" title="Posição neste jogo">${POSICOES_JOGO.map(([v, s]) =>
+                `<option value="${v}" ${((esc.posicoes || {})[j.id] || j.posicao) === v ? 'selected' : ''}>${s}</option>`).join('')}</select>`
+              : `<span class="pos">${sigla[j.posicao] || ''}</span>`}<span class="num">${j.numero ?? ''}</span><span class="nm">${esc_(j.nome)}</span></label>`).join('')}
         </div>
         <div class="escalacao-subs">
           <div class="escalacao-titulo">Substituições <button type="button" class="btn btn-ghost btn-sm" data-add-sub>+ Troca</button></div>
@@ -403,7 +408,15 @@ AdminUI.registrar('jogos', () => {
         col.querySelectorAll('[data-titular]').forEach(cb => cb.addEventListener('change', () => {
           const id = cb.dataset.titular;
           esc.titulares = cb.checked ? [...esc.titulares, id] : esc.titulares.filter(x => x !== id);
+          if (!cb.checked && esc.posicoes) delete esc.posicoes[id];
           renderEscalacoes();
+        }));
+        col.querySelectorAll('[data-pos]').forEach(sel => sel.addEventListener('change', () => {
+          const j = DB.Jogadores.get(sel.dataset.pos);
+          esc.posicoes = esc.posicoes || {};
+          // Guarda só quando difere do cadastro.
+          if (j && sel.value === j.posicao) delete esc.posicoes[j.id]; else esc.posicoes[sel.dataset.pos] = sel.value;
+          if (!Object.keys(esc.posicoes).length) delete esc.posicoes;
         }));
         col.querySelector('[data-add-sub]').addEventListener('click', () => {
           esc.substituicoes.push({ saiId: null, entraId: null, minuto: '' });

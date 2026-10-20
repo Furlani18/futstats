@@ -518,7 +518,7 @@ details.lances-box[open] > summary::after { content: '▴'; }
 
 .escalado {
   display: grid;
-  grid-template-columns: 18px 34px 24px minmax(0, 1fr);
+  grid-template-columns: 18px 56px 24px minmax(0, 1fr);
   align-items: center;
   gap: 6px;
   padding: 5px 8px;
@@ -553,3 +553,6 @@ details.lances-box[open] > summary::after { content: '▴'; }
 .admin-comp { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--text-dim); margin-right: 14px; }
 .admin-comp select { min-width: 190px; }
 @media (max-width: 640px) { .admin-comp { font-size: 0; margin-right: 6px; } .admin-comp select { min-width: 0; max-width: 150px; font-size: 13px; } }
+
+/* posição do titular nesta partida */
+.escalado .pos-jogo { width: 56px; padding: 2px 4px; font-size: 10.5px; font-weight: 800; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; }

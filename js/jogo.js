@@ -101,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Escalações (campinho + banco, no estilo do Google) ----------
   const minutos = DB.Estatisticas.minutosNoJogo(jogo);
-  const ORDEM_LINHAS = ['Goleiro', 'Defensor', 'Meio-campo', 'Atacante'];
-  const POS_CURTA = { Goleiro: 'Goleiro', Defensor: 'Defensor', 'Meio-campo': 'Meio-campo', Atacante: 'Atacante' };
+  const ORDEM_LINHAS = ['Goleiro', 'Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'];
+  const POS_CURTA = { Goleiro: 'Goleiro', Defensor: 'Defensor', 'Meio-campo': 'Meio-campo', 'Meia ofensivo': 'Meia', Atacante: 'Atacante' };
   const esc_ = esc;
 
   // Foto do jogador: iniciais nas cores do time, com ícones de gol, assistência, cartão e substituição nos cantos.
@@ -123,8 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function campinhoTime(time, escTime) {
     const titulares = escTime.titulares.map(id => DB.Jogadores.get(id)).filter(Boolean);
-    const porLinha = pos => titulares.filter(j => j.posicao === pos);
-    const formacao = ['Defensor', 'Meio-campo', 'Atacante'].map(pos => porLinha(pos).length).filter(Boolean).join('-');
+    // Posição em que jogou nesta partida (definida no painel) ou a do cadastro.
+    const posicaoNoJogo = j => (escTime.posicoes || {})[j.id] || j.posicao;
+    const porLinha = pos => titulares.filter(j => posicaoNoJogo(j) === pos);
+    const formacao = ['Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'].map(pos => porLinha(pos).length).filter(Boolean).join('-');
     const jogadorHtml = j => `<a class="lu-jogador" href="jogador.html?id=${j.id}" title="${esc_(j.nome)}">
       ${fotoJogador(j)}
       <span class="lu-nome">${j.numero != null ? `${j.numero} ` : ''}${esc_(UI.nomeCurto(j.nome))}</span>
