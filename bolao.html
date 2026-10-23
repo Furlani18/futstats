@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Bolão — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Palpite os placares, compartilhe o link e dispute o ranking com os amigos.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Bolão — FUTSTATS">
+<meta property="og:description" content="Palpite os placares, compartilhe o link e dispute o ranking com os amigos.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/bolao.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Bolão</span></div>
+    <div class="section-eyebrow" id="eyebrow-bolao">Palpites entre amigos</div>
+    <h1 class="section-title">Bolão</h1>
+    <p class="lead">Palpite o placar dos próximos jogos e dispute com os amigos. O site não tem servidor: você manda o link dos seus palpites, cada amigo manda o dele, e o ranking é montado neste navegador com os links que você abrir.</p>
+  </div>
+</section>
+
+<main class="page">
+  <div class="bolao-convite" id="bolao-convite" hidden></div>
+
+  <div class="bolao-layout">
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Seus palpites</span>
+        <div class="chips bolao-filtros" id="bolao-filtros" role="group" aria-label="Filtrar jogos">
+          <button type="button" class="chip active" data-f="abertos" aria-pressed="true">Abertos</button>
+          <button type="button" class="chip" data-f="encerrados" aria-pressed="false">Encerrados</button>
+          <button type="button" class="chip" data-f="todos" aria-pressed="false">Todos</button>
+        </div>
+      </div>
+      <div class="match-list" id="bolao-jogos"></div>
+    </section>
+
+    <aside class="stack">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Você</span></div>
+        <div class="bolao-voce">
+          <label for="bolao-nome">Seu nome no ranking</label>
+          <input type="text" id="bolao-nome" maxlength="24" placeholder="Ex.: Gabriel" autocomplete="nickname">
+          <div class="bolao-acoes">
+            <button type="button" class="btn btn-primary" id="btn-compartilhar-bolao">🔗 Compartilhar meus palpites</button>
+          </div>
+          <p class="kpi-note" id="bolao-aviso" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Ranking</span><span class="campanha-resumo" id="bolao-resumo"></span></div>
+        <div id="bolao-ranking"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Pontuação</span></div>
+        <ul class="info-list">
+          <li><span>Placar exato</span><span><b>10 pts</b></span></li>
+          <li><span>Vencedor e saldo de gols</span><span><b>7 pts</b></span></li>
+          <li><span>Só o vencedor (ou o empate)</span><span><b>5 pts</b></span></li>
+          <li><span>Errou o resultado</span><span>0</span></li>
+        </ul>
+        <p class="grafico-nota" style="padding-top:10px;">Os palpites fecham quando o jogo começa (sai de “agendado”). Desempate: mais placares exatos.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
+<script src="js/competicoes.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/bolao.js"></script>
+</body>
+</html>

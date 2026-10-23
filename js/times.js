@@ -7,8 +7,8 @@ AdminUI.registrar('times', () => {
 
   document.getElementById('titulo-times').textContent = ehCopa ? 'Seleções cadastradas' : `Clubes · ${DB.Contexto.get().curto}`;
   document.getElementById('cabecalho-times').innerHTML = ehCopa
-    ? '<th>Seleção</th><th>Grupo</th><th>Confederação</th><th>Técnico</th><th>Ranking FIFA</th><th>Jogadores</th><th></th>'
-    : `<th>Clube</th><th>${DB.Grupos.letras.length ? 'Grupo' : 'Sigla'}</th><th>Técnico</th><th>Estádio</th><th>Jogadores</th><th></th>`;
+    ? '<th scope="col">Seleção</th><th scope="col">Grupo</th><th scope="col">Confederação</th><th scope="col">Técnico</th><th scope="col">Ranking FIFA</th><th scope="col">Jogadores</th><th scope="col"></th>'
+    : `<th scope="col">Clube</th><th scope="col">${DB.Grupos.letras.length ? 'Grupo' : 'Sigla'}</th><th scope="col">Técnico</th><th scope="col">Estádio</th><th scope="col">Jogadores</th><th scope="col"></th>`;
 
   function renderTabela() {
     let lista = ehCopa

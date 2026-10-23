@@ -32,7 +32,7 @@
       <div id="avatar-mount"></div>
       <div>
         <div class="section-eyebrow" id="eyebrow-jogador"></div>
-        <h1 class="section-title" id="nome-jogador">Carregando...</h1>
+        <div class="titulo-favorito"><h1 class="section-title" id="nome-jogador">Carregando...</h1><button type="button" class="btn-favorito" id="btn-favorito" aria-pressed="false" hidden>☆</button></div>
         <div class="profile-facts" id="fatos-jogador"></div>
       </div>
     </div>
@@ -41,9 +41,20 @@
 
 <main class="page">
   <div class="stat-tiles" id="tiles-jogador" style="margin-bottom:20px;"></div>
+  <div class="graficos-2" id="graficos-jogador" hidden>
+    <section class="panel" id="painel-perfil" hidden>
+      <div class="panel-header"><span class="panel-title">Perfil no campeonato</span></div>
+      <div class="grafico-caixa" id="grafico-perfil"></div>
+      <p class="grafico-nota" id="nota-perfil"></p>
+    </section>
+    <section class="panel" id="painel-notas" hidden>
+      <div class="panel-header"><span class="panel-title">Notas jogo a jogo</span><span class="campanha-resumo" id="resumo-notas"></span></div>
+      <div class="grafico-caixa" id="grafico-notas"></div>
+    </section>
+  </div>
   <div class="grid-main">
     <section class="panel">
-      <div class="panel-header"><span class="panel-title">Lances na Copa</span></div>
+      <div class="panel-header"><span class="panel-title" id="titulo-lances">Lances no campeonato</span></div>
       <div id="lances"></div>
     </section>
     <aside class="panel">
@@ -55,8 +66,8 @@
 
 <div id="footer-mount"></div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Sedes — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Mapa dos 16 estádios da Copa 2026 nos EUA, México e Canadá, com os jogos de cada sede.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Sedes — Copa do Mundo FIFA 2026 — FUTSTATS">
+<meta property="og:description" content="Mapa dos 16 estádios da Copa 2026 nos EUA, México e Canadá, com os jogos de cada sede.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/sedes.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Sedes</span></div>
+    <div class="section-eyebrow">16 estádios · 3 países</div>
+    <h1 class="section-title">Sedes da Copa 2026</h1>
+    <p class="lead">Onde a bola rola: os 16 estádios dos Estados Unidos, do México e do Canadá. Clique numa sede para ver os jogos marcados para ela.</p>
+  </div>
+</section>
+
+<main class="page">
+  <div class="sedes-layout">
+    <section class="panel">
+      <div class="panel-header"><span class="panel-title">Mapa</span>
+        <span class="gl-legenda" style="padding:0;"><span><i style="background:var(--sede-us)"></i>EUA</span><span><i style="background:var(--sede-mx)"></i>México</span><span><i style="background:var(--sede-ca)"></i>Canadá</span></span></div>
+      <div class="sedes-mapa" id="sedes-mapa"></div>
+      <div class="chips sedes-lista" id="sedes-lista" role="group" aria-label="Escolher sede"></div>
+    </section>
+    <aside class="panel" id="sede-detalhe" aria-live="polite"></aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
+<script src="js/competicoes.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/calendario.js"></script>
+<script src="js/sedes.js"></script>
+</body>
+</html>

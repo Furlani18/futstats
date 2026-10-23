@@ -50,6 +50,12 @@
     <div class="campanha" id="grafico-campanha"></div>
   </div>
 
+  <div class="panel" id="painel-jogo-a-jogo" style="margin-bottom:20px;" hidden>
+    <div class="panel-header"><span class="panel-title">Jogo a jogo · gols marcados</span>
+      <span class="gl-legenda" style="padding:0;"><span><i style="background:var(--accent)"></i>Vitória</span><span><i style="background:var(--text-faint)"></i>Empate</span><span><i style="background:var(--danger)"></i>Derrota</span></span></div>
+    <div class="grafico-caixa" id="grafico-jogo-a-jogo"></div>
+  </div>
+
   <div class="grid-main">
     <section class="panel">
       <div class="panel-header"><span class="panel-title">Elenco · <span id="qtd-elenco">26</span> convocados</span></div>
@@ -75,8 +81,8 @@
 
 <div id="footer-mount"></div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>

@@ -453,14 +453,24 @@ const DB = (() => {
     },
   };
 
+  // Times de cada grupo, guardados até a lista de times mudar (o simulador de
+  // probabilidades calcula milhares de tabelas por segundo).
+  let cacheGrupos = { base: null, comp: null, porLetra: {} };
+
   const Grupos = {
     get letras() {
       if (Contexto.ehCopa()) return LETRAS_GRUPOS;
       return Object.keys(Contexto.gruposClubes());
     },
     times(letra) {
-      if (!Contexto.ehCopa()) return (Contexto.gruposClubes()[letra] || []).map(id => Times.get(id)).filter(Boolean);
-      return Times.all().filter(t => t.grupo === letra).sort((a, b) => a.posicaoPote - b.posicaoPote);
+      const base = ler('fs_times');
+      if (cacheGrupos.base !== base || cacheGrupos.comp !== compAtual) cacheGrupos = { base, comp: compAtual, porLetra: {} };
+      if (!cacheGrupos.porLetra[letra]) {
+        cacheGrupos.porLetra[letra] = !Contexto.ehCopa()
+          ? (Contexto.gruposClubes()[letra] || []).map(id => Times.get(id)).filter(Boolean)
+          : Times.all().filter(t => t.grupo === letra).sort((a, b) => a.posicaoPote - b.posicaoPote);
+      }
+      return [...cacheGrupos.porLetra[letra]];
     },
     deTime(timeId) {
       if (Contexto.ehCopa()) return (Times.get(timeId) || {}).grupo || null;
@@ -611,7 +621,8 @@ const DB = (() => {
       });
       const jogos = (fonte || Jogos.all())
         .filter(j => j.fase === 'liga' && j.status === 'encerrado' && j.golsMandante != null && j.golsVisitante != null)
-        .sort((a, b) => new Date(a.data) - new Date(b.data));
+        // Datas no mesmo formato ISO ("2026-05-10T16:00"): comparar o texto dá a mesma ordem, sem criar Date.
+        .sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
       jogos.forEach(j => {
         const m = base[j.mandanteId], v = base[j.visitanteId];
         if (!m || !v) return;
@@ -633,10 +644,11 @@ const DB = (() => {
       return lista.map((t, i) => ({ ...t, posicao: i + 1, zona: zonaDe(i + 1, comp.zonas) }));
     },
 
-    terceiros(fonte) {
+    // `tabelas` (opcional): { letra: tabela } já calculadas, para não refazer os 12 grupos.
+    terceiros(fonte, tabelas) {
       if (!Contexto.ehCopa()) return [];
       const linhas = LETRAS_GRUPOS.map(letra => {
-        const tabela = Classificacao.grupo(letra, fonte);
+        const tabela = tabelas ? tabelas[letra] : Classificacao.grupo(letra, fonte);
         return tabela[2];
       });
       const ordenados = [...linhas].sort((a, b) =>
@@ -862,6 +874,8 @@ const DB = (() => {
 
   const MataMata = {
     POOLS_R32,
+    // Grupos dos 8 melhores 3ºs → { matchNum: letra } (o simulador de probabilidades usa direto).
+    resolverTerceiros: resolverPoolsTerceiros,
     // 32avos projetados a partir de uma lista de jogos (sem criar nada no armazenamento).
     projetarR32: fonte => montarR32(fonte),
     vencedor: vencedorId,
@@ -1267,6 +1281,39 @@ const DB = (() => {
       return { ...linha, lances };
     },
 
+    // Perfil para o radar: cada quesito de 0 a 1 em relação ao melhor da mesma posição
+    // (entre quem jogou ou teve lance no campeonato; todos, se a posição tiver menos de 5).
+    // Disciplina = 1 − (amarelos + 3 × vermelhos) / o pior da posição.
+    perfil(jogadorId, linhas = this.porJogador(), notas = this.notasTemporada()) {
+      const linha = linhas.find(l => l.jogador.id === jogadorId);
+      if (!linha) return null;
+      const grupo = p => (p === 'Meia ofensivo' ? 'Meio-campo' : p);
+      let pares = linhas.filter(l => grupo(l.jogador.posicao) === grupo(linha.jogador.posicao));
+      if (pares.length < 5) pares = linhas;
+      const nota = l => (notas[l.jogador.id] ? notas[l.jogador.id].media : null);
+      const cartoes = l => l.amarelos + 3 * l.vermelhos;
+      const QUESITOS = [
+        { rotulo: 'Gols', valor: l => l.gols },
+        { rotulo: 'Assistências', valor: l => l.assistencias },
+        { rotulo: 'Jogos com gol', valor: l => l.jogosComGol },
+        { rotulo: 'Minutos', valor: l => l.minutos },
+        { rotulo: 'Nota média', valor: nota, escala: v => (v - 4) / 6, texto: v => (v == null ? '—' : v.toFixed(2).replace('.', ',')) },
+        { rotulo: 'Disciplina', valor: cartoes, inverso: true, texto: v => `${v} pt${v === 1 ? '' : 's'} em cartões` },
+      ];
+      return {
+        posicao: grupo(linha.jogador.posicao), pares: pares.length,
+        eixos: QUESITOS.map(q => q.rotulo),
+        valores: QUESITOS.map(q => {
+          const v = q.valor(linha);
+          const max = Math.max(0, ...pares.map(q.valor).filter(x => x != null));
+          if (q.inverso) return max ? 1 - v / max : 1;
+          if (v == null || !max) return 0;
+          return q.escala ? Math.max(0, Math.min(1, q.escala(v) / q.escala(max))) : v / max;
+        }),
+        textos: QUESITOS.map(q => (q.texto ? q.texto(q.valor(linha)) : String(q.valor(linha)))),
+      };
+    },
+
     porTime() {
       const linhas = Object.fromEntries(Times.all().map(t => [t.id, {
         time: t, J: 0, V: 0, E: 0, D: 0, GP: 0, GC: 0, semSofrer: 0, CA: 0, CV: 0,
@@ -1395,20 +1442,86 @@ const DB = (() => {
     },
   };
 
+  // ==========================================================================
+  // Acesso ao painel — MODO DEMONSTRAÇÃO. O site é estático (sem servidor): tudo o que o
+  // painel edita fica no localStorage do próprio navegador, então este login não protege
+  // dados de ninguém. Ele só evita edições por engano. Mesmo assim, o código guarda apenas
+  // o hash SHA-256 (com sal) de "usuário:senha", não a senha em texto, e espera alguns
+  // segundos a cada 5 tentativas erradas. Proteção de verdade exigiria um back-end.
+  // ==========================================================================
+  function sha256(texto) {
+    const K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+      0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+      0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+      0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+    const bytes = Array.from(new TextEncoder().encode(texto));
+    const bits = bytes.length * 8;
+    bytes.push(0x80);
+    while (bytes.length % 64 !== 56) bytes.push(0);
+    for (let i = 7; i >= 0; i--) bytes.push(i > 3 ? 0 : (bits >>> (i * 8)) & 0xff);
+    const h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+    for (let bloco = 0; bloco < bytes.length; bloco += 64) {
+      const w = new Array(64);
+      for (let i = 0; i < 16; i++) w[i] = (bytes[bloco + i * 4] << 24) | (bytes[bloco + i * 4 + 1] << 16) | (bytes[bloco + i * 4 + 2] << 8) | bytes[bloco + i * 4 + 3];
+      for (let i = 16; i < 64; i++) {
+        const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+        const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+      }
+      let [a, b, c, d, e, f, g, k] = h;
+      for (let i = 0; i < 64; i++) {
+        const t1 = (k + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+        const t2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+        k = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      [a, b, c, d, e, f, g, k].forEach((v, i) => { h[i] = (h[i] + v) | 0; });
+    }
+    return h.map(v => (v >>> 0).toString(16).padStart(8, '0')).join('');
+  }
+
+  const SAL_ACESSO = 'futstats:v1:';
+  const HASH_ACESSO = '0ff4db5d253766d50c41e0c3cf787ae738d6f9701a90fcabdd249c6603745f6c'; // admin / futstats2026 (demo)
+  const SESSAO_MS = 12 * 36e5;
+  const ESPERA_MS = 30e3;
+
+  function lerJson(chave) {
+    try { return JSON.parse(localStorage.getItem(chave)); } catch (e) { return null; }
+  }
+
   const Auth = {
+    // Segundos até poder tentar de novo (depois de 5 erros seguidos).
+    esperaRestante() {
+      const t = lerJson('fs_auth_tentativas') || { erros: 0, ate: 0 };
+      return Math.max(0, Math.ceil((t.ate - Date.now()) / 1000));
+    },
     login(usuario, senha) {
-      if (usuario === 'admin' && senha === 'futstats2026') {
+      if (this.esperaRestante()) return false;
+      if (sha256(`${SAL_ACESSO}${usuario}:${senha}`) === HASH_ACESSO) {
+        localStorage.removeItem('fs_auth_tentativas');
         localStorage.setItem('fs_auth', JSON.stringify({ usuario, ts: Date.now() }));
         return true;
       }
+      const t = lerJson('fs_auth_tentativas') || { erros: 0, ate: 0 };
+      t.erros++;
+      if (t.erros % 5 === 0) t.ate = Date.now() + ESPERA_MS;
+      localStorage.setItem('fs_auth_tentativas', JSON.stringify(t));
       return false;
     },
     logout() { localStorage.removeItem('fs_auth'); },
-    isLogged() { return !!localStorage.getItem('fs_auth'); },
-    usuarioAtual() {
-      const raw = localStorage.getItem('fs_auth');
-      return raw ? JSON.parse(raw).usuario : null;
+    // A sessão vale 12 horas.
+    isLogged() {
+      const s = lerJson('fs_auth');
+      if (!s || !s.ts || Date.now() - s.ts > SESSAO_MS) { if (s) this.logout(); return false; }
+      return true;
     },
+    usuarioAtual() {
+      const s = lerJson('fs_auth');
+      return s ? s.usuario : null;
+    },
+    sha256,
   };
 
   const CORES = ['#33e08a', '#ff8a3d', '#5b8cff', '#ff5470', '#c792ea', '#ffd166'];

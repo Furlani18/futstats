@@ -166,11 +166,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (comEscalacao.length > 1) {
       abas.innerHTML = comEscalacao.map((t, i) =>
         `<button type="button" class="lu-aba${i ? '' : ' ativa'}" role="tab" aria-selected="${!i}" data-time="${t.id}">${UI.bandeira(t, 'sm')}<span>${esc_(t.codigo || t.nome)}</span></button>`).join('');
+      const ativar = aba => {
+        abas.querySelectorAll('.lu-aba').forEach(b => { b.classList.toggle('ativa', b === aba); b.setAttribute('aria-selected', b === aba); b.tabIndex = b === aba ? 0 : -1; });
+        document.querySelectorAll('.lu-painel').forEach(p => { p.hidden = p.dataset.time !== aba.dataset.time; });
+      };
+      abas.querySelectorAll('.lu-aba').forEach((b, i) => { b.tabIndex = i ? -1 : 0; });
       abas.addEventListener('click', e => {
         const aba = e.target.closest('.lu-aba');
-        if (!aba) return;
-        abas.querySelectorAll('.lu-aba').forEach(b => { b.classList.toggle('ativa', b === aba); b.setAttribute('aria-selected', b === aba); });
-        document.querySelectorAll('.lu-painel').forEach(p => { p.hidden = p.dataset.time !== aba.dataset.time; });
+        if (aba) ativar(aba);
+      });
+      // Padrão de abas: setas esquerda/direita trocam de time.
+      abas.addEventListener('keydown', e => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const lista = [...abas.querySelectorAll('.lu-aba')];
+        const atual = lista.indexOf(document.activeElement);
+        const proxima = lista[(atual + (e.key === 'ArrowRight' ? 1 : -1) + lista.length) % lista.length];
+        ativar(proxima);
+        proxima.focus();
+        e.preventDefault();
       });
     }
 
@@ -279,6 +292,109 @@ document.addEventListener('DOMContentLoaded', () => {
       botao.disabled = true;
       try { await Compartilhar.jogo(jogo); } finally { botao.disabled = false; }
     });
+  }
+
+  // ---------- Reviver a partida: relógio, placar e lances minuto a minuto ----------
+  if (mandante && visitante && jogo.status === 'encerrado' && UI.temPlacar(jogo)) {
+    document.getElementById('compartilhar').insertAdjacentHTML('afterbegin',
+      '<button type="button" class="btn btn-ghost" id="btn-reviver">▶ Reviver ao vivo</button>');
+    document.getElementById('btn-reviver').addEventListener('click', reviverPartida);
+  }
+
+  function reviverPartida() {
+    const hero = document.getElementById('hero-jogo');
+    const placarEl = hero.querySelector('.match-hero-score');
+    const badgeEl = hero.querySelector('.badge');
+    const timeline = document.getElementById('timeline');
+    const botao = document.getElementById('btn-reviver');
+    const original = { placar: placarEl.innerHTML, badge: badgeEl.outerHTML, timeline: timeline.innerHTML, autores: document.getElementById('autores').innerHTML };
+    const duracao = jogo.prorrogacao ? 120 : 90;
+    const nomeJ = id => { const j = DB.Jogadores.get(id); return j ? esc(j.nome) : 'Jogador'; };
+
+    // Lances com o minuto em número (acréscimo vira fração: 45+2 → 45,02); sem minuto, no apito final.
+    const lances = [
+      ...gols.map(g => ({ min: DB.Util.minutoNumero(g.minuto), tipo: 'gol', e: g })),
+      ...(jogo.cartoes || []).map(c => ({ min: DB.Util.minutoNumero(c.minuto), tipo: 'cartao', e: c })),
+      ...Object.entries(jogo.escalacoes || {}).flatMap(([timeId, esc_]) => (esc_.substituicoes || []).map(s => ({ min: DB.Util.minutoNumero(s.minuto), tipo: 'sub', e: { ...s, timeId } }))),
+      { min: 45.99, tipo: 'apito', texto: 'Fim do primeiro tempo' },
+      ...(jogo.prorrogacao ? [{ min: 90.99, tipo: 'apito', texto: 'Fim do tempo normal · prorrogação' }] : []),
+    ].map(l => ({ ...l, min: l.min >= 999 ? duracao + 0.98 : l.min })).sort((a, b) => a.min - b.min);
+
+    let placar = [0, 0], minuto = 0, i = 0, velocidade = 1, pausado = false, relogio = null;
+    placarEl.classList.remove('vs');
+    badgeEl.outerHTML = '<span class="badge badge-ao_vivo" id="badge-replay"><span class="live-dot"></span><span id="relogio-replay">0\'</span></span>';
+    document.getElementById('autores').innerHTML = '';
+    timeline.innerHTML = `<div class="replay-barra">
+        <button type="button" class="btn btn-ghost" id="replay-pausa" aria-label="Pausar">⏸</button>
+        <div class="replay-trilho" aria-hidden="true"><span id="replay-progresso"></span></div>
+        <button type="button" class="btn btn-ghost" id="replay-vel" title="Velocidade">1×</button>
+        <button type="button" class="btn btn-ghost" id="replay-fim">Pular ⏭</button>
+      </div>
+      <ul class="timeline replay-feed" id="replay-feed" aria-live="polite"></ul>`;
+    botao.disabled = true;
+    const feed = document.getElementById('replay-feed');
+    const desenharPlacar = (animar) => {
+      placarEl.innerHTML = `${placar[0]} – ${placar[1]}`;
+      if (animar) { placarEl.classList.remove('gol-anim'); void placarEl.offsetWidth; placarEl.classList.add('gol-anim'); }
+    };
+    desenharPlacar(false);
+
+    const mostrar = l => {
+      let html;
+      if (l.tipo === 'apito') html = `<li class="replay-apito">⏱ ${l.texto}</li>`;
+      else if (l.tipo === 'sub') {
+        const lado = l.e.timeId === jogo.mandanteId ? 'home' : 'away';
+        const txt = `<span class="txt"><b>${nomeJ(l.e.entraId)}</b><small>Entrou no lugar de ${nomeJ(l.e.saiId)}</small></span>`;
+        const ic = '<span class="tl-icon">🔁</span>';
+        html = `<li class="tl-item">${lado === 'home' ? `<span class="tl-side home">${txt}${ic}</span>` : '<span></span>'}<span class="tl-min">${esc(l.e.minuto || '')}'</span>${lado === 'away' ? `<span class="tl-side away">${ic}${txt}</span>` : '<span></span>'}</li>`;
+      } else {
+        html = itemLinha({ ...l.e, evento: l.tipo === 'gol' ? 'gol' : 'cartao' });
+        if (l.tipo === 'gol') {
+          placar[l.e.timeId === jogo.mandanteId ? 0 : 1]++;
+          desenharPlacar(true);
+          html = html.replace('class="tl-item"', 'class="tl-item replay-gol"');
+        }
+      }
+      feed.insertAdjacentHTML('afterbegin', html);
+    };
+
+    function terminar() {
+      clearInterval(relogio);
+      while (i < lances.length) mostrar(lances[i++]);
+      placarEl.innerHTML = original.placar;
+      document.getElementById('badge-replay').outerHTML = original.badge;
+      document.getElementById('autores').innerHTML = original.autores;
+      feed.insertAdjacentHTML('afterbegin', '<li class="replay-apito">⏱ Fim de jogo</li>');
+      document.querySelector('.replay-barra').outerHTML = '<div class="replay-barra"><button type="button" class="btn btn-ghost" id="replay-voltar">↩ Voltar ao lance a lance</button></div>';
+      document.getElementById('replay-voltar').addEventListener('click', () => { timeline.innerHTML = original.timeline; });
+      botao.disabled = false;
+      botao.textContent = '▶ Reviver de novo';
+    }
+
+    // 1 minuto de jogo = 160 ms (90' em ~15 s) na velocidade 1×.
+    const tick = () => {
+      if (pausado) return;
+      minuto += 1;
+      while (i < lances.length && lances[i].min < minuto) mostrar(lances[i++]);
+      const shown = Math.min(Math.floor(minuto), duracao);
+      document.getElementById('relogio-replay').textContent = `${shown}'`;
+      document.getElementById('replay-progresso').style.width = `${(minuto / (duracao + 1)) * 100}%`;
+      if (minuto > duracao) terminar();
+    };
+    const iniciar = () => { clearInterval(relogio); relogio = setInterval(tick, 160 / velocidade); };
+    document.getElementById('replay-pausa').addEventListener('click', e => {
+      pausado = !pausado;
+      e.currentTarget.textContent = pausado ? '▶' : '⏸';
+      e.currentTarget.setAttribute('aria-label', pausado ? 'Continuar' : 'Pausar');
+    });
+    document.getElementById('replay-vel').addEventListener('click', e => {
+      velocidade = velocidade === 1 ? 2 : velocidade === 2 ? 4 : 1;
+      e.currentTarget.textContent = `${velocidade}×`;
+      iniciar();
+    });
+    document.getElementById('replay-fim').addEventListener('click', terminar);
+    document.querySelector('.match-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    iniciar();
   }
 
   // ---------- Agregado (mata-mata de ida e volta) ----------

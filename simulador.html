@@ -38,7 +38,7 @@
   <div class="sim-toolbar">
     <button type="button" class="btn btn-ghost" id="btn-aleatorio">🎲 Preencher o que falta</button>
     <button type="button" class="btn btn-ghost" id="btn-limpar">Limpar palpites</button>
-    <span class="kpi-note" id="sim-progresso" style="align-self:center;"></span>
+    <span class="kpi-note" id="sim-progresso" style="align-self:center;" role="status" aria-live="polite"></span>
   </div>
   <div class="chips" id="chips-grupo"></div>
 
@@ -55,6 +55,23 @@
         <span><i style="background:var(--blue)"></i>Entre os 8 melhores 3ºs</span>
       </div></div>
     </div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <div class="section-eyebrow">Monte Carlo</div>
+      <h2 class="section-title">Chances de cada time</h2>
+    </div>
+  </div>
+  <div class="panel prob-painel">
+    <div class="prob-barra">
+      <button type="button" class="btn btn-primary" id="btn-prob">▶ Rodar 10.000 simulações</button>
+      <label class="prob-opcao"><input type="checkbox" id="prob-palpites"> Tratar meus palpites como resultados</label>
+      <div class="prob-progresso" id="prob-progresso" hidden><span class="prob-progresso-barra" id="prob-progresso-barra"></span></div>
+      <span class="kpi-note" id="prob-status" role="status" aria-live="polite"></span>
+    </div>
+    <p class="prob-explica">Cada simulação sorteia os placares que faltam a partir da força dos times (Elo): na Copa, o Elo parte do ranking FIFA; nos clubes, todos começam iguais. Em ambos, ele se ajusta com os resultados já disputados. Depois o simulador conta como cada time terminou. Os resultados reais nunca mudam.</p>
+    <div id="prob-resultado"></div>
   </div>
 
   <div id="sim-extras-copa">
@@ -78,13 +95,14 @@
 
 <div id="footer-mount"></div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/calendario.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/probabilidades.js"></script>
 <script src="js/simulador.js"></script>
 </body>
 </html>

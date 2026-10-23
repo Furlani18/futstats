@@ -50,6 +50,17 @@
     </div>
   </div>
 
+  <div class="graficos-2" id="graficos-gols" hidden>
+    <section class="panel">
+      <div class="panel-header"><span class="panel-title">Gols por rodada</span><span class="campanha-resumo" id="resumo-rodadas"></span></div>
+      <div class="grafico-caixa" id="grafico-rodadas"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><span class="panel-title">Em que minuto saem os gols</span><span class="campanha-resumo" id="resumo-minutos"></span></div>
+      <div class="grafico-caixa" id="grafico-minutos"></div>
+    </section>
+  </div>
+
   <div class="section-head" id="jogadores">
     <div>
       <div class="section-eyebrow">Todos os jogadores com participação</div>
@@ -60,8 +71,8 @@
     <div class="table-scroll">
       <table class="stats-table" id="tabela-jogadores">
         <thead><tr>
-          <th>#</th><th class="left">Jogador</th><th class="left">Seleção</th><th>Pos.</th>
-          <th>J</th><th>Min</th><th class="strong">Gols</th><th>Pên.</th><th>Assist.</th><th>G+A</th><th title="Gols a cada 90 minutos">G/90</th><th>🟨</th><th>🟥</th>
+          <th scope="col">#</th><th scope="col" class="left">Jogador</th><th scope="col" class="left">Seleção</th><th scope="col">Pos.</th>
+          <th scope="col">J</th><th scope="col">Min</th><th scope="col" class="strong">Gols</th><th scope="col">Pên.</th><th scope="col">Assist.</th><th scope="col">G+A</th><th scope="col" title="Gols a cada 90 minutos">G/90</th><th scope="col">🟨</th><th scope="col">🟥</th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -78,8 +89,8 @@
     <div class="table-scroll">
       <table class="stats-table" id="tabela-times">
         <thead><tr>
-          <th>#</th><th class="left">Seleção</th><th>J</th><th>V</th><th>E</th><th>D</th>
-          <th class="strong">Gols</th><th>Sofridos</th><th>SG</th><th>Média</th><th>Sem sofrer</th><th>🟨</th><th>🟥</th>
+          <th scope="col">#</th><th scope="col" class="left">Seleção</th><th scope="col">J</th><th scope="col">V</th><th scope="col">E</th><th scope="col">D</th>
+          <th scope="col" class="strong">Gols</th><th scope="col">Sofridos</th><th scope="col">SG</th><th scope="col">Média</th><th scope="col">Sem sofrer</th><th scope="col">🟨</th><th scope="col">🟥</th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -97,8 +108,8 @@
 
 <div id="footer-mount"></div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>

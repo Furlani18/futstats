@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Sobre o projeto — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Arquitetura, decisões técnicas e desafios do FUTSTATS, site de estatísticas de futebol em JavaScript puro.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Sobre o projeto — FUTSTATS">
+<meta property="og:description" content="Arquitetura, decisões técnicas e desafios do FUTSTATS, site de estatísticas de futebol em JavaScript puro.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/sobre.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Sobre o projeto</span></div>
+    <div class="section-eyebrow">Bastidores</div>
+    <h1 class="section-title">Sobre o FUTSTATS</h1>
+    <p class="lead">Um site de estatísticas de futebol inspirado no SofaScore, feito com HTML, CSS e JavaScript puro: sem framework, sem etapa de build e sem servidor. Aqui está como ele funciona por dentro e as partes que deram mais trabalho.</p>
+  </div>
+</section>
+
+<main class="page sobre">
+  <div class="kpi-strip sobre-numeros">
+    <div class="kpi"><div class="kpi-label">Campeonatos</div><div class="kpi-value">10</div></div>
+    <div class="kpi"><div class="kpi-label">Clubes</div><div class="kpi-value">159</div></div>
+    <div class="kpi"><div class="kpi-label">Seleções</div><div class="kpi-value">48</div></div>
+    <div class="kpi"><div class="kpi-label">Jogadores</div><div class="kpi-value" id="sobre-jogadores">5.767</div></div>
+    <div class="kpi"><div class="kpi-label">Testes automatizados</div><div class="kpi-value">21</div></div>
+    <div class="kpi"><div class="kpi-label">Dependências</div><div class="kpi-value">0</div></div>
+  </div>
+
+  <section class="panel sobre-secao">
+    <div class="panel-header"><h2 class="panel-title">Arquitetura</h2></div>
+    <div class="sobre-texto">
+      <p>Cada página HTML carrega os mesmos módulos, em camadas. Nenhuma camada conhece a de cima:</p>
+      <ol class="sobre-camadas">
+        <li><b>Dados estáticos</b> <code>elencos.js</code> · <code>clubes.js</code> · <code>competicoes.js</code> · <code>calendario.js</code><span>Elencos oficiais, clubes, formatos e o calendário da Copa, extraídos da Wikipedia.</span></li>
+        <li><b>Regras e armazenamento</b> <code>db.js</code><span>Classificação, desempates, mata-mata, estatísticas, notas e backup. Lê e grava no <code>localStorage</code>, com cache em memória.</span></li>
+        <li><b>Componentes de interface</b> <code>ui.js</code><span>Topo, busca (Ctrl+K), tabelas, campinho e gráficos em SVG desenhados à mão.</span></li>
+        <li><b>Página</b> <code>main.js</code> · <code>jogo.js</code> · <code>simulador.js</code> · <code>bolao.js</code>…<span>Cada uma monta a própria tela a partir das camadas de baixo.</span></li>
+      </ol>
+      <p>O <b>contexto</b> (o campeonato escolhido no topo) filtra todas as consultas: <code>DB.Jogos.all()</code> devolve só os jogos do campeonato aberto, e o mesmo código serve à Copa, às ligas de pontos corridos, à fase de liga da Champions e aos grupos da Libertadores.</p>
+      <p>Os visitantes recebem os dados pelo arquivo <code>js/dados.js</code>, gerado pelo painel e publicado no repositório. Se ele for mais novo do que o que o navegador já tem, substitui os dados locais.</p>
+    </div>
+  </section>
+
+  <div class="graficos-2">
+    <section class="panel sobre-secao">
+      <div class="panel-header"><h2 class="panel-title">Decisões técnicas</h2></div>
+      <ul class="sobre-lista">
+        <li><b>JavaScript puro, sem build.</b> O site abre direto do GitHub Pages e o código que roda é o código que está no repositório.</li>
+        <li><b>Cache em memória sobre o localStorage.</b> Com milhares de jogadores, reconverter o JSON a cada consulta deixava as páginas lentas.</li>
+        <li><b>Dados grandes sob demanda.</b> Os elencos (~500 KB) só são baixados na primeira visita, para montar a base. Depois, tudo vem do armazenamento local.</li>
+        <li><b>Gráficos em SVG próprio.</b> Linha, barras, radar e o mapa das sedes são gerados como texto, sem bibliotecas, e seguem o tema claro/escuro.</li>
+        <li><b>Testes sem dependências.</b> O <code>node:test</code> carrega os mesmos arquivos do site num contexto isolado, com um localStorage em memória (<code>npm test</code>).</li>
+      </ul>
+    </section>
+    <section class="panel sobre-secao">
+      <div class="panel-header"><h2 class="panel-title">Desafios</h2></div>
+      <ul class="sobre-lista">
+        <li><b>Desempate da FIFA.</b> Times empatados disputam uma “mini-liga” só entre eles. Se ela separar parte do grupo, o critério é reaplicado só aos que continuam empatados. Daí para saldo geral, gols, fair play e ranking. A função é recursiva e tem testes para cada caso.</li>
+        <li><b>Os 8 melhores terceiros.</b> Cada vaga dos 32avos aceita terceiros de só 5 grupos. Em vez da tabela de 495 combinações do regulamento, um <i>backtracking</i> encontra uma distribuição válida.</li>
+        <li><b>Monte Carlo no navegador.</b> 10 mil simulações da Copa (fase de grupos e mata-mata) rodam em poucos segundos, em blocos, sem travar a tela. Medindo, os gargalos eram recalcular os times de cada grupo e ordenar datas: com cache e comparação de texto, cada simulação caiu de ~0,9 ms para ~0,25 ms.</li>
+        <li><b>Bolão sem servidor.</b> Os palpites viajam no próprio link (JSON em base64url). Cada pessoa monta o ranking com os links que recebe.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="panel sobre-secao">
+    <div class="panel-header"><h2 class="panel-title">Limites conhecidos</h2></div>
+    <ul class="sobre-lista">
+      <li>O painel é um <b>modo demonstração</b>: sem back-end, a senha só evita edições por engano. As mudanças valem só para o navegador de quem edita, até virarem um novo <code>js/dados.js</code>.</li>
+      <li>As probabilidades vêm de um modelo simples (Elo + Poisson). Servem para explorar cenários, não para apostar.</li>
+      <li>As notas dos jogadores são calculadas a partir dos lances cadastrados (gols, assistências, cartões, gols sofridos), não de dados de rastreamento.</li>
+    </ul>
+  </section>
+
+  <p class="sobre-autor">Feito por <a href="https://furlani18.github.io/">Gabriel Furlani</a> · HTML · CSS · JavaScript · localStorage</p>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
+<script src="js/competicoes.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/sobre.js"></script>
+</body>
+</html>

@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ehClube ? fato('🏟️', 'Estádio', time.estadio) : fato('🌍', 'Ranking FIFA', time.rankingFifa && `#${time.rankingFifa}`),
     fato('🎂', 'Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
     ...outrasComps.map(c => `<a class="fact" href="time.html?id=${time.id}&c=${c.id}">${UI.iconeCampeonato(c)} <strong>${esc(c.curto)}</strong></a>`),
+    `<a class="fact fact-acao" href="comparar.html?modo=times&a=${time.id}">⚖️ <strong>Comparar</strong></a>`,
   ].join('');
 
   // ---------- Forma recente e próximo jogo (no topo) ----------
@@ -81,17 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
     forma.hidden = false;
   }
 
-  // ---------- Favorito ----------
-  const btnFav = document.getElementById('btn-favorito');
-  const pintarFav = ativo => {
-    btnFav.textContent = ativo ? '★' : '☆';
-    btnFav.classList.toggle('ativo', ativo);
-    btnFav.setAttribute('aria-pressed', ativo);
-    btnFav.title = ativo ? 'Deixar de seguir' : 'Seguir este time (aparece em destaque no início)';
-  };
-  pintarFav(UI.Favoritos.tem(time.id));
-  btnFav.hidden = false;
-  btnFav.addEventListener('click', () => pintarFav(UI.Favoritos.alternar(time.id)));
+  // ---------- Favorito e calendário ----------
+  UI.ligarBotaoFavorito(document.getElementById('btn-favorito'), UI.Favoritos, time.id, 'este time');
+  const proximosTodos = UI.proximosDoTime(time.id);
+  if (proximosTodos.length) {
+    document.getElementById('fatos-time').insertAdjacentHTML('beforeend',
+      `<button type="button" class="fact fact-acao" id="btn-ics" title="Baixar os próximos jogos (.ics) para o Google Agenda, Outlook ou celular">📅 <strong>Agenda</strong> <small>${proximosTodos.length} jogo${proximosTodos.length === 1 ? '' : 's'}</small></button>`);
+    document.getElementById('btn-ics').addEventListener('click', () => {
+      const arquivo = time.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').toLowerCase();
+      UI.baixarIcs(proximosTodos, `${time.nome} · FUTSTATS`, `jogos-${arquivo}`);
+    });
+  }
 
   // ---------- Campanha: posição na tabela rodada a rodada ----------
   if (comp.tipo === 'liga' || comp.tipo === 'champions') {
@@ -101,10 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const nTimes = DB.Times.all().length;
       const passo = nTimes > 20 ? 6 : 4;
       const marcas = [1, ...Array.from({ length: Math.floor((nTimes - 1) / passo) }, (_, i) => 1 + (i + 1) * passo).filter(v => v < nTimes), nTimes];
-      const cor = DB.Util.coresTime(time);
-      // Cor do time; se for branca (some no tema claro), a secundária; se as duas forem, a do tema.
-      const branca = c => /^#?f{3}(f{3})?$/i.test(c);
-      const corLinha = !branca(cor.primaria) ? cor.primaria : !branca(cor.secundaria) ? cor.secundaria : 'var(--gold)';
+      // Cor do time que aparece no fundo do tema atual (branca some no claro, quase preta no escuro).
+      const corLinha = UI.corDoTime(time);
       document.getElementById('grafico-campanha').innerHTML = UI.graficoLinha(
         evolucao.map(e => ({ x: e.rodada, y: e.posicao, rotulo: `${e.rodada}ª rodada: ${e.posicao}º · ${e.pontos} pts` })),
         { yMin: 1, yMax: nTimes, inverter: true, marcasY: marcas, rotuloY: v => `${v}º`, cor: corLinha, altura: 220,
@@ -114,6 +113,19 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('campanha-resumo').innerHTML = `Agora <b>${ult.posicao}º</b> · melhor ${melhor}º · pior ${pior}º`;
       document.getElementById('painel-campanha').hidden = false;
     }
+  }
+
+  // ---------- Jogo a jogo: gols marcados, na cor do resultado ----------
+  if (encerrados.length >= 2) {
+    document.getElementById('painel-jogo-a-jogo').hidden = false;
+    const caixa = document.getElementById('grafico-jogo-a-jogo');
+    caixa.innerHTML = UI.graficoBarras(encerrados.map(j => {
+      const casa = j.mandanteId === time.id;
+      const pro = casa ? j.golsMandante : j.golsVisitante, contra = casa ? j.golsVisitante : j.golsMandante;
+      const adv = DB.Times.get(casa ? j.visitanteId : j.mandanteId);
+      const cor = pro > contra ? 'var(--accent)' : pro < contra ? 'var(--danger)' : 'var(--text-faint)';
+      return { rotulo: adv ? adv.codigo : '?', valor: pro, cor, titulo: `${pro}–${contra} ${casa ? 'x' : '@'} ${adv ? adv.nome : '?'} · ${UI.rotuloJogo(j)} · ${DB.Util.formatarData(j.data)}` };
+    }), { largura: caixa.clientWidth - 28, altura: 180 });
   }
 
   // ---------- Números no campeonato ----------

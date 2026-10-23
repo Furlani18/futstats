@@ -25,17 +25,22 @@
         <label for="senha">Senha</label>
         <input type="password" id="senha" autocomplete="current-password" required>
       </div>
-      <div class="field-error" id="erro-login">Usuário ou senha inválidos.</div>
+      <div class="field-error" id="erro-login" role="alert">Usuário ou senha inválidos.</div>
       <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">Entrar</button>
       <a href="index.html" class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px;margin-top:10px;">← Voltar ao site</a>
     </form>
 
     <div class="login-hint">Acesso de demonstração: <strong>admin</strong> / <strong>futstats2026</strong></div>
+    <details class="login-aviso">
+      <summary>Como funciona este acesso?</summary>
+      <p>O FUTSTATS é um site estático, sem servidor. O painel edita os dados salvos <b>neste navegador</b> (localStorage), e nada que você mudar aqui afeta outras pessoas. Por isso a senha é pública: ela só evita edições por engano.</p>
+      <p>Mesmo assim, o código guarda só um hash SHA-256 da senha, pede alguns segundos de espera depois de 5 tentativas erradas e encerra a sessão após 12 horas. Para publicar os dados para todos, o painel gera o arquivo <code>js/dados.js</code>, que vai para o repositório.</p>
+    </details>
   </div>
 </div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>

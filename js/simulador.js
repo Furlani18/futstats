@@ -51,10 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultadoReal = c => c.real && c.real.status === 'encerrado' && c.real.golsMandante != null;
 
   // Lista de jogos "como se tivessem acontecido": reais encerrados + palpites completos.
-  function fonte() {
+  function fonte(usarPalpites = true) {
     return confrontos.map(c => {
       if (resultadoReal(c)) return c.real;
-      const p = palpites[c.chave];
+      const p = usarPalpites ? palpites[c.chave] : null;
       const completo = p && p[0] !== '' && p[1] !== '' && p[0] != null && p[1] != null;
       return {
         fase: 'grupos', grupo: c.grupo, rodada: c.rodada, mandanteId: c.mandanteId, visitanteId: c.visitanteId,
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const algum = tabela.some(t => t.J > 0);
     document.getElementById('titulo-tabela').textContent = `Classificação · Grupo ${grupoAtual}`;
     document.getElementById('sim-tabela').innerHTML = `<div class="table-scroll"><table class="stats-table">
-      <thead><tr><th>#</th><th class="left">Seleção</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Gols</th><th>SG</th><th class="strong">Pts</th></tr></thead>
+      <thead><tr><th scope="col">#</th><th scope="col" class="left">Seleção</th><th scope="col">J</th><th scope="col">V</th><th scope="col">E</th><th scope="col">D</th><th scope="col">Gols</th><th scope="col">SG</th><th scope="col" class="strong">Pts</th></tr></thead>
       <tbody>${tabela.map(t => {
         let zona = '';
         if (algum && ehCopa) zona = t.posicao <= 2 ? `zona-${t.posicao}` : (t.posicao === 3 && classificados3.has(t.timeId)) ? 'zona-3' : '';
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Terceiros
     document.getElementById('sim-terceiros').innerHTML = `<table class="stats-table">
-      <thead><tr><th>#</th><th class="left">Seleção</th><th>Grupo</th><th>J</th><th>Gols</th><th>SG</th><th class="strong">Pts</th></tr></thead>
+      <thead><tr><th scope="col">#</th><th scope="col" class="left">Seleção</th><th scope="col">Grupo</th><th scope="col">J</th><th scope="col">Gols</th><th scope="col">SG</th><th scope="col" class="strong">Pts</th></tr></thead>
       <tbody>${terceiros.map(t => `<tr class="${t.classificado ? 'zona-3' : 'eliminado'}">
         <td class="pos">${t.posicaoGeral}</td><td class="left">${UI.timeLink(DB.Times.get(t.timeId))}</td><td>${t.grupo}</td>
         <td>${t.J}</td><td class="dim">${t.GP}:${t.GC}</td><td>${t.SG > 0 ? '+' : ''}${t.SG}</td><td class="strong">${t.P}</td></tr>`).join('')}</tbody></table>`;
@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderJogos();
   renderResultados();
+  montarProbabilidades(fonte);
   UI.montarFooter();
 });
 
@@ -219,10 +220,10 @@ function simuladorLiga(comp, CHAVE) {
   const rodadas = [...new Set(jogosLiga.map(j => j.rodada))].sort((a, b) => a - b);
   let rodadaAtual = (jogosLiga.find(j => !real(j)) || jogosLiga[jogosLiga.length - 1] || {}).rodada;
 
-  function fonte() {
+  function fonte(usarPalpites = true) {
     return jogosLiga.map(j => {
       if (real(j)) return j;
-      const p = palpites[j.id];
+      const p = usarPalpites ? palpites[j.id] : null;
       const ok = p && p[0] !== '' && p[1] !== '' && p[0] != null && p[1] != null;
       return { ...j, golsMandante: ok ? Number(p[0]) : null, golsVisitante: ok ? Number(p[1]) : null, status: ok ? 'encerrado' : 'agendado' };
     });
@@ -249,7 +250,7 @@ function simuladorLiga(comp, CHAVE) {
       const p = palpites[j.id] || ['', ''];
       const campo = (i, valor) => ehReal
         ? `<input value="${valor}" disabled>`
-        : `<input type="number" min="0" max="20" inputmode="numeric" data-id="${j.id}" data-i="${i}" value="${p[i] ?? ''}" class="${p[i] !== '' && p[i] != null ? 'palpite' : ''}">`;
+        : `<input type="number" min="0" max="20" inputmode="numeric" data-id="${j.id}" data-i="${i}" value="${p[i] ?? ''}" class="${p[i] !== '' && p[i] != null ? 'palpite' : ''}" aria-label="Gols ${esc(i ? v.nome : m.nome)}">`;
       return `<div class="sim-match${ehReal ? ' real' : ''}">
         <span class="team-inline home"><span class="nome">${esc(m.nome)}</span>${UI.bandeira(m, 'sm')}</span>
         ${campo(0, ehReal ? j.golsMandante : '')}<span class="x">×</span>${campo(1, ehReal ? j.golsVisitante : '')}
@@ -304,4 +305,93 @@ function simuladorLiga(comp, CHAVE) {
 
   renderJogos();
   renderTabela();
+  montarProbabilidades(fonte);
+}
+
+// Chances de cada time por Monte Carlo (js/probabilidades.js). As simulações rodam em
+// blocos, entre um quadro e outro da tela, para a página não travar.
+// `gerarFonte(usarPalpites)` devolve os jogos: reais encerrados (+ palpites, se marcado).
+function montarProbabilidades(gerarFonte) {
+  const esc = DB.Util.escapar;
+  const comp = DB.Contexto.get();
+  const ehLiga = comp.tipo === 'liga' || comp.tipo === 'champions';
+  const TOTAL = 10000, BLOCO = 250;
+  const botao = document.getElementById('btn-prob');
+  const status = document.getElementById('prob-status');
+  const progresso = document.getElementById('prob-progresso');
+  const barra = document.getElementById('prob-progresso-barra');
+  const mount = document.getElementById('prob-resultado');
+  const usarPalpites = document.getElementById('prob-palpites');
+
+  const pct = p => {
+    if (p <= 0) return '—';
+    if (p >= 1) return '100%';
+    if (p < 0.001) return '<0,1%';
+    if (p > 0.999) return '>99,9%';
+    return `${(p * 100).toFixed(p >= 0.1 ? 0 : 1).replace('.', ',')}%`;
+  };
+  // Cor da célula: a da zona (rebaixamento em vermelho etc.), dourado para o título na Copa.
+  const celula = ([p, cor = 'var(--accent)']) => `<td class="prob-cel" style="--p:${p.toFixed(3)};--pcor:${cor}">${pct(p)}</td>`;
+  const daZona = (posicoes, z) => [Probabilidades.chanceZona(posicoes, z), `var(--zona-${z.cor})`];
+  const nomeTime = id => UI.timeLink(DB.Times.get(id));
+
+  function tabela(r) {
+    let colunas, linhas;
+    if (r.etapas) {
+      // Copa: 1º do grupo e cada etapa do mata-mata, do favorito ao azarão.
+      colunas = ['1º do grupo', 'Passa de fase', 'Oitavas', 'Quartas', 'Semi', 'Final', 'Campeão'];
+      linhas = [...r.times].sort((a, b) => b.etapas[5] - a.etapas[5] || b.etapas[4] - a.etapas[4] || b.etapas[0] - a.etapas[0])
+        .map(t => ({ t, extra: `<td>${t.grupo}</td>`, valores: [[t.posicoes[0]], ...t.etapas.map((p, i) => [p, i === 5 ? 'var(--gold)' : undefined])] }));
+      colunas.unshift('Grupo');
+    } else if (ehLiga) {
+      const zonas = comp.zonas || [];
+      colunas = ['Pos. média', comp.tipo === 'champions' ? '1º lugar' : 'Título', ...zonas.map(z => z.rotulo)];
+      linhas = [...r.times].sort((a, b) => a.posicaoMedia - b.posicaoMedia)
+        .map(t => ({ t, extra: `<td class="strong">${t.posicaoMedia.toFixed(1).replace('.', ',')}º</td>`, valores: [[t.posicoes[0], 'var(--gold)'], ...zonas.map(z => daZona(t.posicoes, z))] }));
+    } else {
+      const zonas = comp.zonasGrupo || [];
+      colunas = ['Grupo', '1º do grupo', ...zonas.map(z => z.rotulo)];
+      linhas = [...r.times].sort((a, b) => a.grupo.localeCompare(b.grupo) || b.posicoes[0] - a.posicoes[0])
+        .map(t => ({ t, extra: `<td>${t.grupo}</td>`, valores: [[t.posicoes[0]], ...zonas.map(z => daZona(t.posicoes, z))] }));
+    }
+    return `<div class="table-scroll"><table class="stats-table prob-tabela">
+      <caption class="sr-only">Chance de cada ${UI.rotuloTimes(true).toLowerCase()} em ${r.simulacoes.toLocaleString('pt-BR')} simulações</caption>
+      <thead><tr><th scope="col">#</th><th scope="col" class="left">${UI.rotuloTimes(true)}</th><th scope="col" title="Força estimada (Elo)">Elo</th>${colunas.map(c => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>${linhas.map(({ t, extra, valores }, i) => `<tr>
+        <td class="pos">${i + 1}</td><td class="left">${nomeTime(t.timeId)}</td><td class="dim">${t.elo}</td>
+        ${extra}${valores.map(celula).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function rodar() {
+    const fonte = gerarFonte(usarPalpites.checked);
+    if (!fonte.length) {
+      mount.innerHTML = UI.vazio('Nenhum jogo cadastrado', 'Cadastre ou gere os jogos no painel para calcular as chances.');
+      return;
+    }
+    const motor = ehLiga ? Probabilidades.motorLiga({ fonte }) : Probabilidades.motorGrupos({ fonte });
+    botao.disabled = true;
+    usarPalpites.disabled = true;
+    progresso.hidden = false;
+    const inicio = performance.now();
+    let feitas = 0;
+    const passo = () => {
+      feitas = motor.rodar(Math.min(BLOCO, TOTAL - feitas));
+      barra.style.width = `${(feitas / TOTAL) * 100}%`;
+      status.textContent = `${feitas.toLocaleString('pt-BR')} de ${TOTAL.toLocaleString('pt-BR')} simulações…`;
+      if (feitas < TOTAL) { requestAnimationFrame(passo); return; }
+      const segundos = ((performance.now() - inicio) / 1000).toFixed(1).replace('.', ',');
+      status.textContent = motor.pendentes
+        ? `${TOTAL.toLocaleString('pt-BR')} simulações em ${segundos} s · ${motor.pendentes} jogos sorteados em cada uma`
+        : 'Não há jogos pendentes: as posições já estão definidas.';
+      mount.innerHTML = tabela(motor.resultado());
+      botao.disabled = false;
+      usarPalpites.disabled = false;
+      botao.textContent = '↻ Rodar de novo';
+      progresso.hidden = true;
+    };
+    requestAnimationFrame(passo);
+  }
+
+  botao.addEventListener('click', rodar);
 }

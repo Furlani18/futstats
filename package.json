@@ -1,0 +1,8 @@
+{
+  "name": "futstats",
+  "private": true,
+  "description": "Site de estatísticas da Copa do Mundo 2026 e campeonatos de clubes (HTML, CSS e JavaScript puro).",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

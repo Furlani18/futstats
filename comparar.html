@@ -29,13 +29,17 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <a href="estatisticas.html">Estatísticas</a> / <span>Comparar</span></div>
     <div class="section-eyebrow" id="eyebrow-comparar">Lado a lado</div>
-    <h1 class="section-title">Comparar jogadores</h1>
-    <p class="lead">Escolha dois jogadores do campeonato para ver os números de cada um frente a frente.</p>
+    <h1 class="section-title" id="titulo-comparar">Comparar jogadores</h1>
+    <p class="lead" id="lead-comparar">Escolha dois jogadores do campeonato para ver os números de cada um frente a frente.</p>
   </div>
 </section>
 
 <main class="page">
-  <div class="cmp-escolha">
+  <div class="cmp-abas" role="tablist" aria-label="O que comparar">
+    <a class="chip" role="tab" id="aba-jogadores" href="comparar.html">👤 Jogadores</a>
+    <a class="chip" role="tab" id="aba-times" href="comparar.html?modo=times">🛡️ Times</a>
+  </div>
+  <div class="cmp-escolha" id="escolha-jogadores">
     <div class="cmp-campo">
       <label for="busca-a">Jogador 1</label>
       <input type="search" id="busca-a" list="lista-jogadores" placeholder="Digite um nome…" autocomplete="off">
@@ -47,16 +51,29 @@
     </div>
     <datalist id="lista-jogadores"></datalist>
   </div>
+  <div class="cmp-escolha" id="escolha-times" hidden>
+    <div class="cmp-campo">
+      <label for="time-a">Time 1</label>
+      <input type="search" id="time-a" list="lista-times" placeholder="Digite um time…" autocomplete="off">
+    </div>
+    <span class="cmp-vs" aria-hidden="true">vs</span>
+    <div class="cmp-campo">
+      <label for="time-b">Time 2</label>
+      <input type="search" id="time-b" list="lista-times" placeholder="Digite um time…" autocomplete="off">
+    </div>
+    <datalist id="lista-times"></datalist>
+  </div>
 
   <div class="panel" id="painel-comparacao">
     <div id="comparacao"></div>
   </div>
+  <div class="graficos-2" id="cmp-graficos" style="margin-top:20px;" hidden></div>
 </main>
 
 <div id="footer-mount"></div>
 
-<script src="js/elencos.js"></script>
-<script src="js/clubes.js"></script>
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
 <script src="js/competicoes.js"></script>
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>

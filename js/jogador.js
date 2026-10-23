@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ${jogador.idade != null ? `<span class="fact">Idade <strong>${jogador.idade}</strong></span>` : ''}
     <a class="fact fact-acao" href="comparar.html?a=${jogador.id}">⚖️ <strong>Comparar</strong></a>`;
 
+  UI.ligarBotaoFavorito(document.getElementById('btn-favorito'), UI.FavoritosJogadores, jogador.id, 'este jogador');
+
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   const nota = DB.Estatisticas.notasTemporada()[jogador.id];
   document.getElementById('tiles-jogador').innerHTML = [
@@ -44,6 +46,36 @@ document.addEventListener('DOMContentLoaded', () => {
     tile('Gols', s.gols, 'gold'), tile('Assistências', s.assistencias, 'gold'), tile('Participações', s.participacoes),
     tile('De pênalti', s.penaltis), tile('Jogos com gol', s.jogosComGol), tile('Amarelos', s.amarelos), tile('Vermelhos', s.vermelhos),
   ].join('');
+
+  // ---------- Gráficos: radar do perfil e notas jogo a jogo ----------
+  const cor = UI.corDoTime(time);
+  const perfil = DB.Estatisticas.perfil(jogador.id);
+  const jogosComNota = DB.Jogos.doTime(jogador.timeId)
+    .filter(j => j.status === 'encerrado')
+    .map(j => ({ jogo: j, nota: DB.Estatisticas.notasDoJogo(j)[jogador.id] }))
+    .filter(x => x.nota != null);
+  // Mostra os painéis antes de desenhar: a largura do gráfico vem do contêiner visível.
+  document.getElementById('graficos-jogador').hidden = !perfil && !jogosComNota.length;
+  document.getElementById('painel-perfil').hidden = !perfil;
+  document.getElementById('painel-notas').hidden = !jogosComNota.length;
+  if (perfil) {
+    const caixa = document.getElementById('grafico-perfil');
+    caixa.innerHTML = UI.graficoRadar(perfil.eixos, [{ nome: jogador.nome, cor, valores: perfil.valores, textos: perfil.textos }],
+      { tamanho: Math.min(340, Math.max(280, caixa.clientWidth - 28)) });
+    const plural = { Goleiro: 'goleiros', Defensor: 'defensores', 'Meio-campo': 'meio-campistas', Atacante: 'atacantes' }[perfil.posicao];
+    document.getElementById('nota-perfil').textContent = `Cada eixo vai de 0 ao melhor ${perfil.pares > 4 && plural ? `entre os ${perfil.pares} ${plural}` : `entre os ${perfil.pares} jogadores`} com participação no campeonato.`;
+  }
+  if (jogosComNota.length) {
+    const faixa = n => (n >= 9 ? 'var(--blue)' : n >= 6.5 ? 'var(--accent)' : n >= 6 ? 'var(--yellow-card)' : '#ff8a3d');
+    const caixa = document.getElementById('grafico-notas');
+    const media = jogosComNota.reduce((s, x) => s + x.nota, 0) / jogosComNota.length;
+    caixa.innerHTML = UI.graficoBarras(jogosComNota.map(({ jogo, nota }) => {
+      const adv = DB.Times.get(jogo.mandanteId === jogador.timeId ? jogo.visitanteId : jogo.mandanteId);
+      return { rotulo: adv ? adv.codigo : '?', valor: nota, cor: faixa(nota), titulo: `${nota.toFixed(1)} contra ${adv ? adv.nome : '?'} (${jogo.golsMandante}–${jogo.golsVisitante}) · ${DB.Util.formatarData(jogo.data)}` };
+    }), { largura: caixa.clientWidth - 28, altura: 200, media, rotuloMedia: `média ${media.toFixed(2).replace('.', ',')}`, max: 10, formatar: v => String(v) });
+    document.getElementById('resumo-notas').textContent = `${jogosComNota.length} jogo${jogosComNota.length > 1 ? 's' : ''}`;
+  }
+  if (comp.tipo === 'copa_mundo') document.getElementById('titulo-lances').textContent = 'Lances na Copa';
 
   const ROTULO = {
     gol: ['⚽', 'Gol'], gol_contra: ['⚽', 'Gol contra'], assistencia: ['🎯', 'Assistência'],

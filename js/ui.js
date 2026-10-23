@@ -14,6 +14,8 @@ const UI = (() => {
     'selecoes.html': 'selecoes', 'time.html': 'selecoes',
     'premios.html': 'premios',
     'simulador.html': 'simulador',
+    'bolao.html': 'bolao',
+    'sedes.html': 'sedes',
   };
 
   // Itens do menu de cada formato de campeonato.
@@ -30,7 +32,9 @@ const UI = (() => {
       ['estatisticas', 'estatisticas.html', 'Estatísticas'],
       ['premios', 'premios.html', 'Prêmios'],
       temSimulador && ['simulador', 'simulador.html', 'Simulador'],
+      ['bolao', 'bolao.html', 'Bolão'],
       ['selecoes', 'selecoes.html', rotuloTimes()],
+      tipo === 'copa_mundo' && ['sedes', 'sedes.html', 'Sedes'],
     ].filter(Boolean);
   }
 
@@ -73,7 +77,8 @@ const UI = (() => {
       const especifica = ['jogo.html', 'time.html', 'jogador.html'].includes(pagina);
       const semEssaPagina = (pagina === 'chaveamento.html' && DB.Contexto.tipo() === 'liga')
         || (pagina === 'simulador.html' && DB.Contexto.tipo() === 'mata_mata')
-        || (pagina === 'grupos.html' && DB.Contexto.tipo() === 'mata_mata');
+        || (pagina === 'grupos.html' && DB.Contexto.tipo() === 'mata_mata')
+        || (pagina === 'sedes.html' && !DB.Contexto.ehCopa());
       window.location.href = especifica || semEssaPagina ? 'index.html' : pagina;
     }));
     document.addEventListener('click', e => { if (!caixa.contains(e.target)) caixa.open = false; });
@@ -144,9 +149,9 @@ const UI = (() => {
             <span aria-hidden="true">⌕</span><span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
           </button>
           <button type="button" class="theme-btn" id="btn-tema" aria-label="Alternar tema claro/escuro" title="Tema claro/escuro"></button>
-          <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
-          <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menu">☰</label>
-          <nav class="topbar-nav">
+          <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" tabindex="-1" aria-hidden="true">
+          <button type="button" class="nav-toggle-btn" data-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">☰</button>
+          <nav class="topbar-nav" id="menu-principal" aria-label="Menu principal">
             ${navDoCampeonato().map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
             <a href="login.html" class="nav-admin">Painel</a>
           </nav>
@@ -157,6 +162,7 @@ const UI = (() => {
     logoNoTopoDaPagina();
     ativarTema();
     montarBarraInferior(secao);
+    ativarMenu();
     const principal = document.querySelector('main');
     if (principal && !principal.id) principal.id = 'conteudo';
   }
@@ -197,15 +203,17 @@ const UI = (() => {
       <small>${r.time ? esc(r.time.nome) : ''} · ${esc(r.jogador.posicao)}${r.jogador.clube ? ` · ${esc(r.jogador.clube)}` : ''}</small></span></a>`;
   }
 
+  let focoAntesDaBusca = null;
   function abrirBusca() {
     if (document.getElementById('busca-overlay')) return;
+    focoAntesDaBusca = document.activeElement;
     const overlay = document.createElement('div');
     overlay.id = 'busca-overlay';
     overlay.className = 'busca-overlay';
     overlay.innerHTML = `
-      <div class="busca-box" role="dialog" aria-label="Buscar">
-        <input type="search" id="busca-input" placeholder="Buscar jogador, seleção ou clube…" autocomplete="off">
-        <div class="busca-resultados" id="busca-resultados"><div class="busca-dica">Digite ao menos 2 letras. Ex.: <b>Vini</b>, <b>Japão</b>, <b>Real Madrid</b></div></div>
+      <div class="busca-box" role="dialog" aria-modal="true" aria-label="Buscar">
+        <input type="search" id="busca-input" placeholder="Buscar jogador, seleção ou clube…" autocomplete="off" aria-label="Buscar jogador, seleção ou clube" aria-controls="busca-resultados">
+        <div class="busca-resultados" id="busca-resultados" aria-live="polite"><div class="busca-dica">Digite ao menos 2 letras. Ex.: <b>Vini</b>, <b>Japão</b>, <b>Real Madrid</b></div></div>
       </div>`;
     document.body.appendChild(overlay);
     const input = document.getElementById('busca-input');
@@ -230,7 +238,10 @@ const UI = (() => {
   }
 
   function fecharBusca() {
-    document.getElementById('busca-overlay')?.remove();
+    const overlay = document.getElementById('busca-overlay');
+    if (!overlay) return;
+    overlay.remove();
+    focoAntesDaBusca?.focus?.();
   }
 
   function ativarBusca() {
@@ -263,6 +274,22 @@ const UI = (() => {
     atualizar();
   }
 
+  // ---------- Menu recolhido (☰ no topo, "Mais" na barra inferior) ----------
+  // Botões de verdade (focáveis pelo teclado) que ligam a caixa #nav-toggle, da qual o CSS depende.
+  function ativarMenu() {
+    const caixa = document.getElementById('nav-toggle');
+    const botoes = () => document.querySelectorAll('[data-menu]');
+    const definir = aberto => {
+      caixa.checked = aberto;
+      botoes().forEach(b => { b.setAttribute('aria-expanded', aberto); if (b.classList.contains('nav-toggle-btn')) b.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu'); });
+      if (aberto) document.querySelector('#menu-principal a')?.focus();
+    };
+    botoes().forEach(b => b.addEventListener('click', () => definir(!caixa.checked)));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && caixa.checked) { definir(false); document.querySelector('[data-menu]')?.focus(); }
+    });
+  }
+
   // ---------- Barra de navegação inferior (celular) ----------
   const ICONES = {
     inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
@@ -285,7 +312,7 @@ const UI = (() => {
     barra.setAttribute('aria-label', 'Navegação principal');
     barra.innerHTML = principais.map(([id, href, label]) =>
       `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${icone(id)}<span>${label}</span></a>`).join('')
-      + `<label for="nav-toggle" class="${noMais ? 'active' : ''}">${icone('mais')}<span>Mais</span></label>`;
+      + `<button type="button" data-menu aria-controls="menu-principal" aria-expanded="false" class="${noMais ? 'active' : ''}">${icone('mais')}<span>Mais</span></button>`;
     document.body.appendChild(barra);
     document.body.classList.add('com-barra-inferior');
   }
@@ -326,8 +353,10 @@ const UI = (() => {
         <strong>${j.golsMandante ?? 0}–${j.golsVisitante ?? 0}</strong> ${v ? v.codigo : '—'} ${bandeira(v, 'sm')}</a>`;
     }).join('');
     // Duplica a faixa para a rolagem infinita; com poucos itens repete mais vezes.
+    // As cópias ficam escondidas do leitor de tela e fora da ordem do Tab.
     const repeticoes = jogos.length < 6 ? 4 : 2;
-    mount.innerHTML = `<div class="ticker"><div class="ticker-track">${itens.repeat(repeticoes)}</div></div>`;
+    const copia = itens.replace(/<a class="ticker-item"/g, '<a class="ticker-item" tabindex="-1"');
+    mount.innerHTML = `<section class="ticker" aria-label="Resultados recentes"><div class="ticker-track">${itens}<span class="ticker-copia" aria-hidden="true">${copia.repeat(repeticoes - 1)}</span></div></section>`;
   }
 
   function montarFooter() {
@@ -337,15 +366,17 @@ const UI = (() => {
       <div class="host-stripe"></div>
       <div class="footer">
         <div class="footer-inner">
-          <span>© 2026 FUTSTATS · Copa do Mundo FIFA 2026 — EUA, México e Canadá</span>
-          <div class="footer-links">
+          <span>© 2026 FUTSTATS · Copa do Mundo FIFA 2026 e campeonatos de clubes</span>
+          <nav class="footer-links" aria-label="Links do rodapé">
             <a href="partidas.html">Partidas</a>
             <a href="estatisticas.html">Estatísticas</a>
-            <a href="premios.html">Prêmios</a>
-            <a href="simulador.html">Simulador</a>
-            <a href="selecoes.html">Seleções</a>
+            <a href="comparar.html">Comparar</a>
+            <a href="bolao.html">Bolão</a>
+            <a href="favoritos.html">Favoritos</a>
+            <a href="sedes.html?c=copa2026">Sedes da Copa</a>
+            <a href="sobre.html">Sobre o projeto</a>
             <a href="login.html">Painel administrativo</a>
-          </div>
+          </nav>
         </div>
       </div>`;
   }
@@ -355,10 +386,9 @@ const UI = (() => {
     const classe = `flag${tamanho ? ` flag-${tamanho}` : ''}`;
     if (!time) return `<span class="${classe}"></span>`;
     if (time.tipo === 'clube') {
-      // Distintivo com a sigla nas cores do clube: usado quando não há escudo
+      // Escudo gerado com as cores do clube: usado quando não há escudo
       // ou enquanto/se a imagem do escudo não carregar.
-      const c = DB.Util.coresTime(time);
-      const distintivo = `<span class="${classe} crest" style="background:${c.primaria};color:${c.texto};box-shadow:inset 0 -3px 0 ${c.secundaria}, 0 0 0 1px var(--flag-ring);" title="${esc(time.nome)}">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
+      const distintivo = escudoGerado(time, tamanho);
       if (!time.escudo) return distintivo;
       return `<span class="${classe} crest-img" title="${esc(time.nome)}"><img src="${esc(time.escudo)}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=this.parentNode.dataset.reserva" ></span>`
         .replace('class="', `data-reserva="${esc(distintivo)}" class="`);
@@ -367,6 +397,34 @@ const UI = (() => {
     const url = DB.Util.bandeiraUrl(time.iso, largura);
     if (!url) return `<span class="${classe} flag-fallback">${esc(time.codigo || DB.Util.iniciais(time.nome))}</span>`;
     return `<span class="${classe}"><img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+  }
+
+  // Escudo em SVG nas cores do clube. O desenho (liso, listras, faixa, diagonal ou metades)
+  // sai sempre o mesmo para o mesmo clube: vem de um hash do id.
+  const DESENHOS_ESCUDO = [
+    () => '',
+    s => [8, 16, 24, 32].map(x => `<rect x="${x - 2}" y="0" width="4" height="46" fill="${s}"/>`).join(''),
+    s => `<rect x="0" y="17" width="40" height="11" fill="${s}"/>`,
+    s => `<path d="M-4 8 L10 -4 L46 34 L32 46 Z" fill="${s}"/>`,
+    s => `<rect x="20" y="0" width="20" height="46" fill="${s}"/>`,
+  ];
+  let contadorEscudo = 0;
+  function escudoGerado(time, tamanho = '') {
+    const c = DB.Util.coresTime(time);
+    let hash = 0;
+    for (const ch of String(time.id)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+    const desenho = DESENHOS_ESCUDO[hash % DESENHOS_ESCUDO.length](c.secundaria);
+    const id = `esc${++contadorEscudo}`;
+    const sigla = esc(time.codigo || DB.Util.iniciais(time.nome)).slice(0, 4);
+    const contorno = 'M20 1.5 L37.5 6.5 V22 C37.5 33.5 30 40.5 20 44.5 C10 40.5 2.5 33.5 2.5 22 V6.5 Z';
+    // No tamanho pequeno a sigla ficaria ilegível: só as cores.
+    const texto = tamanho === 'sm' ? '' : `<text x="20" y="${sigla.length > 3 ? 27 : 28}" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="${sigla.length > 3 ? 10 : 12}" fill="${c.texto}" stroke="${c.primaria}" stroke-width="2.5" paint-order="stroke" stroke-linejoin="round">${sigla}</text>`;
+    return `<span class="flag${tamanho ? ` flag-${tamanho}` : ''} crest-img crest-svg" title="${esc(time.nome)}"><svg viewBox="0 0 40 46" aria-hidden="true">
+      <defs><clipPath id="${id}"><path d="${contorno}"/></clipPath></defs>
+      <g clip-path="url(#${id})"><rect width="40" height="46" fill="${c.primaria}"/>${desenho}</g>
+      <path d="${contorno}" fill="none" stroke="${c.secundaria}" stroke-width="2"/>
+      <path d="${contorno}" fill="none" stroke="rgba(0,0,0,.25)" stroke-width=".6"/>
+      ${texto}</svg></span>`;
   }
 
   // Nacionalidade (código ISO) → bandeira e nome do país em português.
@@ -520,11 +578,18 @@ const UI = (() => {
     const completa = !opts.compacta;
     const linhas = tabela.map(t => {
       const time = DB.Times.get(t.timeId);
-      let zona = '';
-      if (algumJogo && ehCopa) zona = t.posicao <= 2 ? `zona-${t.posicao}` : (t.posicao === 3 && terceiros.has(t.timeId)) ? 'zona-3' : '';
-      else if (algumJogo) { const z = zonasGrupo.find(x => t.posicao >= x.de && t.posicao <= x.ate); zona = z ? `zona-cor zona-${z.cor}` : ''; }
+      let zona = '', textoZona = '';
+      if (algumJogo && ehCopa) {
+        zona = t.posicao <= 2 ? `zona-${t.posicao}` : (t.posicao === 3 && terceiros.has(t.timeId)) ? 'zona-3' : '';
+        textoZona = t.posicao <= 2 ? 'classificado' : zona ? 'entre os melhores terceiros' : '';
+      } else if (algumJogo) {
+        const z = zonasGrupo.find(x => t.posicao >= x.de && t.posicao <= x.ate);
+        zona = z ? `zona-cor zona-${z.cor}` : '';
+        textoZona = z ? z.rotulo : '';
+      }
+      // A zona aparece pela cor; o texto oculto diz o mesmo para leitores de tela.
       return `<tr class="${zona}${opts.destaque === t.timeId ? ' destaque-time' : ''}">
-        <td class="pos">${t.posicao}</td>
+        <td class="pos">${t.posicao}${textoZona ? `<span class="sr-only"> (${esc(textoZona)})</span>` : ''}</td>
         <td class="left">${timeLink(time)}</td>
         <td>${t.J}</td>
         ${completa ? `<td>${t.V}</td><td>${t.E}</td><td>${t.D}</td><td class="dim">${t.GP}:${t.GC}</td>` : ''}
@@ -536,11 +601,12 @@ const UI = (() => {
     return `
       <div class="table-scroll">
         <table class="stats-table">
+          <caption class="sr-only">Classificação${DB.Grupos.letras.length ? ` do grupo ${letra}` : ''}</caption>
           <thead><tr>
-            <th>#</th><th class="left">${rotuloTimes(true)}</th><th>J</th>
-            ${completa ? '<th>V</th><th>E</th><th>D</th><th>Gols</th>' : ''}
-            <th>SG</th><th class="strong">Pts</th>
-            ${opts.forma ? '<th>Últimos</th>' : ''}
+            <th scope="col">#</th><th scope="col" class="left">${rotuloTimes(true)}</th><th scope="col">J</th>
+            ${completa ? '<th scope="col">V</th><th scope="col">E</th><th scope="col">D</th><th scope="col">Gols</th>' : ''}
+            <th scope="col">SG</th><th scope="col" class="strong">Pts</th>
+            ${opts.forma ? '<th scope="col">Últimos</th>' : ''}
           </tr></thead>
           <tbody>${linhas}</tbody>
         </table>
@@ -567,16 +633,17 @@ const UI = (() => {
     return `
       <div class="table-scroll">
         <table class="stats-table">
+          <caption class="sr-only">Classificação</caption>
           <thead><tr>
-            <th>#</th><th class="left">${rotuloTimes(true)}</th><th class="strong">Pts</th><th>J</th>
-            ${completa ? '<th>V</th><th>E</th><th>D</th><th>Gols</th>' : ''}
-            <th>SG</th>
-            ${completa ? '<th title="Aproveitamento">%</th>' : ''}
-            ${opts.forma ? '<th>Últimos</th>' : ''}
+            <th scope="col">#</th><th scope="col" class="left">${rotuloTimes(true)}</th><th scope="col" class="strong">Pts</th><th scope="col">J</th>
+            ${completa ? '<th scope="col">V</th><th scope="col">E</th><th scope="col">D</th><th scope="col">Gols</th>' : ''}
+            <th scope="col">SG</th>
+            ${completa ? '<th scope="col" title="Aproveitamento">%</th>' : ''}
+            ${opts.forma ? '<th scope="col">Últimos</th>' : ''}
           </tr></thead>
           <tbody>${tabela.map(t => `
             <tr class="${algumJogo && t.zona ? `zona-cor zona-${t.zona.cor}` : ''}${opts.destaque === t.timeId ? ' destaque-time' : ''}"${algumJogo && t.zona ? ` title="${esc(t.zona.rotulo)}"` : ''}>
-              <td class="pos">${t.posicao}</td>
+              <td class="pos">${t.posicao}${algumJogo && t.zona ? `<span class="sr-only"> (${esc(t.zona.rotulo)})</span>` : ''}</td>
               <td class="left">${timeLink(DB.Times.get(t.timeId))}</td>
               <td class="strong">${t.P}</td>
               <td>${t.J}</td>
@@ -682,19 +749,78 @@ const UI = (() => {
       </div>`;
   }
 
-  // ---------- Times favoritos (ficam só neste navegador) ----------
-  const Favoritos = {
-    lista() {
-      try { return JSON.parse(localStorage.getItem('fs_favoritos')) || []; } catch (e) { return []; }
-    },
-    tem(id) { return this.lista().includes(id); },
-    alternar(id) {
-      const atual = this.lista();
-      const nova = atual.includes(id) ? atual.filter(x => x !== id) : [...atual, id];
-      try { localStorage.setItem('fs_favoritos', JSON.stringify(nova)); } catch (e) { /* sem armazenamento */ }
-      return nova.includes(id);
-    },
-  };
+  // ---------- Favoritos: times e jogadores seguidos (ficam só neste navegador) ----------
+  function listaFavoritos(chave) {
+    return {
+      lista() {
+        try { return JSON.parse(localStorage.getItem(chave)) || []; } catch (e) { return []; }
+      },
+      tem(id) { return this.lista().includes(id); },
+      alternar(id) {
+        const atual = this.lista();
+        const nova = atual.includes(id) ? atual.filter(x => x !== id) : [...atual, id];
+        try { localStorage.setItem(chave, JSON.stringify(nova)); } catch (e) { /* sem armazenamento */ }
+        return nova.includes(id);
+      },
+    };
+  }
+  const Favoritos = listaFavoritos('fs_favoritos');
+  const FavoritosJogadores = listaFavoritos('fs_favoritos_jogadores');
+
+  // Botão ☆/★ de seguir (página do time e do jogador).
+  function ligarBotaoFavorito(botao, lista, id, rotulo) {
+    const pintar = ativo => {
+      botao.textContent = ativo ? '★' : '☆';
+      botao.classList.toggle('ativo', ativo);
+      botao.setAttribute('aria-pressed', ativo);
+      botao.title = ativo ? 'Deixar de seguir' : `Seguir ${rotulo} (aparece em Favoritos)`;
+      botao.setAttribute('aria-label', botao.title);
+    };
+    pintar(lista.tem(id));
+    botao.hidden = false;
+    botao.addEventListener('click', () => pintar(lista.alternar(id)));
+  }
+
+  // ---------- Calendário (.ics) para Google Agenda, Outlook e celular ----------
+  // As datas do site estão no horário de Brasília (UTC−3, sem horário de verão desde 2019).
+  function arquivoIcs(jogos, nomeCalendario) {
+    const formato = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');   // 20260611T190000Z
+    const inicio = iso => new Date(`${iso.slice(0, 16)}:00-03:00`);
+    const texto = t => String(t || '').replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
+    // Linhas de no máximo 75 caracteres (continuação começa com espaço), como pede o padrão.
+    const dobrar = linha => linha.length <= 75 ? linha : linha.match(/.{1,74}/g).join('\r\n ');
+    const base = window.location.href.replace(/[^/]*$/, '');
+    const agora = formato(new Date());
+    const eventos = jogos.map(j => {
+      const m = DB.Times.get(j.mandanteId), v = DB.Times.get(j.visitanteId);
+      const comp = DB.Contexto.lista.find(c => c.id === (j.competicaoId || 'copa2026'));
+      return ['BEGIN:VEVENT', `UID:${j.id}@futstats`, `DTSTAMP:${agora}`, `DTSTART:${formato(inicio(j.data))}`, `DTEND:${formato(new Date(inicio(j.data).getTime() + 2 * 36e5))}`,
+        `SUMMARY:${texto(`${m ? m.nome : 'A definir'} x ${v ? v.nome : 'A definir'}${comp ? ` — ${comp.curto}` : ''}`)}`,
+        j.local ? `LOCATION:${texto(j.local)}` : '',
+        `DESCRIPTION:${texto(`${rotuloJogo(j)} · ${base}jogo.html?id=${j.id}`)}`,
+        'END:VEVENT'].filter(Boolean);
+    });
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FUTSTATS//Calendario//PT-BR', 'CALSCALE:GREGORIAN', `X-WR-CALNAME:${texto(nomeCalendario)}`,
+      ...eventos.flat(), 'END:VCALENDAR'].map(dobrar).join('\r\n') + '\r\n';
+  }
+
+  function baixarIcs(jogos, nomeCalendario, arquivo) {
+    const blob = new Blob([arquivoIcs(jogos, nomeCalendario)], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${arquivo}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  // Próximos jogos (agendados ou ao vivo) de um time em todos os campeonatos.
+  function proximosDoTime(timeId) {
+    return DB.Jogos.todos()
+      .filter(j => (j.mandanteId === timeId || j.visitanteId === timeId) && j.status !== 'encerrado' && j.data)
+      .sort((a, b) => new Date(a.data) - new Date(b.data));
+  }
 
   // Gráfico de linha simples em SVG (sem bibliotecas). `pontos`: [{x, y, rotulo}]; y invertido opcional.
   function graficoLinha(pontos, { yMin, yMax, inverter = false, altura = 200, largura = 600, rotuloY = v => v, cor = 'var(--gold)', marcasY = [] } = {}) {
@@ -724,6 +850,104 @@ const UI = (() => {
     </svg>`;
   }
 
+  // Os mesmos números do gráfico numa tabela só para leitores de tela (o SVG sozinho não é lido).
+  function tabelaOculta(titulo, cabecalhos, linhas) {
+    return `<table class="sr-only"><caption>${esc(titulo)}</caption><thead><tr>${cabecalhos.map(c => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>${linhas.map(l => `<tr>${l.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+
+  // Várias linhas no mesmo eixo (ex.: campanha de dois times). `series`: [{ nome, cor, pontos: [{x, y, rotulo}] }].
+  function graficoLinhas(series, { yMin, yMax, inverter = false, altura = 220, largura = 600, rotuloY = v => v, marcasY = [] } = {}) {
+    const todos = series.flatMap(s => s.pontos);
+    if (!todos.length) return '';
+    const L = Math.max(280, Math.round(largura)), A = altura, m = { e: 34, d: 14, t: 14, b: 26 };
+    const xs = [...new Set(todos.map(p => p.x))].sort((a, b) => a - b);
+    const xMin = xs[0], xMax = xs[xs.length - 1];
+    const px = x => m.e + (xMax === xMin ? (L - m.e - m.d) / 2 : ((x - xMin) / (xMax - xMin)) * (L - m.e - m.d));
+    const py = y => m.t + (inverter ? (y - yMin) / ((yMax - yMin) || 1) : 1 - (y - yMin) / ((yMax - yMin) || 1)) * (A - m.t - m.b);
+    const passoX = Math.max(1, Math.ceil(xs.length / 10));
+    const legenda = series.length > 1
+      ? `<div class="gl-legenda">${series.map(s => `<span><i style="background:${s.cor}"></i>${esc(s.nome)}</span>`).join('')}</div>` : '';
+    return `${legenda}<svg class="grafico-linha" viewBox="0 0 ${L} ${A}" width="${L}" height="${A}" role="img" aria-label="${esc(series.map(s => s.nome).join(' x '))}">
+      ${marcasY.map(v => `<line class="gl-grade" x1="${m.e}" x2="${L - m.d}" y1="${py(v)}" y2="${py(v)}"/><text class="gl-eixo" x="${m.e - 8}" y="${py(v) + 4}" text-anchor="end">${rotuloY(v)}</text>`).join('')}
+      ${xs.map((x, i) => (i % passoX === 0 || i === xs.length - 1) ? `<text class="gl-eixo" x="${px(x)}" y="${A - 6}" text-anchor="middle">${x}</text>` : '').join('')}
+      ${series.map(s => `<g style="color:${s.cor}">
+        <path d="${s.pontos.map((p, i) => `${i ? 'L' : 'M'}${px(p.x).toFixed(1)},${py(p.y).toFixed(1)}`).join(' ')}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        ${s.pontos.map(p => `<circle class="gl-ponto" cx="${px(p.x)}" cy="${py(p.y)}" r="4" fill="currentColor"><title>${esc(`${s.nome} · ${p.rotulo || p.y}`)}</title></circle>`).join('')}
+      </g>`).join('')}
+    </svg>${tabelaOculta('Dados do gráfico', ['', ...series.map(s => s.nome)], xs.map(x => [x, ...series.map(s => { const p = s.pontos.find(q => q.x === x); return p ? (p.rotulo || p.y) : '—'; })]))}`;
+  }
+
+  // Colunas verticais a partir de zero. `itens`: [{ rotulo, valor, titulo, cor? }]; `media` desenha uma linha de referência.
+  function graficoBarras(itens, { altura = 200, largura = 600, cor = 'var(--gold)', media = null, rotuloMedia = '', formatar = v => v, max: teto = null } = {}) {
+    if (!itens.length) return '';
+    const L = Math.max(280, Math.round(largura)), A = altura, m = { e: 30, d: 10, t: 18, b: 26 };
+    const max = teto || Math.max(1, ...itens.map(i => i.valor), media || 0);
+    const passo = (L - m.e - m.d) / itens.length;
+    const larguraBarra = Math.max(4, Math.min(40, passo - 2));
+    const py = v => m.t + (1 - v / max) * (A - m.t - m.b);
+    const passoRotulo = Math.max(1, Math.ceil(itens.length / 14));
+    const marcas = [0, Math.round(max / 2), max].filter((v, i, a) => a.indexOf(v) === i);
+    return `<svg class="grafico-barras" viewBox="0 0 ${L} ${A}" width="${L}" height="${A}" role="img">
+      ${marcas.map(v => `<line class="gl-grade" x1="${m.e}" x2="${L - m.d}" y1="${py(v)}" y2="${py(v)}"/><text class="gl-eixo" x="${m.e - 6}" y="${py(v) + 4}" text-anchor="end">${formatar(v)}</text>`).join('')}
+      ${itens.map((it, i) => {
+        const x = m.e + i * passo + (passo - larguraBarra) / 2;
+        const y = py(it.valor), h = Math.max(0, A - m.b - y);
+        // Ponta arredondada (4px) só em cima: a base fica reta sobre o eixo.
+        const r = Math.min(4, larguraBarra / 2, h);
+        const caminho = h ? `M${x},${A - m.b} V${y + r} Q${x},${y} ${x + r},${y} H${x + larguraBarra - r} Q${x + larguraBarra},${y} ${x + larguraBarra},${y + r} V${A - m.b} Z` : '';
+        return `<g class="gb-item">
+          <rect x="${m.e + i * passo}" y="${m.t}" width="${passo}" height="${A - m.t - m.b}" fill="transparent"><title>${esc(it.titulo || `${it.rotulo}: ${formatar(it.valor)}`)}</title></rect>
+          ${caminho ? `<path d="${caminho}" fill="${it.cor || cor}" pointer-events="none"/>` : ''}
+          ${i % passoRotulo === 0 ? `<text class="gl-eixo" x="${x + larguraBarra / 2}" y="${A - 8}" text-anchor="middle">${esc(it.rotulo)}</text>` : ''}
+        </g>`;
+      }).join('')}
+      ${media != null ? `<line class="gb-media" x1="${m.e}" x2="${L - m.d}" y1="${py(media)}" y2="${py(media)}"/><text class="gl-eixo" x="${L - m.d}" y="${py(media) - 5}" text-anchor="end">${esc(rotuloMedia)}</text>` : ''}
+    </svg>${tabelaOculta('Dados do gráfico', ['Item', 'Valor'], itens.map(it => [it.titulo || it.rotulo, formatar(it.valor)]))}`;
+  }
+
+  // Radar: `eixos` = rótulos; cada série tem `valores` de 0 a 1 (e `textos` para a dica de cada ponto).
+  function graficoRadar(eixos, series, { tamanho = 320 } = {}) {
+    const n = eixos.length, c = tamanho / 2, raio = c - 58;
+    const ponto = (i, v) => {
+      const ang = -Math.PI / 2 + (i / n) * Math.PI * 2;
+      return [c + Math.cos(ang) * raio * v, c + Math.sin(ang) * raio * v];
+    };
+    const poligono = v => eixos.map((_, i) => ponto(i, v).map(x => x.toFixed(1)).join(',')).join(' ');
+    const legenda = series.length > 1
+      ? `<div class="gl-legenda">${series.map(s => `<span><i style="background:${s.cor}"></i>${esc(s.nome)}</span>`).join('')}</div>` : '';
+    return `${legenda}<svg class="grafico-radar" viewBox="0 0 ${tamanho} ${tamanho}" width="${tamanho}" height="${tamanho}" role="img" aria-label="Perfil: ${esc(eixos.join(', '))}">
+      ${[0.25, 0.5, 0.75, 1].map(v => `<polygon class="gr-anel" points="${poligono(v)}"/>`).join('')}
+      ${eixos.map((rotulo, i) => {
+        const [x, y] = ponto(i, 1), [tx, ty] = ponto(i, 1.2);
+        const ancora = Math.abs(tx - c) < 8 ? 'middle' : tx > c ? 'start' : 'end';
+        return `<line class="gr-eixo" x1="${c}" y1="${c}" x2="${x}" y2="${y}"/><text class="gl-eixo gr-rotulo" x="${tx}" y="${ty + 4}" text-anchor="${ancora}">${esc(rotulo)}</text>`;
+      }).join('')}
+      ${series.map(s => `<g style="color:${s.cor}">
+        <polygon points="${s.valores.map((v, i) => ponto(i, Math.max(0.02, v)).map(x => x.toFixed(1)).join(',')).join(' ')}" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        ${s.valores.map((v, i) => { const [x, y] = ponto(i, Math.max(0.02, v)); return `<circle cx="${x}" cy="${y}" r="4" fill="currentColor" stroke="var(--panel)" stroke-width="2"><title>${esc(`${s.nome} · ${eixos[i]}: ${(s.textos || [])[i] ?? Math.round(v * 100)}`)}</title></circle>`; }).join('')}
+      </g>`).join('')}
+    </svg>${tabelaOculta('Perfil (0 a 100 em relação ao melhor da posição)', ['Quesito', ...series.map(s => s.nome)], eixos.map((e, i) => [e, ...series.map(s => `${Math.round(s.valores[i] * 100)} (${(s.textos || [])[i] ?? ''})`)]))}`;
+  }
+
+  // Cor de gráfico legível para o time no tema atual: a primária; se ela sumir no fundo
+  // (branca no tema claro, quase preta no escuro), a secundária; se as duas sumirem, a do tema.
+  // `evitar`: a cor do outro time, para os dois não ficarem iguais.
+  function corDoTime(time, evitar) {
+    const c = DB.Util.coresTime(time);
+    const lum = hex => {
+      const h = hex.replace('#', '');
+      const cheio = h.length === 3 ? h.split('').map(x => x + x).join('') : h;
+      const [r, g, b] = [0, 2, 4].map(i => parseInt(cheio.slice(i, i + 2), 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const fundo = temaAtual() === 'light' ? 1 : lum('#10151f');
+    const contraste = hex => { const [a, b] = [lum(hex), fundo].sort((x, y) => y - x); return (a + 0.05) / (b + 0.05); };
+    const opcoes = [c.primaria, c.secundaria].filter(x => /^#[0-9a-f]{3,6}$/i.test(x) && contraste(x) >= 2.2
+      && (!evitar || x.toLowerCase() !== evitar.toLowerCase()));
+    return opcoes[0] || (evitar && evitar !== 'var(--gold)' ? 'var(--gold)' : 'var(--blue)');
+  }
+
   function vazio(titulo, texto) {
     return `<div class="empty"><strong>${titulo}</strong>${texto || ''}</div>`;
   }
@@ -734,6 +958,7 @@ const UI = (() => {
     badge, rotuloJogo, temPlacar, placarHtml, linhaJogo, linhaJogoCompacta, listaPorDia, formaRecente,
     tabelaGrupo, tabelaLiga, cartaoConfronto, legendaZonas, listaLideres, vazio, campinho, nomeCurto, rotuloTimes, iconeCampeonato,
     autoresResumo, animarNumeros, estiloCores,
-    notaHtml, fotoJogador, jogadorNoCampo, campoGoogle, Favoritos, graficoLinha,
+    notaHtml, fotoJogador, jogadorNoCampo, campoGoogle, Favoritos, FavoritosJogadores, ligarBotaoFavorito, graficoLinha,
+    graficoLinhas, graficoBarras, graficoRadar, corDoTime, escudoGerado, arquivoIcs, baixarIcs, proximosDoTime,
   };
 })();

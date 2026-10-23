@@ -21,6 +21,41 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('lista-assist').innerHTML = UI.listaLideres('assistencias', 10, 'assist.', 'Nenhuma assistência cadastrada ainda.');
   document.getElementById('lista-part').innerHTML = UI.listaLideres('participacoes', 10, 'G+A', 'Sem participações em gols ainda.');
 
+  // ---------- Gráficos: gols por rodada e por faixa de minuto ----------
+  const comGols = DB.Jogos.comPlacar().filter(j => j.golsMandante != null && j.golsVisitante != null);
+  if (comGols.length) {
+    document.getElementById('graficos-gols').hidden = false;
+    const rodadas = DB.Estatisticas.rodadas
+      .map(rd => {
+        const jogos = comGols.filter(rd.filtro);
+        const gols = jogos.reduce((s, j) => s + j.golsMandante + j.golsVisitante, 0);
+        return { rotulo: rd.label.replace('ª rodada', 'ª').replace('Semifinais', 'Semis'), valor: gols, titulo: `${rd.label}: ${gols} gols em ${jogos.length} jogo${jogos.length === 1 ? '' : 's'} (${jogos.length ? (gols / jogos.length).toFixed(2).replace('.', ',') : '0'} por jogo)`, jogos: jogos.length };
+      })
+      .filter(x => x.jogos);
+    const caixaR = document.getElementById('grafico-rodadas');
+    const mediaR = rodadas.reduce((s, x) => s + x.valor, 0) / (rodadas.length || 1);
+    caixaR.innerHTML = UI.graficoBarras(rodadas, { largura: caixaR.clientWidth - 28, media: rodadas.length > 1 ? mediaR : null, rotuloMedia: `média ${mediaR.toFixed(1).replace('.', ',')}` });
+    document.getElementById('resumo-rodadas').textContent = `${rodadas.length} com jogos`;
+
+    // Faixas de 15 minutos; acréscimos contam na faixa do fim do tempo (45+2 → 31–45).
+    const FAIXAS = [['1–15', 15], ['16–30', 30], ['31–45', 45], ['46–60', 60], ['61–75', 75], ['76–90', 90], ['Prorr.', 999]];
+    const contagem = FAIXAS.map(() => 0);
+    let semMinuto = 0;
+    comGols.forEach(j => (j.gols || []).forEach(g => {
+      const base = parseInt(String(g.minuto || '').split('+')[0], 10);
+      if (!Number.isFinite(base)) { semMinuto++; return; }
+      contagem[FAIXAS.findIndex(([, ate]) => base <= ate)]++;
+    }));
+    const totalMin = contagem.reduce((s, n) => s + n, 0);
+    const caixaM = document.getElementById('grafico-minutos');
+    const faixas = FAIXAS.map(([rotulo], i) => ({ rotulo, valor: contagem[i], titulo: `${rotulo}${i < 6 ? ' min' : 'ogação'}: ${contagem[i]} gol${contagem[i] === 1 ? '' : 's'}${totalMin ? ` (${Math.round((contagem[i] / totalMin) * 100)}%)` : ''}` }))
+      .filter((f, i) => i < 6 || f.valor);
+    caixaM.innerHTML = totalMin
+      ? UI.graficoBarras(faixas, { largura: caixaM.clientWidth - 28, cor: 'var(--accent)' })
+      : UI.vazio('Sem minutos cadastrados', 'Os gols aparecem aqui quando tiverem o minuto preenchido.');
+    document.getElementById('resumo-minutos').textContent = semMinuto ? `${totalMin} gols · ${semMinuto} sem minuto` : `${totalMin} gols`;
+  }
+
   // ---------- Tabela completa de jogadores ----------
   const jogadores = DB.Estatisticas.porJogador()
     .filter(l => l.gols || l.assistencias || l.amarelos || l.vermelhos || l.minutos)
