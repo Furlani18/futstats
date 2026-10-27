@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (gols.length) {
     document.getElementById('autores').innerHTML = `
-      <div class="home">${resumoAutores(jogo.mandanteId)}</div><div class="ball">⚽</div><div>${resumoAutores(jogo.visitanteId)}</div>`;
+      <div class="home">${resumoAutores(jogo.mandanteId)}</div><div class="ball">${UI.icone('bola')}</div><div>${resumoAutores(jogo.visitanteId)}</div>`;
   }
 
   // ---------- Linha do tempo ----------
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const jogador = DB.Jogadores.get(e.jogadorId);
     let icone, titulo, detalhe;
     if (e.evento === 'gol') {
-      icone = '⚽';
+      icone = UI.icone('bola', e.tipo === 'contra' ? 'ico-contra' : '');
       titulo = linkJogador(jogador);
       const assist = e.assistenciaId ? DB.Jogadores.get(e.assistenciaId) : null;
       detalhe = e.tipo === 'contra' ? 'Gol contra'
@@ -117,8 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return [
       saida && p && p.saiu != null ? `<span class="lu-ic lu-saiu" title="Substituído aos ${p.saiu}'">↓</span>` : '',
       cartoes.length ? `<span class="lu-ic lu-cartao${vermelho ? ' vermelho' : ''}" title="${vermelho ? 'Cartão vermelho' : 'Cartão amarelo'}"></span>` : '',
-      golsJ ? `<span class="lu-ic lu-gol" title="${golsJ} gol${golsJ > 1 ? 's' : ''}">⚽${conta(golsJ)}</span>` : '',
-      assist ? `<span class="lu-ic lu-assist" title="${assist} assistência${assist > 1 ? 's' : ''}">👟${conta(assist)}</span>` : '',
+      golsJ ? `<span class="lu-ic lu-gol" title="${golsJ} gol${golsJ > 1 ? 's' : ''}">${UI.icone('bola')}${conta(golsJ)}</span>` : '',
+      assist ? `<span class="lu-ic lu-assist" title="${assist} assistência${assist > 1 ? 's' : ''}">${UI.icone('chuteira')}${conta(assist)}</span>` : '',
     ].join('');
   }
 
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- Compartilhar ----------
   if (mandante && visitante && typeof Compartilhar !== 'undefined') {
     document.getElementById('compartilhar').innerHTML = `
-      <button type="button" class="btn btn-ghost" id="btn-imagem">📷 ${UI.temPlacar(jogo) ? 'Compartilhar resultado' : 'Compartilhar jogo'}</button>`;
+      <button type="button" class="btn btn-ghost" id="btn-imagem">${UI.icone('camera')} ${UI.temPlacar(jogo) ? 'Compartilhar resultado' : 'Compartilhar jogo'}</button>`;
     document.getElementById('btn-imagem').addEventListener('click', async (e) => {
       const botao = e.currentTarget;
       botao.disabled = true;
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- Reviver a partida: relógio, placar e lances minuto a minuto ----------
   if (mandante && visitante && jogo.status === 'encerrado' && UI.temPlacar(jogo)) {
     document.getElementById('compartilhar').insertAdjacentHTML('afterbegin',
-      '<button type="button" class="btn btn-ghost" id="btn-reviver">▶ Reviver ao vivo</button>');
+      `<button type="button" class="btn btn-ghost" id="btn-reviver">${UI.icone('play')} Reviver ao vivo</button>`);
     document.getElementById('btn-reviver').addEventListener('click', reviverPartida);
   }
 
@@ -325,10 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
     badgeEl.outerHTML = '<span class="badge badge-ao_vivo" id="badge-replay"><span class="live-dot"></span><span id="relogio-replay">0\'</span></span>';
     document.getElementById('autores').innerHTML = '';
     timeline.innerHTML = `<div class="replay-barra">
-        <button type="button" class="btn btn-ghost" id="replay-pausa" aria-label="Pausar">⏸</button>
+        <button type="button" class="btn btn-ghost" id="replay-pausa" aria-label="Pausar">${UI.icone('pausa')}</button>
         <div class="replay-trilho" aria-hidden="true"><span id="replay-progresso"></span></div>
         <button type="button" class="btn btn-ghost" id="replay-vel" title="Velocidade">1×</button>
-        <button type="button" class="btn btn-ghost" id="replay-fim">Pular ⏭</button>
+        <button type="button" class="btn btn-ghost" id="replay-fim">Pular ${UI.icone('avancar')}</button>
       </div>
       <ul class="timeline replay-feed" id="replay-feed" aria-live="polite"></ul>`;
     botao.disabled = true;
@@ -341,11 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const mostrar = l => {
       let html;
-      if (l.tipo === 'apito') html = `<li class="replay-apito">⏱ ${l.texto}</li>`;
+      if (l.tipo === 'apito') html = `<li class="replay-apito">${UI.icone('relogio')} ${l.texto}</li>`;
       else if (l.tipo === 'sub') {
         const lado = l.e.timeId === jogo.mandanteId ? 'home' : 'away';
         const txt = `<span class="txt"><b>${nomeJ(l.e.entraId)}</b><small>Entrou no lugar de ${nomeJ(l.e.saiId)}</small></span>`;
-        const ic = '<span class="tl-icon">🔁</span>';
+        const ic = `<span class="tl-icon">${UI.icone('trocar')}</span>`;
         html = `<li class="tl-item">${lado === 'home' ? `<span class="tl-side home">${txt}${ic}</span>` : '<span></span>'}<span class="tl-min">${esc(l.e.minuto || '')}'</span>${lado === 'away' ? `<span class="tl-side away">${ic}${txt}</span>` : '<span></span>'}</li>`;
       } else {
         html = itemLinha({ ...l.e, evento: l.tipo === 'gol' ? 'gol' : 'cartao' });
@@ -364,11 +364,11 @@ document.addEventListener('DOMContentLoaded', () => {
       placarEl.innerHTML = original.placar;
       document.getElementById('badge-replay').outerHTML = original.badge;
       document.getElementById('autores').innerHTML = original.autores;
-      feed.insertAdjacentHTML('afterbegin', '<li class="replay-apito">⏱ Fim de jogo</li>');
-      document.querySelector('.replay-barra').outerHTML = '<div class="replay-barra"><button type="button" class="btn btn-ghost" id="replay-voltar">↩ Voltar ao lance a lance</button></div>';
+      feed.insertAdjacentHTML('afterbegin', `<li class="replay-apito">${UI.icone('relogio')} Fim de jogo</li>`);
+      document.querySelector('.replay-barra').outerHTML = `<div class="replay-barra"><button type="button" class="btn btn-ghost" id="replay-voltar">${UI.icone('voltar')} Voltar ao lance a lance</button></div>`;
       document.getElementById('replay-voltar').addEventListener('click', () => { timeline.innerHTML = original.timeline; });
       botao.disabled = false;
-      botao.textContent = '▶ Reviver de novo';
+      botao.innerHTML = `${UI.icone('repetir')} Reviver de novo`;
     }
 
     // 1 minuto de jogo = 160 ms (90' em ~15 s) na velocidade 1×.
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const iniciar = () => { clearInterval(relogio); relogio = setInterval(tick, 160 / velocidade); };
     document.getElementById('replay-pausa').addEventListener('click', e => {
       pausado = !pausado;
-      e.currentTarget.textContent = pausado ? '▶' : '⏸';
+      e.currentTarget.innerHTML = UI.icone(pausado ? 'play' : 'pausa');
       e.currentTarget.setAttribute('aria-label', pausado ? 'Continuar' : 'Pausar');
     });
     document.getElementById('replay-vel').addEventListener('click', e => {
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     linha('Fase', rotuloFase),
     linha('Data', `${DB.Util.formatarData(jogo.data)} · ${DB.Util.formatarHora(jogo.data)} (Brasília)`),
     linha('Estádio', esc(jogo.local || '—')),
-    (jogo.cartoes || []).length ? linha('Cartões', `${mandante ? mandante.codigo : ''} ${cartoesDe(jogo.mandanteId, 'amarelo')}🟨 ${cartoesDe(jogo.mandanteId, 'vermelho')}🟥 · ${visitante ? visitante.codigo : ''} ${cartoesDe(jogo.visitanteId, 'amarelo')}🟨 ${cartoesDe(jogo.visitanteId, 'vermelho')}🟥`) : '',
+    (jogo.cartoes || []).length ? linha('Cartões', `${mandante ? mandante.codigo : ''} ${cartoesDe(jogo.mandanteId, 'amarelo')}<span class="card-icon" title="Amarelos"></span> ${cartoesDe(jogo.mandanteId, 'vermelho')}<span class="card-icon red" title="Vermelhos"></span> · ${visitante ? visitante.codigo : ''} ${cartoesDe(jogo.visitanteId, 'amarelo')}<span class="card-icon" title="Amarelos"></span> ${cartoesDe(jogo.visitanteId, 'vermelho')}<span class="card-icon red" title="Vermelhos"></span>`) : '',
     jogo.projetado ? linha('Confronto', 'Projetado — pode mudar') : '',
     agregado ? linha('Agregado', agregado) : '',
   ].join('');

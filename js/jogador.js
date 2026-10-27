@@ -34,9 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ${jogador.clube ? `<span class="fact">${UI.bandeiraClube(jogador.clubePais)} <strong>${esc(jogador.clube)}</strong></span>` : ''}
     ${jogador.nacionalidade ? `<span class="fact">${UI.bandeiraPais(jogador.nacionalidade)} <strong>${esc(UI.nomePais(jogador.nacionalidade))}</strong></span>` : ''}
     ${jogador.idade != null ? `<span class="fact">Idade <strong>${jogador.idade}</strong></span>` : ''}
-    <a class="fact fact-acao" href="comparar.html?a=${jogador.id}">⚖️ <strong>Comparar</strong></a>`;
+    <a class="fact fact-acao" href="comparar.html?a=${jogador.id}">${UI.icone('balanca')} <strong>Comparar</strong></a>`;
 
   UI.ligarBotaoFavorito(document.getElementById('btn-favorito'), UI.FavoritosJogadores, jogador.id, 'este jogador');
+  const notaCarta = DB.Estatisticas.notasTemporada()[jogador.id];
+  document.getElementById('carta-mount').innerHTML = UI.cartaJogador(jogador, { nota: notaCarta ? Math.round(notaCarta.media * 10) / 10 : null, linha: s, link: false });
 
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   const nota = DB.Estatisticas.notasTemporada()[jogador.id];
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (comp.tipo === 'copa_mundo') document.getElementById('titulo-lances').textContent = 'Lances na Copa';
 
   const ROTULO = {
-    gol: ['⚽', 'Gol'], gol_contra: ['⚽', 'Gol contra'], assistencia: ['🎯', 'Assistência'],
+    gol: [UI.icone('bola'), 'Gol'], gol_contra: [UI.icone('bola', 'ico-contra'), 'Gol contra'], assistencia: [UI.icone('assistencia'), 'Assistência'],
     amarelo: ['<span class="card-icon"></span>', 'Cartão amarelo'],
     segundo_amarelo: ['<span class="card-icon second"></span>', 'Segundo amarelo'],
     vermelho: ['<span class="card-icon red"></span>', 'Cartão vermelho'],

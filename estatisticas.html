@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estatísticas — Copa do Mundo FIFA 2026 — FUTSTATS</title>
-<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#070a12">
@@ -29,7 +29,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Estatísticas</span></div>
     <div class="section-eyebrow">Números da Copa</div>
-    <div class="titulo-acao"><h1 class="section-title">Estatísticas</h1><a class="btn btn-ghost" href="comparar.html">⚖️ Comparar jogadores</a></div>
+    <div class="titulo-acao"><h1 class="section-title">Estatísticas</h1><a class="btn btn-ghost" href="comparar.html"><i data-icone="balanca"></i> Comparar jogadores</a></div>
     <div class="kpi-strip" id="kpis" style="margin-top:18px;"></div>
   </div>
 </section>
@@ -37,11 +37,11 @@
 <main class="page">
   <div class="grid-3">
     <div class="panel" id="artilharia">
-      <div class="panel-header"><span class="panel-title">⚽ Artilharia</span></div>
+      <div class="panel-header"><span class="panel-title"><i data-icone="bola"></i> Artilharia</span></div>
       <div id="lista-gols"></div>
     </div>
     <div class="panel" id="assistencias">
-      <div class="panel-header"><span class="panel-title">🎯 Assistências</span></div>
+      <div class="panel-header"><span class="panel-title"><i data-icone="assistencia"></i> Assistências</span></div>
       <div id="lista-assist"></div>
     </div>
     <div class="panel">
@@ -72,7 +72,7 @@
       <table class="stats-table" id="tabela-jogadores">
         <thead><tr>
           <th scope="col">#</th><th scope="col" class="left">Jogador</th><th scope="col" class="left">Seleção</th><th scope="col">Pos.</th>
-          <th scope="col">J</th><th scope="col">Min</th><th scope="col" class="strong">Gols</th><th scope="col">Pên.</th><th scope="col">Assist.</th><th scope="col">G+A</th><th scope="col" title="Gols a cada 90 minutos">G/90</th><th scope="col">🟨</th><th scope="col">🟥</th>
+          <th scope="col">J</th><th scope="col">Min</th><th scope="col" class="strong">Gols</th><th scope="col">Pên.</th><th scope="col">Assist.</th><th scope="col">G+A</th><th scope="col" title="Gols a cada 90 minutos">G/90</th><th scope="col"><span class="card-icon" title="Amarelos"></span><span class="sr-only">Amarelos</span></th><th scope="col"><span class="card-icon red" title="Vermelhos"></span><span class="sr-only">Vermelhos</span></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -90,7 +90,7 @@
       <table class="stats-table" id="tabela-times">
         <thead><tr>
           <th scope="col">#</th><th scope="col" class="left">Seleção</th><th scope="col">J</th><th scope="col">V</th><th scope="col">E</th><th scope="col">D</th>
-          <th scope="col" class="strong">Gols</th><th scope="col">Sofridos</th><th scope="col">SG</th><th scope="col">Média</th><th scope="col">Sem sofrer</th><th scope="col">🟨</th><th scope="col">🟥</th>
+          <th scope="col" class="strong">Gols</th><th scope="col">Sofridos</th><th scope="col">SG</th><th scope="col">Média</th><th scope="col">Sem sofrer</th><th scope="col"><span class="card-icon" title="Amarelos"></span><span class="sr-only">Amarelos</span></th><th scope="col"><span class="card-icon red" title="Vermelhos"></span><span class="sr-only">Vermelhos</span></th>
         </tr></thead>
         <tbody></tbody>
       </table>

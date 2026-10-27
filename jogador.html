@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title">Jogador — FUTSTATS</title>
-<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#070a12">
@@ -28,13 +28,16 @@
 <section class="page-hero">
   <div class="container">
     <div class="breadcrumb" id="breadcrumb"><a href="index.html">Início</a> / <span>Jogador</span></div>
+    <div class="time-hero-grid">
     <div class="profile-head">
       <div id="avatar-mount"></div>
       <div>
         <div class="section-eyebrow" id="eyebrow-jogador"></div>
-        <div class="titulo-favorito"><h1 class="section-title" id="nome-jogador">Carregando...</h1><button type="button" class="btn-favorito" id="btn-favorito" aria-pressed="false" hidden>☆</button></div>
+        <div class="titulo-favorito"><h1 class="section-title" id="nome-jogador"><span class="sr-only">Carregando…</span><span class="esqueleto esq-titulo" aria-hidden="true"></span></h1><button type="button" class="btn-favorito" id="btn-favorito" aria-pressed="false" hidden><i data-icone="estrela"></i></button></div>
         <div class="profile-facts" id="fatos-jogador"></div>
       </div>
+    </div>
+    <div class="hero-carta" id="carta-mount"></div>
     </div>
   </div>
 </section>

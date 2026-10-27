@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title">Meus favoritos — FUTSTATS</title>
-<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k])}catch(e){}</script>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#070a12">
@@ -30,7 +30,7 @@
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Favoritos</span></div>
     <div class="section-eyebrow">Em todos os campeonatos</div>
     <h1 class="section-title">Meus favoritos</h1>
-    <p class="lead">Os times e jogadores que você segue (☆ na página de cada um), com os próximos jogos de todos os campeonatos num lugar só. Ficam salvos só neste navegador.</p>
+    <p class="lead">Os times e jogadores que você segue (a estrela na página de cada um), com os próximos jogos de todos os campeonatos num lugar só. Ficam salvos só neste navegador.</p>
   </div>
 </section>
 
@@ -40,7 +40,7 @@
     <section class="stack">
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Próximos jogos dos seus times</span>
-          <button type="button" class="btn btn-ghost btn-sm" id="btn-ics-favoritos" hidden>📅 Exportar para a agenda (.ics)</button></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-ics-favoritos" hidden><i data-icone="calendario"></i> Exportar para a agenda (.ics)</button></div>
         <div class="match-list" id="fav-proximos"></div>
       </div>
       <div class="panel">

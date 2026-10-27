@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="tree-title">Final</div>
       <div class="tree-body">
         <div class="tree-pair unico"><div class="tree-slot">
-          <div class="tree-trofeu" aria-hidden="true">🏆</div>
+          <div class="tree-trofeu" aria-hidden="true">${UI.icone('trofeu')}</div>
           ${cartaoHtml(chave.final, 'tree-final-card')}
           <div class="tree-campeao">${campeao ? `${UI.bandeira(campeao, 'sm')} Campeão: ${DB.Util.escapar(campeao.nome)}` : 'Campeão do mundo'}</div>
         </div></div>
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('arvore').innerHTML = [...colunasEsq, colunaFinal, ...colunasDir].join('');
   document.getElementById('bloco-terceiro').innerHTML = cartaoHtml(chave.terceiro, '', false);
+  UI.destacarCaminhos(document.getElementById('arvore'), campeaoId);
 
   UI.montarFooter();
 });
@@ -58,7 +59,7 @@ function ladoHtml(timeId, rotulo, gols, classe, compacto) {
   const nome = time ? time.nome : rotulo;
   // Na árvore usa o código (BRA, GER…) para caber; o nome completo fica na dica.
   const texto = time && compacto ? time.codigo : nome;
-  return `<div class="bracket-team ${classe}">${time ? UI.bandeira(time, 'sm') : ''}<span class="nome" title="${DB.Util.escapar(nome)}">${DB.Util.escapar(texto)}</span><span class="gols">${gols ?? ''}</span></div>`;
+  return `<div class="bracket-team ${classe}"${time ? ` data-time="${time.id}"` : ''}>${time ? UI.bandeira(time, 'sm') : ''}<span class="nome" title="${DB.Util.escapar(nome)}">${DB.Util.escapar(texto)}</span><span class="gols">${gols ?? ''}</span></div>`;
 }
 
 function cartaoHtml(item, classeExtra = '', compacto = true) {
@@ -100,4 +101,8 @@ function mataMataClubes() {
       </div></div>
     </section>`;
   }).join('');
+  // Campeão = vencedor do confronto da última fase (a final), se já decidido.
+  const ultima = (comp.fases || []).slice(-1)[0];
+  const final = ultima ? DB.MataMata.confrontos(ultima).find(c => c.vencedor) : null;
+  UI.destacarCaminhos(caixa, final ? final.vencedor : null);
 }

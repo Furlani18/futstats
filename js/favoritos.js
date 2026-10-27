@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vazio = document.getElementById('fav-vazio');
     vazio.hidden = false;
     vazio.innerHTML = `<div class="panel">${UI.vazio('Você ainda não segue ninguém',
-      'Abra a página de um time ou jogador e toque na estrela ☆ ao lado do nome. Comece pelas <a href="selecoes.html">seleções e clubes</a> ou pela <a href="estatisticas.html">artilharia</a>.')}</div>`;
+      `Abra a página de um time ou jogador e toque na estrela ${UI.icone('estrela')} ao lado do nome. Comece pelas <a href="selecoes.html">seleções e clubes</a> ou pela <a href="estatisticas.html">artilharia</a>.`)}</div>`;
     UI.montarFooter();
     return;
   }
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="fav-item">
       <a class="fav-time" href="time.html?id=${t.id}">${UI.bandeira(t, 'lg')}<span><b>${esc(t.nome)}</b><small>${comps.map(c => esc(c.curto)).join(' · ')}</small></span></a>
       ${proximo ? `<a class="fav-prox" href="jogo.html?id=${proximo.id}">Próximo: ${proximo.mandanteId === t.id ? 'x' : '@'} ${UI.bandeira(adv, 'sm')} ${esc(adv ? adv.nome : 'A definir')} · ${DB.Util.formatarData(proximo.data).slice(0, 5)}</a>` : ''}
-      <button type="button" class="bolao-remover" data-tipo="time" data-id="${t.id}" aria-label="Deixar de seguir ${esc(t.nome)}" title="Deixar de seguir">✕</button>
+      <button type="button" class="bolao-remover" data-tipo="time" data-id="${t.id}" aria-label="Deixar de seguir ${esc(t.nome)}" title="Deixar de seguir">${UI.icone('fechar')}</button>
     </div>`;
   }).join('') : UI.vazio('Nenhum time seguido', '');
 
@@ -65,9 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
       <a class="leader" href="jogador.html?id=${j.id}">${UI.avatar(j)}
         <span class="info"><span class="nome">${esc(j.nome)}</span><span class="sub">${UI.bandeira(t, 'sm')} ${t ? esc(t.nome) : ''} · ${esc(j.posicao)}</span></span>
         <span class="valor">${n.gols}<small>G</small> ${n.assistencias}<small>A</small></span></a>
-      <button type="button" class="bolao-remover" data-tipo="jogador" data-id="${j.id}" aria-label="Deixar de seguir ${esc(j.nome)}" title="Deixar de seguir">✕</button>
+      <button type="button" class="bolao-remover" data-tipo="jogador" data-id="${j.id}" aria-label="Deixar de seguir ${esc(j.nome)}" title="Deixar de seguir">${UI.icone('fechar')}</button>
     </div>`;
-  }).join('') : UI.vazio('Nenhum jogador seguido', 'Toque na ☆ na página de um jogador.');
+  }).join('') : UI.vazio('Nenhum jogador seguido', `Toque na ${UI.icone('estrela')} na página de um jogador.`);
 
   document.querySelectorAll('.fav-item .bolao-remover').forEach(b => b.addEventListener('click', () => {
     (b.dataset.tipo === 'time' ? UI.Favoritos : UI.FavoritosJogadores).alternar(b.dataset.id);

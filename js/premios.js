@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ? UI.jogadorNoCampo(p.jogador, {
         nota: p.nota,
         numero: false,
-        cantos: `${p.gols ? `<span class="lu-ic lu-gol" title="${p.gols} gol(s)">⚽${conta(p.gols)}</span>` : ''}${p.assistencias ? `<span class="lu-ic lu-assist" title="${p.assistencias} assistência(s)">👟${conta(p.assistencias)}</span>` : ''}`,
+        cantos: `${p.gols ? `<span class="lu-ic lu-gol" title="${p.gols} gol(s)">${UI.icone('bola')}${conta(p.gols)}</span>` : ''}${p.assistencias ? `<span class="lu-ic lu-assist" title="${p.assistencias} assistência(s)">${UI.icone('chuteira')}${conta(p.assistencias)}</span>` : ''}`,
         extra: `<span class="lu-clube">${UI.bandeira(DB.Times.get(p.jogador.timeId), 'sm')}</span>`,
       })
       : '<span class="lu-jogador vazio"><span class="lu-foto"></span><span class="lu-nome">—</span></span>');

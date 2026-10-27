@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nome-time').textContent = time.nome;
   document.getElementById('eyebrow-time').textContent = ehClube ? `${time.codigo} · ${comp.curto} ${comp.temporada}` : `${time.codigo} · ${time.confederacao}`;
   document.getElementById('flag-mount').innerHTML = UI.bandeira(time, 'xl');
+  document.getElementById('flag-mount').style.viewTransitionName = `escudo-${time.id}`;
   const pintarTopo = time => {
     const c = DB.Util.coresTime(time);
     const topo = document.querySelector('.page-hero');
@@ -43,13 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const fato = (icone, rotulo, valor) => (valor ? `<span class="fact"><span class="fact-ico" aria-hidden="true">${icone}</span>${rotulo} <strong>${esc(valor)}</strong></span>` : '');
   const outrasComps = ehClube ? DB.Contexto.competicoesDoTime(time.id).filter(c => c.id !== comp.id) : [];
   document.getElementById('fatos-time').innerHTML = [
-    fato('🔠', 'Grupo', DB.Grupos.deTime(time.id)),
-    fato('📋', 'Técnico', time.tecnico),
-    fato('©️', 'Capitão', capitao && capitao.nome),
-    ehClube ? fato('🏟️', 'Estádio', time.estadio) : fato('🌍', 'Ranking FIFA', time.rankingFifa && `#${time.rankingFifa}`),
-    fato('🎂', 'Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
+    fato(UI.icone('grade'), 'Grupo', DB.Grupos.deTime(time.id)),
+    fato(UI.icone('prancheta'), 'Técnico', time.tecnico),
+    fato(UI.icone('capitao'), 'Capitão', capitao && capitao.nome),
+    ehClube ? fato(UI.icone('estadio'), 'Estádio', time.estadio) : fato(UI.icone('globo'), 'Ranking FIFA', time.rankingFifa && `#${time.rankingFifa}`),
+    fato(UI.icone('bolo'), 'Idade média', mediaIdade && mediaIdade.toFixed(1).replace('.', ',')),
     ...outrasComps.map(c => `<a class="fact" href="time.html?id=${time.id}&c=${c.id}">${UI.iconeCampeonato(c)} <strong>${esc(c.curto)}</strong></a>`),
-    `<a class="fact fact-acao" href="comparar.html?modo=times&a=${time.id}">⚖️ <strong>Comparar</strong></a>`,
+    `<a class="fact fact-acao" href="comparar.html?modo=times&a=${time.id}">${UI.icone('balanca')} <strong>Comparar</strong></a>`,
   ].join('');
 
   // ---------- Forma recente e próximo jogo (no topo) ----------
@@ -84,10 +85,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Favorito e calendário ----------
   UI.ligarBotaoFavorito(document.getElementById('btn-favorito'), UI.Favoritos, time.id, 'este time');
+  // "Vestir a camisa": o site inteiro passa a usar as cores deste time (desfaz em Aparência).
+  const fatos = document.getElementById('fatos-time');
+  fatos.insertAdjacentHTML('beforeend', `<button type="button" class="fact fact-acao" id="btn-camisa" aria-pressed="false"></button>`);
+  const btnCamisa = document.getElementById('btn-camisa');
+  const pintarCamisa = () => {
+    const vestindo = UI.TemaTime.id() === time.id;
+    btnCamisa.innerHTML = `${UI.icone('camisa')} <strong>${vestindo ? 'Tirar a camisa' : 'Vestir a camisa'}</strong>`;
+    btnCamisa.setAttribute('aria-pressed', vestindo);
+    btnCamisa.title = vestindo ? 'Voltar às cores do campeonato' : `Deixar o site nas cores do ${time.nome}`;
+  };
+  btnCamisa.addEventListener('click', () => { UI.TemaTime.definir(UI.TemaTime.id() === time.id ? null : time.id); pintarCamisa(); });
+  pintarCamisa();
   const proximosTodos = UI.proximosDoTime(time.id);
   if (proximosTodos.length) {
     document.getElementById('fatos-time').insertAdjacentHTML('beforeend',
-      `<button type="button" class="fact fact-acao" id="btn-ics" title="Baixar os próximos jogos (.ics) para o Google Agenda, Outlook ou celular">📅 <strong>Agenda</strong> <small>${proximosTodos.length} jogo${proximosTodos.length === 1 ? '' : 's'}</small></button>`);
+      `<button type="button" class="fact fact-acao" id="btn-ics" title="Baixar os próximos jogos (.ics) para o Google Agenda, Outlook ou celular">${UI.icone('calendario')} <strong>Agenda</strong> <small>${proximosTodos.length} jogo${proximosTodos.length === 1 ? '' : 's'}</small></button>`);
     document.getElementById('btn-ics').addEventListener('click', () => {
       const arquivo = time.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').toLowerCase();
       UI.baixarIcs(proximosTodos, `${time.nome} · FUTSTATS`, `jogos-${arquivo}`);
@@ -134,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tiles-time').innerHTML = [
     tile('Jogos', st.J), tile('Vitórias', st.V), tile('Empates', st.E), tile('Derrotas', st.D),
     tile('Gols marcados', st.GP, 'gold'), tile('Gols sofridos', st.GC), tile('Sem sofrer gol', st.semSofrer),
-    tile('Cartões', `${st.CA}<span style="font-size:16px;color:var(--text-dim)"> 🟨 ${st.CV} 🟥</span>`),
+    tile('Cartões', `${st.CA}<span class="tile-cartoes"><span class="card-icon" title="Amarelos"></span> ${st.CV} <span class="card-icon red" title="Vermelhos"></span></span>`),
   ].join('');
 
   // ---------- Elenco por posição ----------

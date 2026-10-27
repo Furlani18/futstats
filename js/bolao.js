@@ -107,7 +107,7 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
     const caixa = document.getElementById('bolao-convite');
     caixa.hidden = false;
     if (!amigo || amigo.compId !== comp.id) {
-      caixa.innerHTML = `<p>⚠️ ${amigo ? 'Este link é de outro campeonato.' : 'Não consegui ler este link de bolão.'}</p>`;
+      caixa.innerHTML = `<p>${UI.icone('aviso')} ${amigo ? 'Este link é de outro campeonato.' : 'Não consegui ler este link de bolão.'}</p>`;
     } else {
       const qtd = Object.keys(amigo.palpites).length;
       const jaTem = dados.amigos.find(a => a.nome.toLowerCase() === amigo.nome.toLowerCase());
@@ -118,7 +118,7 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
         dados.amigos = dados.amigos.filter(a => a.nome.toLowerCase() !== amigo.nome.toLowerCase());
         dados.amigos.push({ nome: amigo.nome, palpites: amigo.palpites, em: amigo.em });
         salvar();
-        caixa.innerHTML = `<p>✅ ${esc(amigo.nome)} entrou no ranking.</p>`;
+        caixa.innerHTML = `<p>${UI.icone('check')} ${esc(amigo.nome)} entrou no ranking.</p>`;
         renderRanking();
       });
       document.getElementById('btn-recusar').addEventListener('click', () => { caixa.hidden = true; });
@@ -193,7 +193,7 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
         <td class="pos">${i + 1}</td>
         <td class="left"><b>${esc(p.nome)}</b>${p.voce ? ' <small class="dim">(você)</small>' : ''}<br><small class="dim">${p.palpitados} palpite${p.palpitados === 1 ? '' : 's'}</small></td>
         <td class="strong">${p.pontos}</td><td>${p.exatos}</td><td>${p.acertos}</td>
-        <td>${p.voce ? '' : `<button type="button" class="bolao-remover" data-nome="${esc(p.nome)}" aria-label="Remover ${esc(p.nome)} do ranking" title="Remover">✕</button>`}</td>
+        <td>${p.voce ? '' : `<button type="button" class="bolao-remover" data-nome="${esc(p.nome)}" aria-label="Remover ${esc(p.nome)} do ranking" title="Remover">${UI.icone('fechar')}</button>`}</td>
       </tr>`).join('')}</tbody></table></div>
       ${dados.amigos.length ? '' : '<p class="grafico-nota" style="padding-top:12px;">Ninguém mais por aqui ainda: compartilhe o seu link e peça o dos amigos.</p>'}`;
     document.querySelectorAll('.bolao-remover').forEach(b => b.addEventListener('click', () => {

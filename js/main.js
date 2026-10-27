@@ -134,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('titulo-times').textContent = 'Clubes';
     document.getElementById('link-times').textContent = 'Ver todos →';
   }
+  // --tc: cor do time para a sombra ao passar o mouse; o nome de transição faz o escudo
+  // "voar" desta grade até o topo da página do time.
   document.getElementById('grid-times').innerHTML = DB.Times.all().map(t => `
-    <a class="team-card" href="time.html?id=${t.id}">
-      ${UI.bandeira(t, 'lg')}
+    <a class="team-card" href="time.html?id=${t.id}" style="--tc:${UI.corDoTime(t)}">
+      <span class="vt-escudo" style="view-transition-name:escudo-${t.id}">${UI.bandeira(t, 'lg')}</span>
       <span><span class="nome">${esc(t.nome)}</span><br><span class="meta">${t.tipo === 'clube'
         ? esc([DB.Grupos.deTime(t.id) && `Grupo ${DB.Grupos.deTime(t.id)}`, t.tecnico].filter(Boolean).join(' · '))
         : `Grupo ${t.grupo} · ${t.confederacao}`}</span></span>
@@ -171,7 +173,13 @@ function montarDestaque() {
   const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
   const tipo = jogo === aoVivo ? 'vivo' : jogo === proximo ? 'proximo' : 'ultimo';
   const rotulo = { vivo: '<span class="live-dot"></span> Ao vivo', proximo: 'Próximo jogo', ultimo: 'Último resultado' }[tipo];
-  const lado = t => `<span class="featured-team">${UI.bandeira(t, 'lg')}<span class="nome">${DB.Util.escapar(t.nome)}</span></span>`;
+  const lado = t => `<span class="featured-team">${UI.bandeira(t, 'xl')}<span class="nome">${DB.Util.escapar(t.nome)}</span></span>`;
+  // Capa de revista: as bandeiras/escudos dos dois lados, gigantes e desfocados ao fundo.
+  const fundo = t => {
+    const img = t.tipo === 'clube' ? t.escudo : DB.Util.bandeiraUrl(t.iso, 320);
+    const c = DB.Util.coresTime(t);
+    return `<span style="background:linear-gradient(135deg, ${c.primaria}, ${c.secundaria})">${img ? `<img src="${DB.Util.escapar(img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>`;
+  };
   const futuro = new Date(jogo.data).getTime() > agora;
   const centro = tipo === 'proximo'
     ? (futuro ? '<div class="countdown" id="contagem"></div>' : `<div class="featured-score" style="font-size:30px;">${DB.Util.formatarHora(jogo.data)}<small>${DB.Util.formatarData(jogo.data)}</small></div>`)
@@ -182,7 +190,8 @@ function montarDestaque() {
     : '';
 
   mount.innerHTML = `
-    <a class="featured" href="jogo.html?id=${jogo.id}">
+    <a class="featured featured-capa" href="jogo.html?id=${jogo.id}">
+      <span class="featured-fundo" aria-hidden="true">${fundo(m)}${fundo(v)}</span>
       <div class="featured-label${tipo === 'vivo' ? ' live' : ''}"><span>${rotulo}</span><span>${UI.rotuloJogo(jogo)}</span></div>
       <div class="featured-teams">${lado(m)}${centro}${lado(v)}</div>
       <div class="featured-foot">${gols || `${DB.Util.formatarDiaLongo(jogo.data)} · ${DB.Util.formatarHora(jogo.data)}${jogo.local ? ` · ${DB.Util.escapar(jogo.local.split(',').pop().trim())}` : ''}`}</div>
@@ -202,7 +211,7 @@ function montarDestaque() {
   }
 }
 
-// Times seguidos (☆ na página do time) que estão neste campeonato: último resultado e próximo jogo.
+// Times seguidos (estrela na página do time) que estão neste campeonato: último resultado e próximo jogo.
 function montarFavoritos() {
   const esc = DB.Util.escapar;
   const mount = document.getElementById('favoritos');
@@ -265,11 +274,11 @@ function montarTopoCampeonato(comp, nTimes) {
   const n = DB.Times.all().length;
   const rodadas = comp.tipo === 'liga' ? (n - 1) * 2 : comp.tipo === 'champions' ? comp.rodadasLiga : null;
   const chips = [
-    comp.iso ? chip(UI.bandeiraPais(comp.iso), esc(comp.sede)) : chip('<span aria-hidden="true">🌍</span>', esc(comp.regiao)),
-    chip('<span aria-hidden="true">👕</span>', `${nTimes} ${DB.Contexto.ehCopa() ? 'seleções' : 'clubes'}`),
-    rodadas ? chip('<span aria-hidden="true">🗓️</span>', `${rodadas} rodadas`) : '',
-    DB.Grupos.letras.length ? chip('<span aria-hidden="true">🔠</span>', `${DB.Grupos.letras.length} grupos`) : '',
-    comp.totalJogos ? chip('<span aria-hidden="true">⚽</span>', `${comp.totalJogos} jogos`) : '',
+    comp.iso ? chip(UI.bandeiraPais(comp.iso), esc(comp.sede)) : chip(UI.icone('globo'), esc(comp.regiao)),
+    chip(UI.icone('camisa'), `${nTimes} ${DB.Contexto.ehCopa() ? 'seleções' : 'clubes'}`),
+    rodadas ? chip(UI.icone('calendario'), `${rodadas} rodadas`) : '',
+    DB.Grupos.letras.length ? chip(UI.icone('grade'), `${DB.Grupos.letras.length} grupos`) : '',
+    comp.totalJogos ? chip(UI.icone('bola'), `${comp.totalJogos} jogos`) : '',
   ];
   // Líder atual nas ligas e na fase de liga da Champions.
   if (comp.tipo === 'liga' || comp.tipo === 'champions') {

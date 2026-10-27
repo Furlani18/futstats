@@ -373,6 +373,7 @@ function montarProbabilidades(gerarFonte) {
     botao.disabled = true;
     usarPalpites.disabled = true;
     progresso.hidden = false;
+    mount.innerHTML = `<div class="esq-tabela" aria-hidden="true">${'<span class="esqueleto esq-linha"></span>'.repeat(8)}</div>`;
     const inicio = performance.now();
     let feitas = 0;
     const passo = () => {
@@ -387,7 +388,7 @@ function montarProbabilidades(gerarFonte) {
       mount.innerHTML = tabela(motor.resultado());
       botao.disabled = false;
       usarPalpites.disabled = false;
-      botao.textContent = '↻ Rodar de novo';
+      botao.innerHTML = `${UI.icone('repetir')} Rodar de novo`;
       progresso.hidden = true;
     };
     requestAnimationFrame(passo);

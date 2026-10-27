@@ -94,15 +94,14 @@ function compararJogadores(doLink) {
 
   const vazio = { jogos: 0, titular: 0, minutos: 0, gols: 0, assistencias: 0, participacoes: 0, penaltis: 0, jogosComGol: 0, amarelos: 0, vermelhos: 0, golsPor90: null };
 
+  // Cada lado é a carta do jogador (moldura pela nota média) com o time embaixo.
   function cabeca(j) {
     const t = DB.Times.get(j.timeId);
     const n = notas[j.id];
-    return `<a class="cmp-jogador" href="jogador.html?id=${j.id}">
-      <span class="avatar" style="width:72px;height:72px;font-size:28px;${UI.estiloCores(j.timeId)}">${esc(DB.Util.iniciais(j.nome))}${j.numero != null ? `<span class="shirt-num">${j.numero}</span>` : ''}</span>
-      <span class="cmp-nome">${esc(j.nome)}</span>
-      <span class="cmp-sub">${UI.bandeira(t, 'sm')} ${t ? esc(t.nome) : ''} · ${esc(j.posicao)}</span>
-      ${n ? `<span class="cmp-nota">${UI.notaHtml(Math.round(n.media * 10) / 10)}<small>nota média</small></span>` : ''}
-    </a>`;
+    return `<div class="cmp-jogador cmp-carta">
+      ${UI.cartaJogador(j, { nota: n ? Math.round(n.media * 10) / 10 : null, linha: linhas[j.id] })}
+      <span class="cmp-sub">${UI.bandeira(t, 'sm')} ${t ? esc(t.nome) : ''}</span>
+    </div>`;
   }
 
   function render() {

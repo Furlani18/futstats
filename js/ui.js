@@ -1,6 +1,65 @@
 const UI = (() => {
   const esc = texto => DB.Util.escapar(texto);
 
+  // ---------- Ícones (SVG próprios, traço de 2px em grade 24×24) ----------
+  // Substituem os emojis, que mudam de desenho entre Windows, Android e iPhone.
+  // Nos HTML fixos, use <i data-icone="nome"></i>: o topo troca pelo SVG ao montar a página.
+  const ICONES = {
+    inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+    partidas: '<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/>',
+    grupos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16"/>',
+    estatisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+    mais: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+    chaveamento: '<path d="M4 5h5v6H4zM4 13h5v6H4zM9 8h4v8h-4M13 12h7"/>',
+    bola: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5H9.3l-1.6-5zM12 7.5V3M16.3 10.6l4.2-1.4M14.7 15.6l2.6 3.6M9.3 15.6l-2.6 3.6M7.7 10.6L3.5 9.2"/>',
+    assistencia: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+    estrela: '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z"/>',
+    'estrela-cheia': '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z" fill="currentColor"/>',
+    balanca: '<path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/>',
+    calendario: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    usuario: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    escudo: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/>',
+    dado: '<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',
+    camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+    relogio: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    play: '<path d="M7 4.5l12 7.5-12 7.5z" fill="currentColor"/>',
+    pausa: '<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',
+    avancar: '<path d="M5 5l9 7-9 7z" fill="currentColor"/><path d="M18 5v14"/>',
+    trocar: '<path d="M4 8h14l-3-3M20 16H6l3 3"/>',
+    voltar: '<path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3"/>',
+    repetir: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+    globo: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    camisa: '<path d="M8 3L3 6l2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"/>',
+    grade: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+    prancheta: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+    estadio: '<ellipse cx="12" cy="9" rx="9" ry="4"/><path d="M3 9v6c0 2.2 4 4 9 4s9-1.8 9-4V9M7 12.5v4.8M12 13v6M17 12.5v4.8"/>',
+    bolo: '<path d="M4 21h16M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7M5 16.5c1.5 1 3 1 3.5 0s2-1 3.5 0 2 1 3.5 0 2-1 3.5 0M12 12V8.5M12 5.5v.5"/>',
+    capitao: '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M14.5 10a2.5 2.5 0 1 0 0 4"/>',
+    busca: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+    sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    lua: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+    refletor: '<path d="M8 3h8l1.5 6h-11zM12 9v12M8 21h8M4 4.5L2.5 3.5M20 4.5l1.5-1M3.5 8H2M20.5 8H22"/>',
+    paleta: '<path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.7 1.6-1.6 0-1-.8-1.4-.8-2.3 0-.9.7-1.6 1.6-1.6H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="9.5" cy="7" r="1" fill="currentColor"/><circle cx="14.5" cy="7" r="1" fill="currentColor"/>',
+    linhas: '<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
+    folga: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    trofeu: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 21h6M10 17h4v4h-4z"/>',
+    fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
+    aviso: '<path d="M12 3.5l9.5 17h-19zM12 10v4.5M12 17.5v.5"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+    luva: '<path d="M7 21v-4l-3-5a1.5 1.5 0 0 1 2.6-1.5L8 13V5.5a1.5 1.5 0 0 1 3 0V11V4.5a1.5 1.5 0 0 1 3 0V11V5.5a1.5 1.5 0 0 1 3 0V13l1-1.8a1.5 1.5 0 0 1 2.6 1.4L18 17v4z"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    chuteira: '<path d="M3 16.5h7.5L14 12h2.5a4.5 4.5 0 0 1 4.5 4.5v1.5H3zM3 19.5h18M6.5 16.5v-3M9.5 16.5v-2"/>',
+    pino: '<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  };
+  function icone(id, classe = '') {
+    return `<svg class="ico${classe ? ` ${classe}` : ''}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES[id] || ''}</svg>`;
+  }
+  // Troca os marcadores <i data-icone="nome"> do HTML fixo pelos SVGs.
+  function hidratarIcones(raiz = document) {
+    raiz.querySelectorAll('i[data-icone]').forEach(el => { el.outerHTML = icone(el.dataset.icone, el.className); });
+  }
+
   function paginaAtual() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
@@ -48,7 +107,7 @@ const UI = (() => {
   function iconeCampeonato(comp, tamanho = 'sm') {
     if (comp.logo) return `<span class="logo-plate logo-plate-${tamanho}"><img src="${comp.logo}" alt="" loading="lazy" onerror="this.parentNode.remove()"></span>`;
     if (comp.iso) return `<span class="flag flag-${tamanho}"><img src="${DB.Util.bandeiraUrl(comp.iso, 40)}" alt="" loading="lazy" onerror="this.remove()"></span>`;
-    return `<span class="comp-icone" aria-hidden="true">${comp.icone || '🏆'}</span>`;
+    return `<span class="comp-icone" aria-hidden="true">${icone('trofeu')}</span>`;
   }
 
   function seletorCampeonato() {
@@ -99,7 +158,15 @@ const UI = (() => {
   // Cores do campeonato selecionado: destaque (--comp-cor) e a faixa do topo.
   // Ficam salvas para o <head> da próxima página já abrir com elas (sem piscar).
   function aplicarTemaCampeonato() {
-    const tema = DB.Contexto.get().tema;
+    let tema = DB.Contexto.get().tema;
+    const camisa = TemaTime.time();
+    if (camisa) {
+      // Destaque na cor do time que aparece no fundo do tema; faixa nas cores do uniforme.
+      // A faixa do meio usa uma cor que apareça no fundo (a secundária branca some no tema claro).
+      const c = DB.Util.coresTime(camisa);
+      const cor = corDoTime(camisa);
+      tema = { cor, faixa: [c.primaria, corDoTime(camisa, cor), c.primaria] };
+    }
     if (!tema) return;
     const lum = hex => {
       const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -146,11 +213,11 @@ const UI = (() => {
           </a>
           ${seletorCampeonato()}
           <button type="button" class="search-btn" id="btn-busca" aria-label="Buscar jogador ou seleção" title="Buscar (Ctrl+K)">
-            <span aria-hidden="true">⌕</span><span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
+            ${icone('busca')}<span class="search-btn-txt">Buscar</span><kbd>Ctrl K</kbd>
           </button>
-          <button type="button" class="theme-btn" id="btn-tema" aria-label="Alternar tema claro/escuro" title="Tema claro/escuro"></button>
+          <button type="button" class="theme-btn" id="btn-tema" aria-label="Aparência: tema, densidade e cores" title="Aparência" aria-expanded="false" aria-controls="aparencia"></button>
           <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" tabindex="-1" aria-hidden="true">
-          <button type="button" class="nav-toggle-btn" data-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">☰</button>
+          <button type="button" class="nav-toggle-btn" data-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">${icone('menu')}</button>
           <nav class="topbar-nav" id="menu-principal" aria-label="Menu principal">
             ${navDoCampeonato().map(([id, href, label]) => `<a href="${href}" class="${secao === id ? 'active' : ''}"${secao === id ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
             <a href="login.html" class="nav-admin">Painel</a>
@@ -163,6 +230,7 @@ const UI = (() => {
     ativarTema();
     montarBarraInferior(secao);
     ativarMenu();
+    hidratarIcones();
     const principal = document.querySelector('main');
     if (principal && !principal.id) principal.id = 'conteudo';
   }
@@ -254,24 +322,79 @@ const UI = (() => {
     });
   }
 
-  // ---------- Tema claro/escuro ----------
+  // ---------- Aparência: tema (escuro, claro, estádio), densidade e camisa do time ----------
+  // Tudo fica no localStorage e o <head> de cada página reaplica antes de desenhar (sem piscar).
+  const TEMAS = [['dark', 'Escuro', 'lua'], ['light', 'Claro', 'sol'], ['estadio', 'Estádio', 'refletor']];
+
   function temaAtual() {
     const escolhido = document.documentElement.dataset.theme;
     if (escolhido) return escolhido;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   }
 
+  function guardar(chave, valor) {
+    try { if (valor == null) localStorage.removeItem(chave); else localStorage.setItem(chave, valor); } catch (e) { /* vale só nesta página */ }
+  }
+
+  // "Vestir a camisa": o destaque e a faixa do topo passam a usar as cores de um time.
+  const TemaTime = {
+    id() { try { return localStorage.getItem('fs_tema_time'); } catch (e) { return null; } },
+    time() { const id = this.id(); return id ? DB.Times.get(id) : null; },
+    definir(id) { guardar('fs_tema_time', id); aplicarTemaCampeonato(); },
+  };
+
   function ativarTema() {
     const botao = document.getElementById('btn-tema');
     if (!botao) return;
-    const atualizar = () => { botao.textContent = temaAtual() === 'light' ? '🌙' : '☀️'; };
-    botao.addEventListener('click', () => {
-      const novo = temaAtual() === 'light' ? 'dark' : 'light';
-      document.documentElement.dataset.theme = novo;
-      try { localStorage.setItem('fs_tema', novo); } catch (e) { /* sem armazenamento: vale só nesta página */ }
-      atualizar();
+    const atualizarBotao = () => { botao.innerHTML = icone((TEMAS.find(t => t[0] === temaAtual()) || TEMAS[0])[2]); };
+    let painel = null;
+    const fechar = () => { if (!painel) return; painel.remove(); painel = null; botao.setAttribute('aria-expanded', 'false'); };
+    const desenhar = () => {
+      const tema = temaAtual();
+      const compacta = document.documentElement.dataset.densidade === 'compacta';
+      const camisa = TemaTime.time();
+      const opcao = (grupo, valor, rotulo, ico, ativo) => `<button type="button" class="ap-opcao${ativo ? ' ativa' : ''}" data-${grupo}="${valor}" aria-pressed="${ativo}">${icone(ico)}<span>${rotulo}</span></button>`;
+      painel.innerHTML = `
+        <div class="ap-grupo"><span class="ap-rotulo">Tema</span><div class="ap-opcoes">${TEMAS.map(([v, r, ic]) => opcao('tema', v, r, ic, tema === v)).join('')}</div></div>
+        <div class="ap-grupo"><span class="ap-rotulo">Densidade</span><div class="ap-opcoes">${opcao('densidade', 'normal', 'Normal', 'folga', !compacta)}${opcao('densidade', 'compacta', 'Compacta', 'linhas', compacta)}</div></div>
+        <div class="ap-grupo"><span class="ap-rotulo">Cores</span>${camisa
+          ? `<div class="ap-camisa">${bandeira(camisa, 'sm')}<span>Vestindo a camisa do <b>${esc(camisa.nome)}</b></span><button type="button" class="ap-tirar" data-tirar>${icone('fechar')}<span class="sr-only">Voltar às cores do campeonato</span></button></div>`
+          : `<p class="ap-dica">${icone('camisa')} Na página de um time, toque em <b>Vestir a camisa</b> para o site ficar nas cores dele.</p>`}</div>`;
+    };
+    botao.addEventListener('click', e => {
+      e.stopPropagation();
+      if (painel) { fechar(); return; }
+      painel = document.createElement('div');
+      painel.className = 'aparencia';
+      painel.id = 'aparencia';
+      painel.setAttribute('role', 'dialog');
+      painel.setAttribute('aria-label', 'Aparência');
+      botao.after(painel);
+      botao.setAttribute('aria-expanded', 'true');
+      desenhar();
+      painel.addEventListener('click', ev => {
+        ev.stopPropagation();
+        const b = ev.target.closest('button');
+        if (!b) return;
+        const grupo = b.dataset.tema ? 'tema' : b.dataset.densidade ? 'densidade' : null;
+        if (b.dataset.tema) {
+          document.documentElement.dataset.theme = b.dataset.tema;
+          guardar('fs_tema', b.dataset.tema);
+          aplicarTemaCampeonato();   // a cor do time depende do fundo do tema
+        } else if (b.dataset.densidade) {
+          if (b.dataset.densidade === 'compacta') document.documentElement.dataset.densidade = 'compacta';
+          else delete document.documentElement.dataset.densidade;
+          guardar('fs_densidade', b.dataset.densidade === 'compacta' ? 'compacta' : null);
+        } else if (b.hasAttribute('data-tirar')) TemaTime.definir(null);
+        atualizarBotao();
+        desenhar();
+        (grupo ? painel.querySelector(`[data-${grupo}].ativa`) : painel.querySelector('.ap-opcao.ativa'))?.focus();
+      });
+      painel.querySelector('.ap-opcao.ativa')?.focus();
     });
-    atualizar();
+    document.addEventListener('click', fechar);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && painel) { fechar(); botao.focus(); } });
+    atualizarBotao();
   }
 
   // ---------- Menu recolhido (☰ no topo, "Mais" na barra inferior) ----------
@@ -291,16 +414,6 @@ const UI = (() => {
   }
 
   // ---------- Barra de navegação inferior (celular) ----------
-  const ICONES = {
-    inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
-    partidas: '<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/>',
-    grupos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16"/>',
-    estatisticas: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
-    mais: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
-    chaveamento: '<path d="M4 5h5v6H4zM4 13h5v6H4zM9 8h4v8h-4M13 12h7"/>',
-  };
-  const icone = id => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES[id]}</svg>`;
-
   function montarBarraInferior(secao) {
     if (document.querySelector('.bottom-nav')) return;
     const tipo = DB.Contexto.tipo();
@@ -667,8 +780,8 @@ const UI = (() => {
       return `<a class="perna" href="jogo.html?id=${j.id}">${j.perna === 2 ? 'Volta' : j.perna === 1 ? 'Ida' : 'Jogo'}: ${m ? esc(m.codigo) : '?'} ${placar} ${v ? esc(v.codigo) : '?'}</a>`;
     }).join('');
     return `<div class="bracket-match confronto">
-      <div class="bracket-team ${classe(c.timeA)}">${bandeira(a, 'sm')}<span class="nome">${a ? esc(a.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsA : ''}</span></div>
-      <div class="bracket-team ${classe(c.timeB)}">${bandeira(b, 'sm')}<span class="nome">${b ? esc(b.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsB : ''}</span></div>
+      <div class="bracket-team ${classe(c.timeA)}"${c.timeA ? ` data-time="${c.timeA}"` : ''}>${bandeira(a, 'sm')}<span class="nome">${a ? esc(a.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsA : ''}</span></div>
+      <div class="bracket-team ${classe(c.timeB)}"${c.timeB ? ` data-time="${c.timeB}"` : ''}>${bandeira(b, 'sm')}<span class="nome">${b ? esc(b.nome) : 'A definir'}</span><span class="gols">${c.comPlacar ? c.golsB : ''}</span></div>
       <div class="pernas">${pernas}${c.penaltis ? `<span class="perna">Pênaltis ${c.penaltis[0]}–${c.penaltis[1]}</span>` : ''}</div>
     </div>`;
   }
@@ -676,7 +789,9 @@ const UI = (() => {
   // ---------- Rankings de jogadores ----------
   function linhaLider(l, i, campo, rotulo) {
     const time = DB.Times.get(l.jogador.timeId);
-    const valor = campo === 'cartoes' ? `${l.amarelos}<small>🟨 ${l.vermelhos ? `· ${l.vermelhos} 🟥` : ''}</small>` : `${l[campo]}<small>${rotulo}</small>`;
+    const valor = campo === 'cartoes'
+      ? `${l.amarelos}<small><span class="card-icon" title="Amarelos"></span>${l.vermelhos ? ` · ${l.vermelhos} <span class="card-icon red" title="Vermelhos"></span>` : ''}</small>`
+      : `${l[campo]}<small>${rotulo}</small>`;
     return `
       <li>
         <a class="leader${i === 0 ? ' destaque' : ''}" href="jogador.html?id=${l.jogador.id}">
@@ -770,7 +885,7 @@ const UI = (() => {
   // Botão ☆/★ de seguir (página do time e do jogador).
   function ligarBotaoFavorito(botao, lista, id, rotulo) {
     const pintar = ativo => {
-      botao.textContent = ativo ? '★' : '☆';
+      botao.innerHTML = icone(ativo ? 'estrela-cheia' : 'estrela');
       botao.classList.toggle('ativo', ativo);
       botao.setAttribute('aria-pressed', ativo);
       botao.title = ativo ? 'Deixar de seguir' : `Seguir ${rotulo} (aparece em Favoritos)`;
@@ -852,8 +967,9 @@ const UI = (() => {
 
   // Os mesmos números do gráfico numa tabela só para leitores de tela (o SVG sozinho não é lido).
   function tabelaOculta(titulo, cabecalhos, linhas) {
-    return `<table class="sr-only"><caption>${esc(titulo)}</caption><thead><tr>${cabecalhos.map(c => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
-      <tbody>${linhas.map(l => `<tr>${l.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    // A tabela vai dentro de um div oculto: uma <table> não respeita width: 1px e alargaria a página.
+    return `<div class="sr-only"><table><caption>${esc(titulo)}</caption><thead><tr>${cabecalhos.map(c => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>${linhas.map(l => `<tr>${l.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
 
   // Várias linhas no mesmo eixo (ex.: campanha de dois times). `series`: [{ nome, cor, pontos: [{x, y, rotulo}] }].
@@ -948,6 +1064,54 @@ const UI = (() => {
     return opcoes[0] || (evitar && evitar !== 'var(--gold)' ? 'var(--gold)' : 'var(--blue)');
   }
 
+  // Carta de jogador no estilo figurinha: moldura ouro (nota ≥ 7,5), prata (≥ 6,8) ou bronze;
+  // sem nota (não jogou), moldura neutra. `linha` = números do jogador no campeonato.
+  const POS_CARTA = { Goleiro: 'GOL', Defensor: 'DEF', 'Meio-campo': 'MEI', 'Meia ofensivo': 'MEI', Atacante: 'ATA' };
+  function cartaJogador(jogador, { nota = null, linha = null, link = true } = {}) {
+    const time = DB.Times.get(jogador.timeId);
+    const nivel = nota == null ? 'base' : nota >= 7.5 ? 'ouro' : nota >= 6.8 ? 'prata' : 'bronze';
+    const l = linha || {};
+    const numeros = jogador.posicao === 'Goleiro'
+      ? [['J', l.jogos || 0], ['MIN', l.minutos || 0], ['CA', l.amarelos || 0]]
+      : [['GOL', l.gols || 0], ['ASS', l.assistencias || 0], ['J', l.jogos || 0], ['MIN', l.minutos || 0]];
+    const notaTxt = nota != null ? nota.toFixed(1).replace('.', ',') : '–';
+    const tag = link ? 'a' : 'div';
+    return `<${tag} class="carta carta-${nivel}"${link ? ` href="jogador.html?id=${jogador.id}"` : ''} aria-label="${esc(`${jogador.nome}, ${jogador.posicao}${nota != null ? `, nota ${notaTxt}` : ''}`)}">
+      <span class="carta-brilho" aria-hidden="true"></span>
+      <span class="carta-topo" aria-hidden="true"><span class="carta-nota">${notaTxt}</span><span class="carta-pos">${POS_CARTA[jogador.posicao] || esc(jogador.posicao || '')}</span>${bandeira(time, 'sm')}</span>
+      <span class="carta-foto" style="${estiloCores(jogador.timeId)}" aria-hidden="true">${esc(DB.Util.iniciais(jogador.nome))}${jogador.numero != null ? `<span class="carta-num">${jogador.numero}</span>` : ''}</span>
+      <span class="carta-nome">${esc(nomeCurto(jogador.nome))}</span>
+      <span class="carta-stats">${numeros.map(([r, v]) => `<span><b>${v}</b>${r}</span>`).join('')}</span>
+    </${tag}>`;
+  }
+
+  // Chaveamento: passar o mouse (ou o foco) num time acende o caminho dele e apaga o resto;
+  // com o campeão definido, o caminho dele fica aceso o tempo todo.
+  function destacarCaminhos(raiz, campeaoId) {
+    if (!raiz) return;
+    const marcar = (id, classe) => raiz.querySelectorAll(`.bracket-team[data-time="${id}"]`).forEach(el => {
+      el.classList.add(classe);
+      el.closest('.bracket-match')?.classList.add(classe);
+    });
+    if (campeaoId) { raiz.classList.add('tem-campeao'); marcar(campeaoId, 'caminho-campeao'); }
+    let atual = null;
+    const focar = id => {
+      if (id === atual) return;
+      atual = id;
+      raiz.querySelectorAll('.caminho').forEach(el => el.classList.remove('caminho'));
+      raiz.classList.toggle('com-foco', !!id);
+      if (id) marcar(id, 'caminho');
+    };
+    raiz.addEventListener('mouseover', e => { const t = e.target.closest('.bracket-team[data-time]'); if (t) focar(t.dataset.time); });
+    raiz.addEventListener('mouseleave', () => focar(null));
+    raiz.addEventListener('focusin', e => {
+      const m = e.target.closest('.bracket-match');
+      const t = m && (m.querySelector('.bracket-team.vencedor[data-time]') || m.querySelector('.bracket-team[data-time]'));
+      focar(t ? t.dataset.time : null);
+    });
+    raiz.addEventListener('focusout', e => { if (!raiz.contains(e.relatedTarget)) focar(null); });
+  }
+
   function vazio(titulo, texto) {
     return `<div class="empty"><strong>${titulo}</strong>${texto || ''}</div>`;
   }
@@ -960,5 +1124,6 @@ const UI = (() => {
     autoresResumo, animarNumeros, estiloCores,
     notaHtml, fotoJogador, jogadorNoCampo, campoGoogle, Favoritos, FavoritosJogadores, ligarBotaoFavorito, graficoLinha,
     graficoLinhas, graficoBarras, graficoRadar, corDoTime, escudoGerado, arquivoIcs, baixarIcs, proximosDoTime,
+    icone, hidratarIcones, TemaTime, temaAtual, cartaJogador, destacarCaminhos,
   };
 })();
