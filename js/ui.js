@@ -50,6 +50,8 @@ const UI = (() => {
     luva: '<path d="M7 21v-4l-3-5a1.5 1.5 0 0 1 2.6-1.5L8 13V5.5a1.5 1.5 0 0 1 3 0V11V4.5a1.5 1.5 0 0 1 3 0V11V5.5a1.5 1.5 0 0 1 3 0V13l1-1.8a1.5 1.5 0 0 1 2.6 1.4L18 17v4z"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     chuteira: '<path d="M3 16.5h7.5L14 12h2.5a4.5 4.5 0 0 1 4.5 4.5v1.5H3zM3 19.5h18M6.5 16.5v-3M9.5 16.5v-2"/>',
+    download: '<path d="M12 4v11M7 10l5 5 5-5M4 20h16"/>',
+    upload: '<path d="M12 16V5M7 10l5-5 5 5M4 20h16"/>',
     pino: '<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   };
   function icone(id, classe = '') {

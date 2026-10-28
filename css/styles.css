@@ -2013,7 +2013,7 @@ a.lu-reserva:hover .lu-rnome { color: var(--gold); }
 .lu-reserva .lu-foto { margin-bottom: 8px; }
 .lu-media .nota { height: 22px; font-size: 12px; }
 .nota-grande { min-width: 64px; height: 38px; font-size: 22px; border-radius: 10px; }
-.stat-tile.nota .v { display: flex; align-items: center; min-height: 33px; }
+.stat-tile.tile-nota .v { display: flex; align-items: center; min-height: 33px; margin-bottom: 4px; }
 
 /* jogador vazio / clube na seleção da rodada */
 .lu-jogador.vazio .lu-foto { background: rgba(255, 255, 255, .12); border: 2px dashed rgba(255, 255, 255, .35); }
@@ -2624,3 +2624,7 @@ a.carta:hover { transform: translateY(-3px) rotate(-1deg); }
 /* Os textos .sr-only (position: absolute) dentro das tabelas precisam ficar presos ao
    contêiner que rola; sem isso escapam dele e alargam a página no celular. */
 .table-scroll { position: relative; }
+
+/* Capitão no campinho da partida. */
+.lu-capitao { top: -8px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--on-gold); font-weight: 800; padding: 0 4px; }
+.info-list .card-icon { margin: 0 6px 0 3px; vertical-align: -2px; }

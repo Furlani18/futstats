@@ -52,7 +52,7 @@ const AdminUI = (() => {
     mount.innerHTML = `
       <div class="admin-topbar">
         <div class="admin-topbar-left">
-          <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle">☰</button>
+          <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Abrir ou fechar o menu">${UI.icone('menu')}</button>
           <span class="admin-topbar-title" id="admin-titulo"></span>
         </div>
         <div class="admin-topbar-left">
@@ -93,6 +93,7 @@ const AdminUI = (() => {
     if (!guardarAutenticacao()) return;
     montarSidebar();
     montarTopbar();
+    UI.hidratarIcones();
     window.addEventListener('hashchange', abrirSecao);
     abrirSecao();
   }
@@ -120,7 +121,7 @@ const AdminUI = (() => {
       <div class="modal${largo ? ' modal-largo' : ''}">
         <div class="modal-header">
           <span class="modal-title">${titulo}</span>
-          <button type="button" class="btn-icon" id="modal-fechar">✕</button>
+          <button type="button" class="btn-icon" id="modal-fechar" aria-label="Fechar">${UI.icone('fechar')}</button>
         </div>
         <form id="modal-form">
           <div class="modal-body">${corpoHtml}</div>

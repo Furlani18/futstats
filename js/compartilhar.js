@@ -1,6 +1,23 @@
 // Gera uma imagem 1080×1080 do jogo (placar, autores dos gols) para compartilhar.
 // No celular abre o menu de compartilhar (WhatsApp, Instagram…); no computador baixa o PNG.
 const Compartilhar = (() => {
+  // Bola de futebol com o mesmo desenho do ícone do site (grade 24×24): o emoji ⚽
+  // sairia diferente em cada sistema e às vezes nem aparece no canvas.
+  function desenharBola(ctx, cx, cy, tamanho, cor) {
+    ctx.save();
+    ctx.translate(cx - tamanho / 2, cy - tamanho / 2);
+    ctx.scale(tamanho / 24, tamanho / 24);
+    ctx.strokeStyle = cor;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.arc(12, 12, 9, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.stroke(new Path2D('M12 7.5l4.3 3.1-1.6 5H9.3l-1.6-5zM12 7.5V3M16.3 10.6l4.2-1.4M14.7 15.6l2.6 3.6M9.3 15.6l-2.6 3.6M7.7 10.6L3.5 9.2'));
+    ctx.restore();
+  }
+
   const L = 1080;
   const DISPLAY = '"Barlow Condensed", "Inter", sans-serif';
   const TEXTO = '"Inter", system-ui, sans-serif';
@@ -147,7 +164,7 @@ const Compartilhar = (() => {
       const max = 7;
       listaM.slice(0, max).forEach((t, i) => { ctx.textAlign = 'right'; textoAjustado(ctx, t, L / 2 - 50, 600 + i * 46, 400, 30, TEXTO, 600); });
       listaV.slice(0, max).forEach((t, i) => { ctx.textAlign = 'left'; textoAjustado(ctx, t, L / 2 + 50, 600 + i * 46, 400, 30, TEXTO, 600); });
-      ctx.textAlign = 'center'; ctx.font = `30px ${TEXTO}`; ctx.fillText('⚽', L / 2, 600);
+      desenharBola(ctx, L / 2, 590, 34, '#c9cfdc');
     } else if (jogo.local) {
       ctx.fillStyle = '#8f98ad'; ctx.font = `600 30px ${TEXTO}`;
       ctx.fillText(jogo.local, L / 2, 600);
@@ -157,8 +174,7 @@ const Compartilhar = (() => {
     ctx.textAlign = 'left';
     ctx.fillStyle = '#f4c64e';
     retanguloArredondado(ctx, 60, L - 120, 56, 56, 12); ctx.fill();
-    ctx.fillStyle = '#1a1203'; ctx.font = `800 30px ${TEXTO}`; ctx.textAlign = 'center';
-    ctx.fillText('⚽', 88, L - 81);
+    desenharBola(ctx, 88, L - 92, 36, '#1a1203');
     ctx.textAlign = 'left'; ctx.font = `800 46px ${DISPLAY}`;
     ctx.fillStyle = '#f1f4fa'; ctx.fillText('FUT', 132, L - 75);
     const larguraFut = ctx.measureText('FUT').width;

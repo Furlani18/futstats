@@ -579,3 +579,134 @@ details.lances-box[open] > summary::after { content: '▴'; }
 .login-aviso summary:hover { color: var(--text); }
 .login-aviso p { margin: 10px 0 0; line-height: 1.5; }
 .login-aviso code { font-size: 12px; }
+
+/* Ícones SVG (os mesmos do site) e o cartão desenhado em CSS. */
+.ico { width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -.18em; flex-shrink: 0; }
+.btn-icon .ico, .sidebar-toggle-btn .ico { width: 16px; height: 16px; vertical-align: middle; }
+.card-icon { display: inline-block; width: 10px; height: 14px; border-radius: 2px; background: #ffd23f; transform: rotate(6deg); vertical-align: -2px; }
+.card-icon.red { background: #ff3b4f; }
+
+/* =====================================================================
+   Editor de escalação: abas por time, formação, campinho clicável,
+   elenco arrastável, trocas em um clique e avisos.
+   ===================================================================== */
+.esc-editor { padding: 0 0 12px; }
+.esc-abas { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+.esc-aba {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: none; border: 0; border-bottom: 2px solid transparent; color: var(--text-dim);
+  font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; min-width: 0;
+}
+.esc-aba span:not(.flag) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.esc-aba small { margin-left: auto; font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+.esc-aba small.ok { color: #33e08a; }
+.esc-aba small.erro { color: var(--danger); }
+.esc-aba.ativa { color: var(--text); border-bottom-color: var(--accent); background: var(--panel); }
+.esc-aba .flag { width: 20px; height: 14px; border-radius: 2px; overflow: hidden; display: inline-block; flex-shrink: 0; }
+.esc-aba .flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.esc-aba .flag.crest-img img, .esc-aba .flag.crest-svg svg { object-fit: contain; width: 100%; height: 100%; }
+.esc-painel { padding: 12px; display: grid; gap: 10px; }
+
+.esc-barra, .esc-rapido { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.esc-form { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.esc-form select, .esc-rapido input, .esc-busca, .esc-colar textarea, .esc-sub-min input {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 7px 9px; font: inherit; font-size: 13px;
+}
+.esc-form select { font-weight: 800; }
+.esc-rapido input { flex: 1; min-width: 220px; }
+.esc-colar { display: grid; gap: 8px; }
+.esc-colar textarea { width: 100%; resize: vertical; }
+.esc-form select:focus, .esc-rapido input:focus, .esc-busca:focus, .esc-colar textarea:focus, .esc-sub-min input:focus { outline: none; border-color: var(--accent); }
+.esc-msg { font-size: 12.5px; color: var(--accent); background: rgba(244, 198, 78, .08); border-radius: 7px; padding: 7px 10px; }
+
+.esc-corpo { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+
+/* Campinho: listras, área e círculo central; ataque em cima, goleiro embaixo. */
+.esc-campo-caixa { display: grid; gap: 6px; }
+.esc-campo {
+  position: relative; overflow: hidden; border-radius: 10px;
+  display: flex; flex-direction: column; justify-content: space-around; gap: 10px;
+  min-height: 420px; padding: 18px 6px 14px;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0, 0, 0, .28)), repeating-linear-gradient(180deg, #3f7652 0 8%, #48825b 8% 16%);
+}
+.esc-campo .ec-area { position: absolute; left: 50%; bottom: -2px; width: 56%; height: 17%; transform: translateX(-50%); border: 2px solid rgba(255, 255, 255, .35); border-bottom: none; pointer-events: none; }
+.esc-campo .ec-meio { position: absolute; left: 50%; top: -60px; width: 30%; aspect-ratio: 1; transform: translateX(-50%); border: 2px solid rgba(255, 255, 255, .35); border-radius: 50%; pointer-events: none; }
+.esc-linha { position: relative; z-index: 1; display: flex; justify-content: space-around; gap: 4px; }
+.vaga {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; width: 76px; padding: 4px 2px; border-radius: 9px;
+  background: none; border: 2px solid transparent; color: #fff; font: inherit; cursor: pointer;
+}
+.vaga:hover { background: rgba(255, 255, 255, .1); }
+.vaga.selecionada, .vaga.ativa { border-color: #fff; background: rgba(255, 255, 255, .16); }
+.vaga.sobre { border-color: var(--accent); border-style: dashed; background: rgba(244, 198, 78, .18); }
+.vaga[draggable="true"] { cursor: grab; }
+.vaga-foto {
+  position: relative; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 17px; box-shadow: 0 5px 9px -3px rgba(0, 0, 0, .45);
+}
+.vaga.vazia .vaga-foto { background: rgba(255, 255, 255, .12); border: 2px dashed rgba(255, 255, 255, .55); color: rgba(255, 255, 255, .85); font-size: 20px; box-shadow: none; }
+.vaga-nome { font-size: 11px; font-weight: 700; line-height: 1.15; max-width: 74px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.vaga-pos { font-size: 9.5px; font-weight: 800; letter-spacing: .5px; color: rgba(255, 255, 255, .75); }
+.esc-contagem { font-size: 12px; font-weight: 700; color: var(--text-dim); text-align: center; }
+.esc-contagem.ok { color: #33e08a; }
+
+/* Marcas no jogador: capitão, entrou/saiu, cartão e gols. */
+.mk { position: absolute; font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 800; line-height: 1; border-radius: 6px; padding: 2px 3px; }
+.mk-cap { top: -6px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #1a1203; }
+.mk-saiu { top: -6px; left: -10px; background: #b3261e; color: #fff; }
+.mk-entrou { position: static; background: rgba(51, 224, 138, .16); color: #33e08a; margin-left: auto; }
+.vaga .mk-entrou { position: absolute; top: -6px; left: -10px; }
+.mk-cartao { top: -5px; right: -4px; width: 9px; height: 12px; padding: 0; border-radius: 2px; background: #ffd23f; }
+.mk-cartao.vermelho { background: #ff3b4f; }
+.mk-gol { bottom: -3px; right: -10px; background: #fff; color: #111; display: inline-flex; align-items: center; gap: 1px; }
+.mk-gol .ico { width: 10px; height: 10px; }
+
+/* Elenco disponível ao lado. */
+.esc-lado { display: grid; gap: 8px; min-width: 0; }
+.esc-busca { width: 100%; }
+.esc-elenco { max-height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+.esc-elenco.sobre { border-color: var(--accent); border-style: dashed; }
+.esc-grupo > span { display: block; position: sticky; top: 0; z-index: 1; padding: 5px 10px; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--text-dim); background: var(--bg-alt); border-bottom: 1px solid var(--border); }
+.esc-grupo.destaque > span { color: var(--accent); background: #1d1c18; }
+.esc-jog {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 10px; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--border); color: var(--text); font: inherit; font-size: 12.5px; cursor: pointer; position: relative;
+}
+.esc-jog:hover, .esc-jog.ativa { background: var(--panel-2); }
+.esc-jog[draggable="true"] { cursor: grab; }
+.esc-jog .num { width: 22px; text-align: right; font-weight: 800; color: var(--text-dim); flex-shrink: 0; }
+.esc-jog .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.esc-jog .mk-cap { position: static; transform: none; margin-left: 4px; }
+
+/* Ações do selecionado e troca em um clique. */
+.esc-acoes, .esc-sub { padding: 10px; border: 1px solid var(--accent); border-radius: 8px; background: rgba(244, 198, 78, .06); font-size: 13px; }
+.esc-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.esc-acoes b { flex-basis: 100%; font-size: 13.5px; }
+.esc-acoes .btn-icon { margin-left: auto; }
+.esc-sub { display: grid; gap: 8px; }
+.esc-sub-lista { display: flex; flex-wrap: wrap; gap: 5px; max-height: 150px; overflow-y: auto; }
+.esc-chip { background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.esc-chip small { color: var(--text-dim); font-size: 10px; font-weight: 800; }
+.esc-chip.outra-pos { opacity: .7; }
+.esc-chip.ativa { border-color: var(--accent); color: var(--accent); background: rgba(244, 198, 78, .1); }
+.esc-sub-min { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.esc-sub-min input { width: 110px; }
+.esc-sub-fim { display: flex; gap: 8px; }
+
+.esc-trocas { border-top: 1px solid var(--border); padding-top: 10px; }
+.esc-trocas .escalacao-titulo .btn { margin-left: auto; }
+.esc-trocas .escalacao-titulo .lances-hint { margin-left: 6px; }
+.esc-avisos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.esc-avisos li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; padding: 7px 10px; border-radius: 7px; background: rgba(255, 138, 61, .1); color: #ffc08e; }
+.esc-avisos li.erro { background: rgba(255, 84, 112, .12); color: #ff9aac; }
+.esc-avisos .ico { width: 14px; height: 14px; }
+
+@media (max-width: 760px) {
+  .esc-corpo { grid-template-columns: 1fr; }
+  .esc-campo { min-height: 360px; }
+  .vaga { width: 62px; }
+  .vaga-nome { max-width: 60px; font-size: 10px; }
+  .esc-rapido input { min-width: 0; }
+}
+
+@media (max-width: 560px) { .esc-lado-txt { display: none; } }

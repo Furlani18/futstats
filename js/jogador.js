@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tile = (l, v, classe = '') => `<div class="stat-tile ${classe}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   const nota = DB.Estatisticas.notasTemporada()[jogador.id];
   document.getElementById('tiles-jogador').innerHTML = [
-    nota ? tile('Nota média', UI.notaHtml(Math.round(nota.media * 10) / 10, 'nota-grande'), 'nota') : '',
+    nota ? tile('Nota média', UI.notaHtml(Math.round(nota.media * 10) / 10, 'nota-grande'), 'tile-nota') : '',
     tile('Jogos', s.jogos), tile('Minutos', s.minutos), tile('Titular', s.titular),
     tile('Gols', s.gols, 'gold'), tile('Assistências', s.assistencias, 'gold'), tile('Participações', s.participacoes),
     tile('De pênalti', s.penaltis), tile('Jogos com gol', s.jogosComGol), tile('Amarelos', s.amarelos), tile('Vermelhos', s.vermelhos),

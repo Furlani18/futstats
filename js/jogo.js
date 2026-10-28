@@ -133,7 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const topo = `<div class="lu-topo">${UI.bandeira(time, 'sm')}<span class="lu-time">${esc_(time.nome)}</span>
       ${media != null ? `<span class="lu-media" title="Nota média dos titulares">${UI.notaHtml(Math.round(media * 10) / 10)}</span>` : ''}
       ${formacao ? `<span class="lu-formacao">${formacao}</span>` : ''}</div>`;
-    return UI.campoGoogle(ORDEM_LINHAS.map(pos => porLinha(pos).map(j => UI.jogadorNoCampo(j, { cantos: cantos(j), nota: notas[j.id] }))), topo);
+    // Capitão (marcado no painel): selo "C" no alto da foto.
+    const capitao = j => (escTime.capitaoId === j.id ? '<span class="lu-ic lu-capitao" title="Capitão">C</span>' : '');
+    return UI.campoGoogle(ORDEM_LINHAS.map(pos => porLinha(pos).map(j => UI.jogadorNoCampo(j, { cantos: cantos(j) + capitao(j), nota: notas[j.id] }))), topo);
   }
 
   // Banco: quem entrou (com o minuto) e depois quem não saiu do banco.
