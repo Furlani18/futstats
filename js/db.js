@@ -30,6 +30,13 @@ const DB = (() => {
     window.addEventListener('storage', e => { if (e.key) delete memoria[e.key]; else Object.keys(memoria).forEach(k => delete memoria[k]); });
   }
 
+  // Quem precisa saber de cada gravação do painel (a sincronização com a nuvem) se inscreve
+  // em Sincronia.aoGravar. Recebe (chave, item, removido).
+  const ouvintes = [];
+  function avisarGravacao(chave, item, removido = false) {
+    ouvintes.forEach(fn => { try { fn(chave, item, removido); } catch (e) { /* um ouvinte com erro não trava a gravação */ } });
+  }
+
   function uid(prefixo) {
     return `${prefixo}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
   }
@@ -46,6 +53,7 @@ const DB = (() => {
         const item = { id: uid(prefixo), ...(carimbo ? carimbo() : {}), ...dados };
         itens.push(item);
         gravar(chave, itens);
+        avisarGravacao(chave, item);
         return item;
       },
       update(id, patch) {
@@ -54,10 +62,12 @@ const DB = (() => {
         if (indice === -1) return null;
         itens[indice] = { ...itens[indice], ...patch };
         gravar(chave, itens);
+        avisarGravacao(chave, itens[indice]);
         return itens[indice];
       },
       remove(id) {
         gravar(chave, this.todos().filter(item => item.id !== id));
+        avisarGravacao(chave, { id }, true);
       },
     };
   }
@@ -1527,6 +1537,7 @@ const DB = (() => {
       gravar('fs_jogos', dados.jogos.map(j => (j.competicaoId ? j : { ...j, competicaoId: PADRAO })));
       garantirClubes();
       if (dados.geradoEm) localStorage.setItem('fs_dados_publicados', dados.geradoEm);
+      localStorage.removeItem('fs_nuvem_sync');
     },
     // Conteúdo do arquivo js/dados.js para publicar no repositório.
     arquivoPublicacao() {
@@ -1650,6 +1661,11 @@ const DB = (() => {
       localStorage.setItem('fs_auth_tentativas', JSON.stringify(t));
       return false;
     },
+    // Login feito pela nuvem (conta marcada como administradora no Supabase).
+    entrarPelaNuvem(usuario) {
+      localStorage.removeItem('fs_auth_tentativas');
+      localStorage.setItem('fs_auth', JSON.stringify({ usuario, ts: Date.now(), nuvem: true }));
+    },
     logout() { localStorage.removeItem('fs_auth'); },
     // A sessão vale 12 horas.
     isLogged() {
@@ -1699,7 +1715,45 @@ const DB = (() => {
       else jogos[atual] = h.antes;
       gravar('fs_jogos', jogos);
       gravar('fs_historico', itens.filter((x, i) => i < indice || x.jogoId !== h.jogoId));
+      avisarGravacao('fs_jogos', h.antes || { id: h.jogoId }, !h.antes);
       return h;
+    },
+  };
+
+  // ==========================================================================
+  // Sincronia: ponte entre o armazenamento local e a nuvem (js/nuvem.js).
+  // ==========================================================================
+  const PADROES = () => ({
+    fs_times: new Map([...TIMES_SEED, ...CLUBES_SEED].map(t => [t.id, JSON.stringify(t)])),
+    fs_jogadores: new Map([...JOGADORES_SEED, ...JOGADORES_CLUBES_SEED].map(j => [j.id, JSON.stringify(j)])),
+  });
+  const Sincronia = {
+    CHAVES: ['fs_times', 'fs_jogadores', 'fs_jogos'],
+    aoGravar(fn) { ouvintes.push(fn); },
+    // Aplica linhas vindas da nuvem ([{ id, dados }], dados null = apagado) sem avisar os ouvintes.
+    // Devolve quantos itens de fato mudaram.
+    aplicar(chave, linhas) {
+      const itens = [...(ler(chave) || [])];
+      const posicao = new Map(itens.map((item, i) => [item.id, i]));
+      const apagar = new Set();
+      let mudou = 0;
+      linhas.forEach(({ id, dados }) => {
+        const i = posicao.get(id);
+        if (!dados) { if (i != null && !apagar.has(id)) { apagar.add(id); mudou++; } return; }
+        if (i == null) { posicao.set(id, itens.length); itens.push(dados); mudou++; }
+        else if (JSON.stringify(itens[i]) !== JSON.stringify(dados)) { itens[i] = dados; mudou++; }
+      });
+      if (mudou) gravar(chave, apagar.size ? itens.filter(item => !apagar.has(item.id)) : itens);
+      return mudou;
+    },
+    // Itens para enviar à nuvem: todos os jogos; times e jogadores só os que diferem do padrão do site
+    // (os elencos originais já vêm nos arquivos do site, não precisam ocupar o banco).
+    paraEnviar(chave) {
+      const itens = ler(chave) || [];
+      if (chave === 'fs_jogos') return itens;
+      const padrao = PADROES()[chave];
+      if (!padrao || !padrao.size) return itens;
+      return itens.filter(item => padrao.get(item.id) !== JSON.stringify(item));
     },
   };
 
@@ -1772,5 +1826,5 @@ const DB = (() => {
     },
   };
 
-  return { Contexto, Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Historico, Util };
+  return { Contexto, Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Historico, Sincronia, Util };
 })();

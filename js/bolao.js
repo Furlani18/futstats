@@ -188,6 +188,7 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
       input.classList.toggle('palpite', input.value !== '');
       salvar();
       renderRanking();
+      enviarPalpiteOnline(id);
     }));
   }
 
@@ -224,6 +225,58 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
       salvar();
       renderRanking();
     }));
+  }
+
+  // ---------- Bolão online (com o banco de dados ligado) ----------
+  const online = typeof Nuvem !== 'undefined' && Nuvem.ativa;
+  const timersOnline = {};
+  function enviarPalpiteOnline(id) {
+    if (!online || !Nuvem.usuario) return;
+    clearTimeout(timersOnline[id]);
+    timersOnline[id] = setTimeout(async () => {
+      const [a, b] = dados.palpites[id] || ['', ''];
+      if ((a === '') !== (b === '')) return;   // só com o placar completo (ou apagado)
+      try { await Nuvem.salvarPalpite(comp.id, id, a, b); aviso('Palpite salvo no bolão online.'); renderOnline(); } catch (e) { aviso(e.message); }
+    }, 700);
+  }
+  async function renderOnline() {
+    const caixa = document.getElementById('bolao-online');
+    document.getElementById('painel-bolao-online').hidden = false;
+    if (!Nuvem.usuario) {
+      caixa.innerHTML = `<div class="bolao-voce"><p class="grafico-nota" style="margin:0;">Entre com uma conta para disputar com todo mundo que usa o site. Os palpites deste aparelho vão junto.</p>
+        <div class="bolao-acoes"><button type="button" class="btn btn-primary" id="btn-bolao-entrar">${UI.icone('usuario')} Entrar ou criar conta</button></div></div>`;
+      document.getElementById('btn-bolao-entrar').addEventListener('click', () => Nuvem.abrirConta());
+    }
+    try {
+      const lista = await Nuvem.rankingBolao(comp.id);
+      document.getElementById('bolao-online-resumo').textContent = `${lista.length} participante${lista.length === 1 ? '' : 's'}`;
+      const meu = Nuvem.usuario && Nuvem.usuario.id;
+      const tabela = lista.length ? `<div class="table-scroll"><table class="stats-table">
+        <caption class="sr-only">Ranking online do bolão</caption>
+        <thead><tr><th scope="col">#</th><th scope="col" class="left">Participante</th><th scope="col" class="strong">Pts</th><th scope="col">Exatos</th><th scope="col">Palpites</th></tr></thead>
+        <tbody>${lista.slice(0, 50).map((p, i) => `<tr${p.user_id === meu ? ' class="destaque-time"' : ''}><td class="pos">${i + 1}</td>
+          <td class="left"><b>${esc(p.nome)}</b>${p.user_id === meu ? ' <small class="dim">(você)</small>' : ''}</td><td class="strong">${p.pontos}</td><td>${p.exatos}</td><td>${p.palpites}</td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="grafico-nota" style="padding:12px 18px;">Ninguém palpitou online neste campeonato ainda. Seja o primeiro!</p>';
+      if (Nuvem.usuario) caixa.innerHTML = tabela;
+      else caixa.insertAdjacentHTML('beforeend', tabela);
+    } catch (e) {
+      caixa.insertAdjacentHTML('beforeend', `<p class="grafico-nota" style="padding:12px 18px;">${esc(e.message)}</p>`);
+    }
+  }
+  if (online) {
+    document.querySelector('.page-hero .lead').textContent = 'Palpite o placar dos próximos jogos. Com uma conta, você disputa o ranking online com todo mundo que usa o site; sem conta, dá para jogar com os amigos trocando links.';
+    let quem = null;
+    const aoMudarConta = async () => {
+      const agora = Nuvem.usuario ? Nuvem.usuario.id : null;
+      if (agora === quem) return;
+      quem = agora;
+      // Ao entrar, os palpites deste aparelho para jogos ainda abertos sobem para a conta.
+      if (agora) {
+        try { await Nuvem.enviarPalpites(comp.id, completos(dados.palpites), new Set(jogos.filter(aberto).map(j => j.id))); } catch (e) { aviso(e.message); }
+      }
+      renderOnline();
+    };
+    Nuvem.pronta.then(ok => { if (ok) { aoMudarConta(); Nuvem.aoMudar(aoMudarConta); } });
   }
 
   // ---------- Conquistas ----------

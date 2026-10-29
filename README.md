@@ -37,7 +37,7 @@ Site de estatísticas da Copa do Mundo 2026 inspirado no SofaScore: grupos, jogo
 
 O site é estático (sem back-end): o painel edita só os dados do próprio navegador, então a senha é pública e serve apenas para evitar edições por engano. O código guarda o hash SHA-256 da senha (não o texto), pede espera após 5 tentativas erradas e encerra a sessão em 12 horas.
 
-Os dados ficam salvos no próprio navegador (localStorage). Elencos e calendário: listas oficiais da FIFA, via Wikipedia (`js/elencos.js` e `js/calendario.js`).
+Os dados ficam salvos no próprio navegador (localStorage). Opcionalmente, um banco de dados no Supabase publica o painel na hora para todos e liga contas, bolão online e ranking do quiz: veja o [SUPABASE.md](SUPABASE.md). Elencos e calendário: listas oficiais da FIFA, via Wikipedia (`js/elencos.js` e `js/calendario.js`).
 
 ## Testes
 Os critérios de desempate da FIFA, os melhores terceiros e os 32avos, os pontos corridos, o Monte Carlo, o bolão e o login têm testes automatizados, sem dependências (Node 18+):
@@ -50,7 +50,7 @@ npm test
 Os elencos (`js/elencos.js` e `js/clubes.js`, ~500 KB) só são baixados na primeira visita, para montar a base no `localStorage`. Depois, as páginas carregam apenas os arquivos pequenos (`js/carregar-dados.js` decide).
 
 ## Tecnologias
-HTML · CSS · JavaScript puro · localStorage · SVG · node:test
+HTML · CSS · JavaScript puro · localStorage · Supabase (opcional) · SVG · node:test
 
 ---
 Feito por [Gabriel Furlani](https://furlani18.github.io/)

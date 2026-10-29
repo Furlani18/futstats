@@ -23,6 +23,48 @@ AdminUI.registrar('dados', () => {
 
   avisar(`Neste navegador: ${resumo()}.`);
 
+  // ---------- Banco de dados ----------
+  const nuvem = typeof Nuvem !== 'undefined' && Nuvem.ativa;
+  const statusNuvem = document.getElementById('nuvem-status');
+  const btnEnviar = document.getElementById('btn-nuvem-enviar');
+  const btnBaixar = document.getElementById('btn-nuvem-baixar');
+  function pintarNuvem() {
+    if (!document.body.contains(statusNuvem)) return;   // a seção foi trocada
+    if (!nuvem) {
+      statusNuvem.innerHTML = 'Desligado: os dados ficam só neste navegador. Para que o painel publique na hora para todos, siga o <code>SUPABASE.md</code> e preencha o <code>js/config-nuvem.js</code>.';
+      return;
+    }
+    const e = Nuvem.estado();
+    btnEnviar.hidden = btnBaixar.hidden = !e.conectada;
+    btnEnviar.disabled = !e.admin;
+    if (!e.conectada) { statusNuvem.textContent = 'Conectando ao banco de dados…'; return; }
+    statusNuvem.innerHTML = e.admin
+      ? `Ligado como <b>${DB.Util.escapar(e.usuario.email)}</b> (administrador). Cada jogo salvo aqui vai na hora para todos os visitantes.${e.pendentes ? ` <b>${e.pendentes}</b> alteraç${e.pendentes === 1 ? 'ão esperando' : 'ões esperando'} envio.` : ' Tudo enviado.'}
+        Use <b>Enviar tudo</b> na primeira vez (ou depois de restaurar um backup).`
+      : `Ligado, mas sem conta de administrador nesta sessão: as alterações ficam <b>só neste navegador</b>${e.pendentes ? ` (${e.pendentes} esperando)` : ''}. Saia e entre de novo com a conta de administrador.`;
+  }
+  pintarNuvem();
+  if (nuvem) {
+    Nuvem.aoMudar(pintarNuvem);
+    Nuvem.pronta.then(pintarNuvem);
+    btnEnviar.addEventListener('click', async () => {
+      if (!confirm('Enviar para o banco todos os jogos deste navegador e os times/jogadores editados? O que já estiver no banco com o mesmo id será substituído.')) return;
+      btnEnviar.disabled = true;
+      try {
+        const total = await Nuvem.enviarTudo(texto => avisar(texto));
+        avisar(`${total} itens enviados para o banco de dados.`, 'ok');
+      } catch (err) { avisar(`Falha ao enviar: ${err.message}`, 'erro'); } finally { pintarNuvem(); }
+    });
+    btnBaixar.addEventListener('click', async () => {
+      btnBaixar.disabled = true;
+      try {
+        const { mudou } = await Nuvem.baixar();
+        if (mudou) DB.MataMata.sincronizar();
+        avisar(mudou ? `${mudou} itens atualizados a partir do banco.` : 'Este navegador já está igual ao banco.', 'ok');
+      } catch (err) { avisar(`Falha ao baixar: ${err.message}`, 'erro'); } finally { btnBaixar.disabled = false; }
+    });
+  }
+
   document.getElementById('btn-exportar').addEventListener('click', () => {
     const data = new Date().toISOString().slice(0, 10);
     baixar(`futstats-backup-${data}.json`, JSON.stringify(DB.Dados.exportar(), null, 2), 'application/json');

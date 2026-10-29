@@ -2,7 +2,7 @@
 // Páginas e dados publicados: rede primeiro (sempre a versão mais nova quando há conexão).
 // CSS, scripts e imagens: cache primeiro, atualizado em segundo plano.
 // Ao mudar arquivos do site, aumente VERSAO para descartar o cache antigo.
-const VERSAO = 'futstats-v1';
+const VERSAO = 'futstats-v2';
 
 const PAGINAS = [
   './', 'index.html', 'partidas.html', 'jogo.html', 'grupos.html', 'chaveamento.html', 'estatisticas.html',
@@ -11,7 +11,7 @@ const PAGINAS = [
 ];
 const ARQUIVOS = [
   'css/styles.css', 'favicon.svg', 'manifest.webmanifest', 'icons/icone-192.png',
-  'js/carregar-dados.js', 'js/competicoes-clubes.js', 'js/competicoes.js', 'js/dados.js', 'js/db.js', 'js/ui.js',
+  'js/carregar-dados.js', 'js/config-nuvem.js', 'js/nuvem.js', 'js/competicoes-clubes.js', 'js/competicoes.js', 'js/dados.js', 'js/db.js', 'js/ui.js',
   'js/elencos.js', 'js/clubes.js', 'js/calendario.js', 'js/main.js', 'js/partidas.js', 'js/jogo.js', 'js/grupos.js',
   'js/chaveamento.js', 'js/estatisticas.js', 'js/recordes.js', 'js/premios.js', 'js/simulador.js', 'js/probabilidades.js',
   'js/bolao.js', 'js/quiz.js', 'js/meu-time.js', 'js/selecoes.js', 'js/time.js', 'js/jogador.js', 'js/comparar.js',
@@ -64,7 +64,7 @@ self.addEventListener('fetch', evento => {
     if (pedido.destination === 'image') evento.respondWith(cachePrimeiro(evento, pedido));
     return;
   }
-  const dinamico = pedido.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/js/dados.js');
+  const dinamico = pedido.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/js/dados.js') || url.pathname.endsWith('/js/config-nuvem.js');
   evento.respondWith(dinamico ? redePrimeiro(pedido) : cachePrimeiro(evento, pedido));
 });
 

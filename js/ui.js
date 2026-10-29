@@ -237,6 +237,7 @@ const UI = (() => {
     ativarSeletor();
     logoNoTopoDaPagina();
     ativarTema();
+    if (typeof Nuvem !== 'undefined') Nuvem.montarConta();
     montarBarraInferior(secao);
     ativarMenu();
     hidratarIcones();

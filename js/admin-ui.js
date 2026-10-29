@@ -39,8 +39,9 @@ const AdminUI = (() => {
           <a class="btn btn-ghost" style="width:100%;justify-content:center;" id="btn-sair">Sair</a>
         </div>
       </div>`;
-    document.getElementById('btn-sair').addEventListener('click', () => {
+    document.getElementById('btn-sair').addEventListener('click', async () => {
       DB.Auth.logout();
+      if (typeof Nuvem !== 'undefined' && Nuvem.ativa) await Nuvem.sair().catch(() => null);
       window.location.href = 'login.html';
     });
   }

@@ -148,7 +148,10 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
       p.acertou = true;
       UI.confete({ cores: [DB.Util.coresTime(DB.Times.get(alvo.timeId)).primaria, '#f4c64e', '#ffffff'] });
     }
-    if (!treino) Quiz.salvar(comp.id, dados);
+    if (!treino) {
+      Quiz.salvar(comp.id, dados);
+      if (p.acertou || p.tentativas.length >= Quiz.CHANCES) enviarResultado();
+    }
     render();
     document.getElementById('quiz-input')?.focus();
   }
@@ -218,6 +221,49 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
         ${dist.map((n, i) => barra(i + 1, n, hojeP && hojeP.acertou && hojeP.tentativas.length === i + 1)).join('')}
         ${barra('X', dias.length - acertos.length, hojeP && !hojeP.acertou && hojeP.tentativas.length >= Quiz.CHANCES)}
       </div>`;
+  }
+
+  // ---------- Ranking online (com o banco de dados ligado) ----------
+  const online = typeof Nuvem !== 'undefined' && Nuvem.ativa;
+  async function enviarResultado() {
+    const p = dados.dias[dia];
+    if (!online || !Nuvem.usuario || !p || !(p.acertou || p.tentativas.length >= Quiz.CHANCES)) return;
+    try { await Nuvem.registrarQuiz(comp.id, dia, p.tentativas.length, p.acertou); } catch (e) { /* tenta de novo na próxima visita */ }
+    renderRanking();
+  }
+  async function renderRanking() {
+    const caixa = document.getElementById('quiz-ranking');
+    document.getElementById('painel-quiz-ranking').hidden = false;
+    const entrar = Nuvem.usuario ? '' : `<div class="quiz-entrar"><p class="grafico-nota">Entre com uma conta para aparecer no ranking e guardar sua sequência em qualquer aparelho.</p>
+      <button type="button" class="btn btn-primary btn-sm" id="quiz-btn-entrar">${UI.icone('usuario')} Entrar ou criar conta</button></div>`;
+    try {
+      const lista = await Nuvem.rankingQuiz(comp.id, dia);
+      const meu = Nuvem.usuario && Nuvem.usuario.id;
+      document.getElementById('quiz-ranking-resumo').textContent = `${lista.filter(l => l.tentativas_hoje).length} jogaram hoje`;
+      const hoje = l => (!l.tentativas_hoje ? '<span class="dim">—</span>' : l.acertou_hoje ? `<span class="quiz-hoje ok">${l.tentativas_hoje}/6</span>` : '<span class="quiz-hoje">X/6</span>');
+      caixa.innerHTML = entrar + (lista.length ? `<div class="table-scroll"><table class="stats-table">
+        <caption class="sr-only">Ranking do quiz</caption>
+        <thead><tr><th scope="col">#</th><th scope="col" class="left">Jogador</th><th scope="col" class="strong" title="Dias seguidos acertando">Seq.</th><th scope="col" title="Acertos / dias jogados">Acertos</th><th scope="col">Hoje</th></tr></thead>
+        <tbody>${lista.slice(0, 30).map((l, i) => `<tr${l.user_id === meu ? ' class="destaque-time"' : ''}><td class="pos">${i + 1}</td>
+          <td class="left"><b>${esc(l.nome)}</b>${l.melhor > l.sequencia ? `<br><small class="dim">melhor: ${l.melhor}</small>` : ''}</td>
+          <td class="strong">${l.sequencia}</td><td>${l.acertos}/${l.jogados}</td><td>${hoje(l)}</td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="grafico-nota" style="padding:12px 18px;">Ninguém no ranking ainda.</p>');
+    } catch (e) {
+      caixa.innerHTML = `${entrar}<p class="grafico-nota" style="padding:12px 18px;">${esc(e.message)}</p>`;
+    }
+    document.getElementById('quiz-btn-entrar')?.addEventListener('click', () => Nuvem.abrirConta());
+  }
+  if (online) {
+    let quem;
+    const aoMudarConta = () => {
+      const agora = Nuvem.usuario ? Nuvem.usuario.id : null;
+      if (agora === quem) return;
+      quem = agora;
+      // Resultado de hoje feito antes de entrar na conta: entra no ranking também.
+      dados = Quiz.doCampeonato(comp.id);
+      if (agora) enviarResultado(); else renderRanking();
+    };
+    Nuvem.pronta.then(ok => { if (ok) { aoMudarConta(); Nuvem.aoMudar(aoMudarConta); } });
   }
 
   render();
