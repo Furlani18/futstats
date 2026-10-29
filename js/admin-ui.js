@@ -20,6 +20,9 @@ const AdminUI = (() => {
   }
 
   function guardarAutenticacao() {
+    // Com o banco ligado, a sessão da senha local não vale: só a da conta de administrador,
+    // que é a que tem permissão para gravar no banco.
+    if (typeof Nuvem !== 'undefined' && Nuvem.ativa && DB.Auth.isLogged() && !DB.Auth.pelaNuvem()) DB.Auth.logout();
     if (DB.Auth.isLogged()) return true;
     window.location.replace('login.html');
     return false;

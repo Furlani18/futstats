@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const nuvem = typeof Nuvem !== 'undefined' && Nuvem.ativa;
+  if (nuvem && DB.Auth.isLogged() && !DB.Auth.pelaNuvem()) DB.Auth.logout();   // sessão da senha local
   if (DB.Auth.isLogged()) {
     window.location.href = 'painel.html';
     return;
   }
   const erro = document.getElementById('erro-login');
   const mostrarErro = texto => { erro.textContent = texto; erro.style.display = 'block'; };
-  const nuvem = typeof Nuvem !== 'undefined' && Nuvem.ativa;
 
   // Com o banco de dados ligado, o painel exige uma conta marcada como administradora
   // no Supabase (tabela admins): é ela que dá permissão para gravar para todos.

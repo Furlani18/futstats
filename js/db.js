@@ -1677,6 +1677,11 @@ const DB = (() => {
       const s = lerJson('fs_auth');
       return s ? s.usuario : null;
     },
+    // A sessão foi aberta por uma conta de administrador do banco (e não pela senha local)?
+    pelaNuvem() {
+      const s = lerJson('fs_auth');
+      return !!(s && s.nuvem);
+    },
     sha256,
   };
 
