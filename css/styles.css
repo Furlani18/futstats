@@ -2907,3 +2907,12 @@ button.mt-vaga.vazio .lu-foto { color: rgba(255, 255, 255, .9); font-size: 22px;
   /* Com o botão da conta, o nome do campeonato some (fica o ícone) para o menu caber. */
   .topbar-inner:has(.conta-btn) .comp-select .comp-nome { display: none; }
 }
+
+/* ---------- Login com o Google e modo do quiz ---------- */
+.conta-google { display: inline-flex; gap: 10px; }
+.ico-google { width: 18px; height: 18px; flex-shrink: 0; }
+.conta-ou { display: flex; align-items: center; gap: 10px; color: var(--text-dim); font-size: 12px; }
+.conta-ou::before, .conta-ou::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.quiz-modo { margin: 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--panel-2); color: var(--text-dim); font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.quiz-modo.ok { background: var(--accent-soft); color: var(--accent); }
+.quiz-modo .ico { width: 15px; height: 15px; flex-shrink: 0; }

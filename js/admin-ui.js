@@ -101,6 +101,19 @@ const AdminUI = (() => {
     UI.hidratarIcones();
     window.addEventListener('hashchange', abrirSecao);
     abrirSecao();
+    prepararQuizDoDia();
+  }
+
+  // Com o banco ligado, o administrador deixa os desafios do quiz prontos para as próximas
+  // semanas (uma vez por dia, em silêncio). É o que faz o quiz valer ranking.
+  async function prepararQuizDoDia() {
+    if (typeof Nuvem === 'undefined' || !Nuvem.ativa || !await Nuvem.pronta || !Nuvem.admin) return;
+    const hoje = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem('fs_quiz_preparado') === hoje) return;
+    try {
+      await Nuvem.prepararQuiz();
+      localStorage.setItem('fs_quiz_preparado', hoje);
+    } catch (e) { /* tenta de novo na próxima abertura do painel */ }
   }
 
   document.addEventListener('DOMContentLoaded', () => {

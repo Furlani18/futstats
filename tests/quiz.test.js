@@ -41,3 +41,30 @@ test('bolão: conquistas de placar exato e sequência', () => {
   assert.equal(c.vidente.progresso, '1/5');
   assert.equal(c.lider.ok, false);
 });
+
+test('quiz: seis dicas, comparação de palpites e desafio do banco', () => {
+  const { DB, pegar } = novoAmbiente({ extras: ['js/quiz.js'] });
+  const Quiz = pegar('Quiz');
+  const jogadores = DB.Jogadores.all();
+  const alvo = Quiz.jogadorDoDia(jogadores, 'copa2026', '2026-06-11');
+  const dicas = Quiz.dicasDe(alvo);
+  assert.equal(dicas.length, 6);
+  assert.ok(dicas.every(d => typeof d.t === 'string' && d.t.length > 5));
+  assert.ok(dicas.some(d => d.time === alvo.timeId), 'uma dica mostra o time');
+
+  const outro = jogadores.find(j => j.timeId === alvo.timeId && j.id !== alvo.id && j.idade != null && j.idade !== alvo.idade);
+  const c = Quiz.comparar(outro, alvo);
+  assert.equal(c.certo, false);
+  assert.equal(c.time, true);
+  assert.equal(c.idade, Math.sign(alvo.idade - outro.idade));
+  assert.equal(Quiz.comparar(alvo, alvo).certo, true);
+
+  const d = Quiz.desafio(jogadores, 'copa2026', '2026-06-11');
+  assert.equal(d.competicao_id, 'copa2026');
+  assert.equal(d.dicas.length, 6);
+  assert.equal(d.resposta.id, d.jogador_id);
+  assert.deepEqual({ ...d.atributos }, { ...Quiz.atributos(DB.Jogadores.get(d.jogador_id)) });
+  // Sorteio aleatório: em 20 desafios do mesmo dia, sai mais de um jogador.
+  const ids = new Set(Array.from({ length: 20 }, () => Quiz.desafio(jogadores, 'copa2026', '2026-06-11').jogador_id));
+  assert.ok(ids.size > 1);
+});

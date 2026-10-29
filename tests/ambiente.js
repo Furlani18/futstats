@@ -17,7 +17,7 @@ class ArmazenamentoMemoria {
 // `comp`: campeonato aberto (como o ?c= da URL). `extras`: scripts carregados depois do db.js.
 function novoAmbiente({ comp = 'copa2026', extras = [] } = {}) {
   const contexto = {
-    console, Math, Date, JSON, Map, Set, URLSearchParams, btoa, atob, TextEncoder, TextDecoder,
+    console, Math, Date, JSON, Map, Set, URLSearchParams, btoa, atob, TextEncoder, TextDecoder, crypto: globalThis.crypto,
     localStorage: new ArmazenamentoMemoria(),
     location: { search: `?c=${comp}`, pathname: '/index.html' },
     addEventListener() {},

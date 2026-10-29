@@ -236,3 +236,112 @@ begin
     alter publication supabase_realtime add table public.registros;
   end if;
 end $$;
+
+-- =====================================================================
+-- Quiz à prova de fraude (versão 2). O jogador do dia fica só aqui no
+-- banco: o navegador recebe as dicas uma a uma e manda cada palpite para
+-- a função quiz_tentar, que confere e grava o resultado no ranking.
+-- Os desafios dos próximos dias são preparados pelo painel (administrador).
+-- =====================================================================
+create table if not exists public.quiz_desafios (
+  competicao_id text not null,
+  dia date not null,
+  jogador_id text not null,
+  atributos jsonb not null,   -- { timeId, posicao, idade, numero }: para comparar os palpites
+  dicas jsonb not null,       -- lista de dicas, da mais vaga à quase entregue
+  resposta jsonb not null,    -- { id, nome, timeId, posicao }: mostrada no fim
+  primary key (competicao_id, dia)
+);
+alter table public.quiz_desafios enable row level security;
+-- Sem regra de leitura para visitantes: só as funções abaixo (e o administrador) enxergam.
+drop policy if exists "admin le desafios" on public.quiz_desafios;
+create policy "admin le desafios" on public.quiz_desafios for select using (public.eh_admin());
+drop policy if exists "admin cria desafios" on public.quiz_desafios;
+create policy "admin cria desafios" on public.quiz_desafios for insert with check (public.eh_admin());
+drop policy if exists "admin altera desafios" on public.quiz_desafios;
+create policy "admin altera desafios" on public.quiz_desafios for update using (public.eh_admin()) with check (public.eh_admin());
+
+-- Palpites de cada pessoa no desafio do dia (cada item: id do jogador + comparação).
+create table if not exists public.quiz_tentativas (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  competicao_id text not null,
+  dia date not null,
+  jogadas jsonb not null default '[]'::jsonb,
+  acertou boolean not null default false,
+  primary key (user_id, competicao_id, dia)
+);
+alter table public.quiz_tentativas enable row level security;
+drop policy if exists "dono ve as suas tentativas" on public.quiz_tentativas;
+create policy "dono ve as suas tentativas" on public.quiz_tentativas for select using (user_id = auth.uid());
+
+-- O ranking passa a ser preenchido só pela função quiz_tentar.
+drop policy if exists "registrar o proprio resultado" on public.quiz_resultados;
+
+-- Estado do desafio para quem está jogando: dicas liberadas, palpites e, no fim, a resposta.
+-- Devolve null quando o dia não tem desafio preparado.
+create or replace function public.quiz_estado(p_comp text, p_dia date) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  d public.quiz_desafios;
+  t public.quiz_tentativas;
+  n int;
+  fim boolean;
+begin
+  select * into d from public.quiz_desafios where competicao_id = p_comp and dia = p_dia;
+  if not found then return null; end if;
+  select * into t from public.quiz_tentativas where user_id = auth.uid() and competicao_id = p_comp and dia = p_dia;
+  n := coalesce(jsonb_array_length(t.jogadas), 0);
+  fim := coalesce(t.acertou, false) or n >= 6;
+  return jsonb_build_object(
+    'dicas', (select coalesce(jsonb_agg(x.v order by x.i), '[]'::jsonb)
+              from jsonb_array_elements(d.dicas) with ordinality as x(v, i) where fim or x.i <= n + 1),
+    'totalDicas', jsonb_array_length(d.dicas),
+    'jogadas', coalesce(t.jogadas, '[]'::jsonb),
+    'acertou', coalesce(t.acertou, false),
+    'fim', fim,
+    'resposta', case when fim then d.resposta end
+  );
+end $$;
+
+-- Um palpite (p_jogador null = pular). p_atributos: { timeId, posicao, idade, numero } do palpite,
+-- para responder o que ele tem em comum com o jogador certo.
+create or replace function public.quiz_tentar(p_comp text, p_dia date, p_jogador text, p_atributos jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  d public.quiz_desafios;
+  t public.quiz_tentativas;
+  n int;
+  certo boolean;
+  jogada jsonb;
+begin
+  if auth.uid() is null then raise exception 'Entre com uma conta para jogar valendo ranking.'; end if;
+  if p_dia not between current_date - 1 and current_date + 1 then raise exception 'Este desafio já fechou.'; end if;
+  select * into d from public.quiz_desafios where competicao_id = p_comp and dia = p_dia;
+  if not found then raise exception 'Não há desafio preparado para hoje.'; end if;
+  insert into public.quiz_tentativas (user_id, competicao_id, dia) values (auth.uid(), p_comp, p_dia) on conflict do nothing;
+  select * into t from public.quiz_tentativas where user_id = auth.uid() and competicao_id = p_comp and dia = p_dia for update;
+  n := jsonb_array_length(t.jogadas);
+  if t.acertou or n >= 6 then return public.quiz_estado(p_comp, p_dia); end if;
+
+  certo := p_jogador is not null and p_jogador = d.jogador_id;
+  jogada := case when p_jogador is null then jsonb_build_object('id', null)
+    else jsonb_build_object(
+      'id', p_jogador,
+      'certo', certo,
+      'time', (p_atributos ->> 'timeId') = (d.atributos ->> 'timeId'),
+      'posicao', (p_atributos ->> 'posicao') = (d.atributos ->> 'posicao'),
+      -- 1: o jogador certo é mais velho / tem número maior; -1: menor; 0: igual
+      'idade', sign((d.atributos ->> 'idade')::int - (p_atributos ->> 'idade')::int),
+      'numero', sign((d.atributos ->> 'numero')::int - (p_atributos ->> 'numero')::int))
+    end;
+  update public.quiz_tentativas set jogadas = jogadas || jsonb_build_array(jogada), acertou = certo
+    where user_id = auth.uid() and competicao_id = p_comp and dia = p_dia;
+  if certo or n + 1 >= 6 then
+    insert into public.quiz_resultados (user_id, competicao_id, dia, tentativas, acertou)
+    values (auth.uid(), p_comp, p_dia, n + 1, certo) on conflict do nothing;
+  end if;
+  return public.quiz_estado(p_comp, p_dia);
+end $$;
+
+grant execute on function public.quiz_estado(text, date) to anon, authenticated;
+grant execute on function public.quiz_tentar(text, date, text, jsonb) to authenticated;

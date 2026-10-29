@@ -1,12 +1,19 @@
 // Quiz "Quem é o jogador?": um jogador por dia (o mesmo para todo mundo, sorteado pela data
 // e pelo campeonato), seis chances e uma dica nova a cada erro. Cada palpite errado mostra
 // o que ele tem em comum com o jogador do dia (time, posição, idade, número).
+//
+// Três modos:
+//   · valendo ranking (banco ligado + conta): o jogador do dia fica só no banco; cada palpite
+//     é conferido lá (quiz_tentar) e o navegador nunca sabe a resposta antes do fim;
+//   · local (sem conta ou sem banco): tudo no navegador, não entra no ranking;
+//   · treino: jogador aleatório, não conta em nada.
 const Quiz = (() => {
   const CHAVE = 'fs_quiz';
   const CHANCES = 6;
 
   const hoje = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const diaAnterior = dia => { const d = new Date(`${dia}T12:00`); d.setDate(d.getDate() - 1); return hoje(d); };
+  const somarDias = (dia, n) => { const d = new Date(`${dia}T12:00`); d.setDate(d.getDate() + n); return hoje(d); };
+  const diaAnterior = dia => somarDias(dia, -1);
 
   // Hash FNV-1a: o mesmo texto dá sempre o mesmo número (sorteio igual em todo navegador).
   function hash(texto) {
@@ -25,6 +32,57 @@ const Quiz = (() => {
     const lista = candidatos(jogadores);
     return lista.length ? lista[hash(`${compId}|${dia}`) % lista.length] : null;
   };
+
+  // Dicas em texto simples: **negrito** e § onde entra a bandeira (time ou país).
+  // `linhas` (opcional): números do jogador no campeonato, para a dica de estatística.
+  function dicasDe(j, linhas = {}) {
+    const time = DB.Times.get(j.timeId);
+    const ehClube = time && time.tipo === 'clube';
+    const l = linhas[j.id];
+    const nomePais = iso => (typeof UI !== 'undefined' ? UI.nomePais(iso) : iso.toUpperCase());
+    const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+    const lista = [{ t: `Joga como **${j.posicao}**${j.idade ? ` e tem **${j.idade} anos**` : ''}.` }];
+    if (!ehClube && j.clube) lista.push({ t: `Atua no clube **${j.clube}**.` });
+    if (ehClube && j.nacionalidade) lista.push({ t: `É de § **${nomePais(j.nacionalidade)}**.`, pais: j.nacionalidade });
+    if (!ehClube && time) lista.push({ t: `A seleção dele é da **${time.confederacao || ''}**${time.grupo ? ` e está no **Grupo ${time.grupo}**` : ''}.` });
+    if (l && (l.gols || l.assistencias || l.jogos)) lista.push({ t: `No campeonato: **${plural(l.jogos, 'jogo', 'jogos')}**, **${plural(l.gols, 'gol', 'gols')}** e **${plural(l.assistencias, 'assistência', 'assistências')}**.` });
+    else if (j.jogosSelecao) lista.push({ t: `Tem **${j.jogosSelecao}** jogos e **${j.golsSelecao || 0}** gols pela seleção.` });
+    if (j.numero != null) lista.push({ t: `Usa a camisa **${j.numero}**${j.capitao ? ' e é o **capitão**' : ''}.` });
+    if (time) lista.push({ t: `Joga ${ehClube ? 'no' : 'pela'} § **${time.nome}**.`, time: time.id });
+    const palavras = j.nome.trim().split(/\s+/).length;
+    lista.push({ t: `O nome começa com **${j.nome.trim()[0]}** e tem **${plural(palavras, 'palavra', 'palavras')}**.` });
+    // Seis dicas: se sobrou, saem as do meio (a do time e a do nome ficam por último).
+    while (lista.length > CHANCES) lista.splice(lista.length - 3, 1);
+    return lista;
+  }
+
+  const atributos = j => ({ timeId: j.timeId, posicao: j.posicao, idade: j.idade ?? null, numero: j.numero ?? null });
+
+  // Comparação de um palpite com o jogador certo, no mesmo formato que o banco devolve.
+  // idade/numero: 1 = o certo tem mais, -1 = menos, 0 = igual, null = sem dado.
+  function comparar(palpite, alvo) {
+    const sinal = (a, b) => (a == null || b == null ? null : Math.sign(a - b));
+    return {
+      id: palpite.id, certo: palpite.id === alvo.id, time: palpite.timeId === alvo.timeId, posicao: palpite.posicao === alvo.posicao,
+      idade: sinal(alvo.idade, palpite.idade), numero: sinal(alvo.numero, palpite.numero),
+    };
+  }
+
+  // Linha da tabela quiz_desafios (sem estatísticas do campeonato: o desafio é montado antes do dia).
+  // O jogador é sorteado AO ACASO (não pelo hash do dia): assim a resposta do modo valendo
+  // ranking não pode ser calculada a partir do código do site — ela só existe no banco.
+  function desafio(jogadores, compId, dia) {
+    const lista = candidatos(jogadores);
+    if (!lista.length) return null;
+    const sorteio = new Uint32Array(1);
+    crypto.getRandomValues(sorteio);
+    const j = lista[sorteio[0] % lista.length];
+    if (!j) return null;
+    return {
+      competicao_id: compId, dia, jogador_id: j.id, atributos: atributos(j), dicas: dicasDe(j),
+      resposta: { id: j.id, nome: j.nome, timeId: j.timeId, posicao: j.posicao },
+    };
+  }
 
   function ler() { try { return JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { return {}; } }
   function gravar(dados) { try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (e) { /* só nesta visita */ } }
@@ -45,10 +103,11 @@ const Quiz = (() => {
     return { atual, melhor };
   }
 
-  return { CHANCES, hoje, hash, jogadorDoDia, doCampeonato, salvar, sequencias };
+  return { CHANCES, hoje, somarDias, hash, jogadorDoDia, dicasDe, atributos, comparar, desafio, doCampeonato, salvar, sequencias };
 })();
 
 if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('quiz')) return;   // o painel carrega este arquivo só pelo módulo Quiz
   UI.montarTopbar();
   const esc = DB.Util.escapar;
   const comp = DB.Contexto.get();
@@ -58,7 +117,10 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
   const jogadores = DB.Jogadores.all();
   const dia = Quiz.hoje();
   let dados = Quiz.doCampeonato(comp.id);
-  let treino = null;   // { alvo, tentativas } quando está treinando
+  let treino = null;       // { alvo, tentativas, acertou } quando está treinando
+  let servidor = null;     // estado vindo do banco quando o jogo vale ranking
+  let aviso = '';          // por que este jogo não vale ranking
+  let esperando = false;   // palpite a caminho do banco
   const linhas = Object.fromEntries(DB.Estatisticas.porJogador().map(l => [l.jogador.id, l]));
 
   const doDia = Quiz.jogadorDoDia(jogadores, comp.id, dia);
@@ -68,50 +130,52 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
     return;
   }
   const partidaDoDia = () => (dados.dias[dia] || (dados.dias[dia] = { tentativas: [], acertou: false }));
-  const atual = () => (treino ? { alvo: treino.alvo, ...treino } : { alvo: doDia, ...partidaDoDia() });
 
-  // Dicas na ordem em que aparecem: do mais vago ao quase entregue.
-  function dicas(j) {
-    const time = DB.Times.get(j.timeId);
-    const ehClube = time && time.tipo === 'clube';
-    const l = linhas[j.id];
-    const lista = [`Joga como <b>${esc(j.posicao)}</b>${j.idade ? ` e tem <b>${j.idade} anos</b>` : ''}.`];
-    if (!ehClube && j.clube) lista.push(`Atua no clube <b>${esc(j.clube)}</b>.`);
-    if (ehClube && j.nacionalidade) lista.push(`É de ${UI.bandeiraPais(j.nacionalidade)} <b>${esc(UI.nomePais(j.nacionalidade))}</b>.`);
-    if (!ehClube && time) lista.push(`A seleção dele é da <b>${esc(time.confederacao || '')}</b>${time.grupo ? ` e está no <b>Grupo ${time.grupo}</b>` : ''}.`);
-    if (l && (l.gols || l.assistencias || l.jogos)) lista.push(`No campeonato: <b>${l.jogos}</b> jogo${l.jogos === 1 ? '' : 's'}, <b>${l.gols}</b> gol${l.gols === 1 ? '' : 's'} e <b>${l.assistencias}</b> assistência${l.assistencias === 1 ? '' : 's'}.`);
-    else if (j.jogosSelecao) lista.push(`Tem <b>${j.jogosSelecao}</b> jogos e <b>${j.golsSelecao || 0}</b> gols pela seleção.`);
-    if (j.numero != null) lista.push(`Usa a camisa <b>${j.numero}</b>${j.capitao ? ' e é o <b>capitão</b>' : ''}.`);
-    if (time) lista.push(`Joga ${ehClube ? 'no' : 'pela'} ${UI.bandeira(time, 'sm')} <b>${esc(time.nome)}</b>.`);
-    lista.push(`O nome começa com <b>${esc(j.nome.trim()[0])}</b> e tem <b>${j.nome.trim().split(/\s+/).length}</b> palavra${j.nome.trim().split(/\s+/).length === 1 ? '' : 's'}.`);
-    // Seis dicas: se faltou alguma, a última (iniciais) cobre; se sobrou, as do meio saem.
-    while (lista.length > Quiz.CHANCES) lista.splice(lista.length - 3, 1);
-    return lista;
+  // Dica em HTML: texto escapado, **negrito** e a bandeira no lugar do §.
+  function dicaHtml(d) {
+    const bandeira = d.time ? UI.bandeira(DB.Times.get(d.time), 'sm') : d.pais ? UI.bandeiraPais(d.pais) : '';
+    return esc(d.t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace('§', bandeira);
   }
 
-  // Comparação de um palpite com o jogador certo.
-  function comparar(palpite, alvo) {
-    const seta = (a, b) => (a == null || b == null ? '' : a === b ? '' : a < b ? ' ↑' : ' ↓');
+  // O que está na tela, igual para os três modos.
+  function partida() {
+    if (treino) {
+      return { dicas: Quiz.dicasDe(treino.alvo, linhas), total: Quiz.CHANCES, jogadas: treino.tentativas.map(id => (id ? Quiz.comparar(DB.Jogadores.get(id), treino.alvo) : { id: null })),
+        acertou: treino.acertou, fim: treino.acertou || treino.tentativas.length >= Quiz.CHANCES, resposta: treino.alvo };
+    }
+    if (servidor) {
+      return { dicas: servidor.dicas, total: servidor.totalDicas, jogadas: servidor.jogadas, acertou: servidor.acertou, fim: servidor.fim,
+        resposta: servidor.resposta ? (DB.Jogadores.get(servidor.resposta.id) || { ...servidor.resposta, numero: null }) : null };
+    }
+    const p = partidaDoDia();
+    const fim = p.acertou || p.tentativas.length >= Quiz.CHANCES;
+    return { dicas: Quiz.dicasDe(doDia, linhas), total: Quiz.CHANCES, jogadas: p.tentativas.map(id => (id ? Quiz.comparar(DB.Jogadores.get(id), doDia) : { id: null })),
+      acertou: p.acertou, fim, resposta: fim ? doDia : null };
+  }
+
+  // Chips do palpite errado: o que ele tem em comum com o jogador certo.
+  function chips(j, c) {
     const ok = cond => (cond ? ' ok' : '');
-    const tp = DB.Times.get(palpite.timeId);
-    return `<span class="quiz-chip${ok(palpite.timeId === alvo.timeId)}">${UI.bandeira(tp, 'sm')} ${tp ? esc(tp.codigo) : '—'}</span>
-      <span class="quiz-chip${ok(palpite.posicao === alvo.posicao)}">${esc(palpite.posicao)}</span>
-      ${palpite.idade != null && alvo.idade != null ? `<span class="quiz-chip${ok(palpite.idade === alvo.idade)}">${palpite.idade} anos${seta(palpite.idade, alvo.idade)}</span>` : ''}
-      ${palpite.numero != null && alvo.numero != null ? `<span class="quiz-chip${ok(palpite.numero === alvo.numero)}">nº ${palpite.numero}${seta(palpite.numero, alvo.numero)}</span>` : ''}`;
+    const seta = s => (s === 1 ? ' ↑' : s === -1 ? ' ↓' : '');
+    const tp = DB.Times.get(j.timeId);
+    return `<span class="quiz-chip${ok(c.time)}">${UI.bandeira(tp, 'sm')} ${tp ? esc(tp.codigo) : '—'}</span>
+      <span class="quiz-chip${ok(c.posicao)}">${esc(j.posicao)}</span>
+      ${j.idade != null && c.idade != null ? `<span class="quiz-chip${ok(c.idade === 0)}">${j.idade} anos${seta(c.idade)}</span>` : ''}
+      ${j.numero != null && c.numero != null ? `<span class="quiz-chip${ok(c.numero === 0)}">nº ${j.numero}${seta(c.numero)}</span>` : ''}`;
   }
 
   function render() {
-    const p = atual();
-    const alvo = p.alvo;
-    const acabou = p.acertou || p.tentativas.length >= Quiz.CHANCES;
-    const listaDicas = dicas(alvo);
-    const abertas = acabou ? listaDicas.length : Math.min(listaDicas.length, p.tentativas.length + 1);
+    const p = partida();
+    const abertas = p.fim ? p.total : Math.min(p.total, p.jogadas.length + 1);
+    const usadas = p.jogadas.length;
     document.getElementById('quiz-titulo').textContent = treino ? 'Treino (não conta na sequência)' : `Jogador do dia · ${DB.Util.formatarData(`${dia}T12:00`)}`;
-    document.getElementById('quiz-tentativas').textContent = `${p.tentativas.length}/${Quiz.CHANCES} chances usadas`;
+    document.getElementById('quiz-tentativas').textContent = `${usadas}/${Quiz.CHANCES} chances usadas`;
+    const alvo = p.resposta;
+    const time = alvo ? DB.Times.get(alvo.timeId) : null;
 
-    const final = acabou ? `<div class="quiz-final${p.acertou ? ' acertou' : ''}">
-        <div class="quiz-revelado">${UI.avatar(alvo)}<div><small>${p.acertou ? `Acertou em ${p.tentativas.length}!` : 'Não foi desta vez. Era:'}</small>
-          <a href="jogador.html?id=${alvo.id}"><b>${esc(alvo.nome)}</b></a><span>${UI.bandeira(DB.Times.get(alvo.timeId), 'sm')} ${esc((DB.Times.get(alvo.timeId) || {}).nome || '')} · ${esc(alvo.posicao)}</span></div></div>
+    const final = p.fim && alvo ? `<div class="quiz-final${p.acertou ? ' acertou' : ''}">
+        <div class="quiz-revelado">${UI.avatar(alvo)}<div><small>${p.acertou ? `Acertou em ${usadas}!` : 'Não foi desta vez. Era:'}</small>
+          <a href="jogador.html?id=${alvo.id}"><b>${esc(alvo.nome)}</b></a><span>${UI.bandeira(time, 'sm')} ${esc(time ? time.nome : '')} · ${esc(alvo.posicao)}</span></div></div>
         <div class="quiz-acoes">
           ${treino ? '' : `<button type="button" class="btn btn-primary" id="quiz-compartilhar">${UI.icone('link')} Compartilhar resultado</button>`}
           <button type="button" class="btn btn-ghost" id="quiz-treinar">${UI.icone('dado')} ${treino ? 'Outro jogador' : 'Treinar com outro'}</button>
@@ -120,38 +184,58 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
         ${treino ? '' : '<p class="grafico-nota">Um jogador novo aparece amanhã.</p>'}
       </div>` : `<form class="quiz-palpite" id="quiz-form" autocomplete="off">
         <div class="quiz-campo">
-          <input type="text" id="quiz-input" placeholder="Digite o nome de um jogador…" aria-label="Seu palpite" aria-autocomplete="list" aria-controls="quiz-sugestoes" role="combobox" aria-expanded="false">
+          <input type="text" id="quiz-input" placeholder="Digite o nome de um jogador…" aria-label="Seu palpite" aria-autocomplete="list" aria-controls="quiz-sugestoes" role="combobox" aria-expanded="false" ${esperando ? 'disabled' : ''}>
           <div class="quiz-sugestoes" id="quiz-sugestoes" role="listbox" hidden></div>
         </div>
-        <button type="button" class="btn btn-ghost" id="quiz-pular">Pular (mais uma dica)</button>
+        <button type="button" class="btn btn-ghost" id="quiz-pular" ${esperando ? 'disabled' : ''}>Pular (mais uma dica)</button>
       </form>`;
 
-    document.getElementById('quiz').innerHTML = `
-      <ol class="quiz-dicas">${listaDicas.map((d, i) => `<li class="${i < abertas ? 'aberta' : ''}"><span class="quiz-n">${i + 1}</span><span>${i < abertas ? d : 'Dica bloqueada'}</span></li>`).join('')}</ol>
+    const modo = treino ? '' : servidor ? `<p class="quiz-modo ok">${UI.icone('check')} Valendo ranking: a resposta é conferida no servidor.</p>`
+      : aviso ? `<p class="quiz-modo">${UI.icone('aviso')} ${aviso}</p>` : '';
+    document.getElementById('quiz').innerHTML = `${modo}
+      <ol class="quiz-dicas">${Array.from({ length: p.total }, (_, i) => `<li class="${i < abertas ? 'aberta' : ''}"><span class="quiz-n">${i + 1}</span><span>${i < abertas && p.dicas[i] ? dicaHtml(p.dicas[i]) : 'Dica bloqueada'}</span></li>`).join('')}</ol>
       ${final}
-      ${p.tentativas.length ? `<ul class="quiz-historico">${p.tentativas.map(id => {
-        const j = id ? DB.Jogadores.get(id) : null;
+      ${usadas ? `<ul class="quiz-historico">${p.jogadas.map(c => {
+        const j = c.id ? DB.Jogadores.get(c.id) : null;
         if (!j) return '<li class="pulou"><span class="quiz-x">—</span><span>Pulou</span></li>';
-        const certo = j.id === alvo.id;
-        return `<li class="${certo ? 'certo' : ''}"><span class="quiz-x">${UI.icone(certo ? 'check' : 'fechar')}</span><b>${esc(j.nome)}</b><span class="quiz-chips">${certo ? '' : comparar(j, alvo)}</span></li>`;
+        return `<li class="${c.certo ? 'certo' : ''}"><span class="quiz-x">${UI.icone(c.certo ? 'check' : 'fechar')}</span><b>${esc(j.nome)}</b><span class="quiz-chips">${c.certo ? '' : chips(j, c)}</span></li>`;
       }).join('')}</ul>` : ''}`;
     renderStats();
     ligar();
   }
 
-  function palpitar(id) {
+  const festejar = timeId => UI.confete({ cores: [DB.Util.coresTime(DB.Times.get(timeId)).primaria, '#f4c64e', '#ffffff'] });
+
+  // O resultado do banco também fica guardado aqui (estatísticas e o atalho da página inicial).
+  function espelhar() {
+    dados.dias[dia] = { tentativas: servidor.jogadas.map(c => c.id), acertou: servidor.acertou };
+    Quiz.salvar(comp.id, dados);
+  }
+
+  async function palpitar(id) {
+    if (esperando) return;
+    if (servidor && !treino) {
+      if (servidor.fim) return;
+      esperando = true;
+      render();
+      try {
+        const j = id ? DB.Jogadores.get(id) : null;
+        servidor = await Nuvem.quizTentar(comp.id, dia, id, j ? Quiz.atributos(j) : null);
+        espelhar();
+        if (servidor.acertou && servidor.resposta) festejar(servidor.resposta.timeId);
+        if (servidor.fim) renderRanking();
+      } catch (e) { aviso = e.message; }
+      esperando = false;
+      render();
+      document.getElementById('quiz-input')?.focus();
+      return;
+    }
     const p = treino || partidaDoDia();
     if (p.acertou || p.tentativas.length >= Quiz.CHANCES) return;
     p.tentativas.push(id);
     const alvo = treino ? treino.alvo : doDia;
-    if (id === alvo.id) {
-      p.acertou = true;
-      UI.confete({ cores: [DB.Util.coresTime(DB.Times.get(alvo.timeId)).primaria, '#f4c64e', '#ffffff'] });
-    }
-    if (!treino) {
-      Quiz.salvar(comp.id, dados);
-      if (p.acertou || p.tentativas.length >= Quiz.CHANCES) enviarResultado();
-    }
+    if (id === alvo.id) { p.acertou = true; festejar(alvo.timeId); }
+    if (!treino) Quiz.salvar(comp.id, dados);
     render();
     document.getElementById('quiz-input')?.focus();
   }
@@ -161,7 +245,7 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
     if (input) {
       const caixa = document.getElementById('quiz-sugestoes');
       let ativo = 0, achados = [];
-      const usados = new Set(atual().tentativas);
+      const usados = new Set(partida().jogadas.map(c => c.id));
       const mostrar = () => {
         caixa.hidden = !achados.length;
         input.setAttribute('aria-expanded', achados.length ? 'true' : 'false');
@@ -194,9 +278,9 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
     });
     document.getElementById('quiz-voltar')?.addEventListener('click', () => { treino = null; render(); });
     document.getElementById('quiz-compartilhar')?.addEventListener('click', async () => {
-      const p = partidaDoDia();
-      const quadros = p.tentativas.map(id => (id === doDia.id ? '🟩' : id ? '🟥' : '⬜')).join('');
-      const texto = `FUTSTATS · Quiz do dia ${DB.Util.formatarData(`${dia}T12:00`).slice(0, 5)} (${comp.curto})\n${p.acertou ? `${p.tentativas.length}/${Quiz.CHANCES}` : `X/${Quiz.CHANCES}`} ${quadros}\n${location.origin}${location.pathname}?c=${comp.id}`;
+      const p = partida();
+      const quadros = p.jogadas.map(c => (c.certo ? '🟩' : c.id ? '🟥' : '⬜')).join('');
+      const texto = `FUTSTATS · Quiz do dia ${DB.Util.formatarData(`${dia}T12:00`).slice(0, 5)} (${comp.curto})\n${p.acertou ? `${p.jogadas.length}/${Quiz.CHANCES}` : `X/${Quiz.CHANCES}`} ${quadros}\n${location.origin}${location.pathname}?c=${comp.id}`;
       try { if (navigator.share) { await navigator.share({ text: texto }); return; } } catch (e) { if (e.name === 'AbortError') return; }
       try { await navigator.clipboard.writeText(texto); document.getElementById('quiz-compartilhar').innerHTML = `${UI.icone('check')} Copiado!`; } catch (e) { prompt('Copie o resultado:', texto); }
     });
@@ -225,16 +309,10 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
 
   // ---------- Ranking online (com o banco de dados ligado) ----------
   const online = typeof Nuvem !== 'undefined' && Nuvem.ativa;
-  async function enviarResultado() {
-    const p = dados.dias[dia];
-    if (!online || !Nuvem.usuario || !p || !(p.acertou || p.tentativas.length >= Quiz.CHANCES)) return;
-    try { await Nuvem.registrarQuiz(comp.id, dia, p.tentativas.length, p.acertou); } catch (e) { /* tenta de novo na próxima visita */ }
-    renderRanking();
-  }
   async function renderRanking() {
     const caixa = document.getElementById('quiz-ranking');
     document.getElementById('painel-quiz-ranking').hidden = false;
-    const entrar = Nuvem.usuario ? '' : `<div class="quiz-entrar"><p class="grafico-nota">Entre com uma conta para aparecer no ranking e guardar sua sequência em qualquer aparelho.</p>
+    const entrar = Nuvem.usuario ? '' : `<div class="quiz-entrar"><p class="grafico-nota">Entre com uma conta para jogar valendo ranking e guardar sua sequência em qualquer aparelho.</p>
       <button type="button" class="btn btn-primary btn-sm" id="quiz-btn-entrar">${UI.icone('usuario')} Entrar ou criar conta</button></div>`;
     try {
       const lista = await Nuvem.rankingQuiz(comp.id, dia);
@@ -255,13 +333,22 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
   }
   if (online) {
     let quem;
-    const aoMudarConta = () => {
+    const aoMudarConta = async () => {
       const agora = Nuvem.usuario ? Nuvem.usuario.id : null;
       if (agora === quem) return;
       quem = agora;
-      // Resultado de hoje feito antes de entrar na conta: entra no ranking também.
       dados = Quiz.doCampeonato(comp.id);
-      if (agora) enviarResultado(); else renderRanking();
+      servidor = null;
+      aviso = '';
+      if (agora) {
+        try {
+          servidor = await Nuvem.quizEstado(comp.id, dia);
+          if (servidor) espelhar();
+          else aviso = 'O desafio de hoje ainda não foi preparado no banco: dá para jogar, mas sem valer ranking.';
+        } catch (e) { aviso = `Sem conexão com o ranking agora (${e.message}). Jogando só neste aparelho.`; }
+      }
+      render();
+      renderRanking();
     };
     Nuvem.pronta.then(ok => { if (ok) { aoMudarConta(); Nuvem.aoMudar(aoMudarConta); } });
   }

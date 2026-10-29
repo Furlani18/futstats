@@ -1150,22 +1150,38 @@ As ${posteriores} mudança(s) feitas depois neste mesmo jogo também serão desf
     alert(criados ? `${criados} jogos importados.` : 'Todos os confrontos da fase de grupos já estavam cadastrados.');
     renderTabela();
   });
+  // Data da 1ª rodada: a do campeonato ou, se ela já passou, o próximo sábado
+  // (assim os jogos nascem abertos para o bolão).
+  function proximoSabado() {
+    const d = new Date();
+    d.setDate(d.getDate() + (((6 - d.getDay()) + 7) % 7 || 7));
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
   document.getElementById('btn-gerar').addEventListener('click', () => {
+    const padrao = comp.inicio || (comp.tipo === 'liga' ? '2026-08-15' : '2026-04-07');
+    const sugestao = new Date(`${padrao}T16:00`) > new Date() ? padrao : proximoSabado();
+    const resposta = prompt(`Data da 1ª rodada (AAAA-MM-DD). As seguintes vêm de 7 em 7 dias, às 16:00, e podem ser editadas depois.${sugestao !== padrao ? `
+
+A data oficial (${DB.Util.formatarData(`${padrao}T12:00`)}) já passou: sugerimos o próximo sábado, para os jogos ficarem abertos no bolão.` : ''}`, sugestao);
+    if (resposta == null) return;
+    const inicio = resposta.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(inicio) || Number.isNaN(new Date(`${inicio}T12:00`).getTime())) { alert('Data inválida. Use o formato AAAA-MM-DD, por exemplo 2026-11-07.'); return; }
     const msg = comp.tipo === 'liga'
-      ? `Criar o turno e o returno completos (${(DB.Times.all().length - 1) * 2} rodadas) com datas semanais a partir de ${DB.Util.formatarData(`${comp.inicio}T12:00`)}? As datas são aproximadas e podem ser editadas; jogos já cadastrados são mantidos.`
-      : 'Criar os 6 jogos de cada grupo (turno e returno) com datas semanais aproximadas? Jogos já cadastrados são mantidos.';
+      ? `Criar o turno e o returno completos (${(DB.Times.all().length - 1) * 2} rodadas) a partir de ${DB.Util.formatarData(`${inicio}T12:00`)}? Jogos já cadastrados são mantidos.`
+      : `Criar os 6 jogos de cada grupo (turno e returno) a partir de ${DB.Util.formatarData(`${inicio}T12:00`)}? Jogos já cadastrados são mantidos.`;
     if (!confirm(msg)) return;
     let criados = 0;
     if (comp.tipo === 'liga') {
-      criados = DB.Jogos.gerarTurnoReturno({ ids: DB.Times.all().map(t => t.id), fase: 'liga', inicio: comp.inicio || '2026-08-15' });
+      criados = DB.Jogos.gerarTurnoReturno({ ids: DB.Times.all().map(t => t.id), fase: 'liga', inicio });
     } else {
       DB.Grupos.letras.forEach(letra => {
-        criados += DB.Jogos.gerarTurnoReturno({ ids: DB.Grupos.times(letra).map(t => t.id), fase: 'grupos', grupo: letra, inicio: comp.inicio || '2026-04-07' });
+        criados += DB.Jogos.gerarTurnoReturno({ ids: DB.Grupos.times(letra).map(t => t.id), fase: 'grupos', grupo: letra, inicio });
       });
     }
     alert(criados ? `${criados} jogos criados.` : 'Todos os jogos já estavam cadastrados.');
     renderTabela();
   });
+
   document.getElementById('btn-sincronizar').addEventListener('click', () => {
     DB.MataMata.sincronizar();
     renderTabela();

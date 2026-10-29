@@ -209,7 +209,8 @@ const Nuvem = (() => {
       // Perfil com o nome escolhido no cadastro (ou o começo do e-mail).
       const { data: perfil } = await cliente.from('perfis').select('nome').eq('user_id', usuario.id).maybeSingle();
       if (!perfil) {
-        const nome = (usuario.user_metadata && usuario.user_metadata.nome) || (usuario.email || 'Torcedor').split('@')[0];
+        const meta = usuario.user_metadata || {};
+        const nome = meta.nome || meta.full_name || meta.name || (usuario.email || 'Torcedor').split('@')[0];
         nomePerfil = String(nome).slice(0, 24);
         await cliente.from('perfis').upsert({ user_id: usuario.id, nome: nomePerfil });
       } else nomePerfil = perfil.nome;
@@ -232,6 +233,11 @@ const Nuvem = (() => {
     if (error) throw new Error(traduzir(error.message));
     if (data.session) await definirUsuario(data.user);
     return { confirmar: !data.session };
+  }
+  // Entrar com o Google: o Supabase leva para a tela do Google e volta para esta página.
+  async function entrarComGoogle() {
+    const { error } = await cliente.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.href.split('#')[0] } });
+    if (error) throw new Error(traduzir(error.message));
   }
   async function esqueciSenha(email) {
     const { error } = await cliente.auth.resetPasswordForEmail(email, { redirectTo: location.href.split('#')[0] });
@@ -264,6 +270,7 @@ const Nuvem = (() => {
     [/rate limit|too many/i, 'Muitas tentativas. Espere um pouco e tente de novo.'],
     [/row-level security|violates row-level/i, 'Sem permissão para isso (o jogo pode já ter começado).'],
     [/failed to fetch|network/i, 'Sem conexão com o banco de dados.'],
+    [/provider is not enabled|unsupported provider/i, 'O login com Google ainda não foi ligado no Supabase (veja o SUPABASE.md).'],
   ];
   const traduzir = msg => (MENSAGENS.find(([re]) => re.test(msg)) || [null, msg])[1];
 
@@ -291,10 +298,50 @@ const Nuvem = (() => {
     return data;
   }
 
-  // ---------- Quiz ----------
-  async function registrarQuiz(compId, dia, tentativas, acertou) {
-    if (!cliente || !usuario) return;
-    await cliente.from('quiz_resultados').upsert({ user_id: usuario.id, competicao_id: compId, dia, tentativas, acertou }, { ignoreDuplicates: true });
+  // ---------- Quiz (a resposta fica só no banco) ----------
+  async function quizEstado(compId, dia) {
+    const { data, error } = await cliente.rpc('quiz_estado', { p_comp: compId, p_dia: dia });
+    if (error) throw new Error(traduzir(error.message));
+    return data;   // null: o dia não tem desafio preparado
+  }
+  async function quizTentar(compId, dia, jogadorId, atributos) {
+    const { data, error } = await cliente.rpc('quiz_tentar', { p_comp: compId, p_dia: dia, p_jogador: jogadorId, p_atributos: atributos });
+    if (error) throw new Error(traduzir(error.message));
+    return data;
+  }
+  // Painel: grava os desafios que faltam de hoje até `dias` à frente, em todos os campeonatos.
+  // O sorteio é aleatório e fica só no banco: o modo valendo ranking tem um jogador diferente do
+  // modo sem conta, que é calculado no próprio navegador.
+  async function prepararQuiz(dias = 45) {
+    if (!cliente || !admin || typeof Quiz === 'undefined') return 0;
+    const inicio = Quiz.somarDias(Quiz.hoje(), -1);
+    const { data, error } = await cliente.from('quiz_desafios').select('competicao_id,dia').gte('dia', inicio);
+    if (error) throw new Error(traduzir(error.message));
+    const prontos = new Set(data.map(d => `${d.competicao_id}|${d.dia}`));
+    const original = DB.Contexto.id();
+    const linhas = [];
+    try {
+      DB.Contexto.lista.forEach(c => {
+        DB.Contexto.definir(c.id);
+        const jogadores = DB.Jogadores.all();
+        for (let i = 0; i <= dias + 1; i++) {
+          const dia = Quiz.somarDias(inicio, i);
+          if (prontos.has(`${c.id}|${dia}`)) continue;
+          const linha = Quiz.desafio(jogadores, c.id, dia);
+          if (linha) linhas.push(linha);
+        }
+      });
+    } finally { DB.Contexto.definir(original); }
+    for (let i = 0; i < linhas.length; i += 500) {
+      const { error: e } = await cliente.from('quiz_desafios').upsert(linhas.slice(i, i + 500));
+      if (e) throw new Error(traduzir(e.message));
+    }
+    return linhas.length;
+  }
+  async function quizPreparadoAte() {
+    if (!cliente || !admin) return null;
+    const { data } = await cliente.from('quiz_desafios').select('dia').order('dia', { ascending: false }).limit(1);
+    return data && data[0] ? data[0].dia : null;
   }
   async function rankingQuiz(compId, dia) {
     const { data, error } = await cliente.rpc('ranking_quiz', { p_comp: compId, p_dia: dia });
@@ -353,6 +400,8 @@ const Nuvem = (() => {
   }
 
   // ---------- Botão e janela da conta (no topo do site) ----------
+  // Marca do Google (as quatro cores oficiais, como pedem as regras de uso do botão).
+  const LOGO_GOOGLE = '<svg class="ico-google" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6.1C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-10l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg>';
   const icone = nome => (window.UI ? UI.icone(nome) : '');
   const esc = t => (typeof DB !== 'undefined' ? DB.Util.escapar(t) : String(t));
 
@@ -413,6 +462,7 @@ const Nuvem = (() => {
           <button type="button" role="tab" data-modo="criar" aria-selected="${criando}" class="${criando ? 'ativa' : ''}">Criar conta</button>
         </div>
         <p class="conta-msg">Com uma conta, seus favoritos, quiz, time e palpites ficam salvos em qualquer aparelho, e você entra nos rankings do bolão e do quiz.</p>
+        ${cfg.google ? `<button type="button" class="btn btn-ghost conta-google" id="conta-google">${LOGO_GOOGLE} Continuar com o Google</button><div class="conta-ou"><span>ou com e-mail</span></div>` : ''}
         ${criando ? '<label class="conta-campo">Nome nos rankings<input type="text" id="conta-nome" maxlength="24" required autocomplete="nickname"></label>' : ''}
         <label class="conta-campo">E-mail<input type="email" id="conta-email" required autocomplete="email"></label>
         <label class="conta-campo">Senha<input type="password" id="conta-senha" required minlength="6" autocomplete="${criando ? 'new-password' : 'current-password'}"></label>
@@ -422,6 +472,9 @@ const Nuvem = (() => {
       </form>`;
       overlay.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => { modo = b.dataset.modo; desenhar(); }));
       const erro = t => { overlay.querySelector('#conta-erro').textContent = t; };
+      overlay.querySelector('#conta-google')?.addEventListener('click', async () => {
+        try { await entrarComGoogle(); } catch (e) { erro(e.message); }
+      });
       overlay.querySelector('#conta-esqueci')?.addEventListener('click', async () => {
         const email = overlay.querySelector('#conta-email').value.trim();
         if (!email) { erro('Escreva seu e-mail acima.'); return; }
@@ -450,7 +503,8 @@ const Nuvem = (() => {
   return {
     ativa, pronta, estado, aoMudar, montarConta, abrirConta,
     entrar, sair, ehAdmin, enviarFila, enviarTudo, baixar,
-    salvarPalpite, enviarPalpites, rankingBolao, registrarQuiz, rankingQuiz,
+    salvarPalpite, enviarPalpites, rankingBolao, quizEstado, quizTentar, prepararQuiz, quizPreparadoAte, rankingQuiz,
+    entrarComGoogle, google: !!cfg.google,
     get usuario() { return usuario; }, get admin() { return admin; }, nomeDoUsuario,
     mesclar,
   };

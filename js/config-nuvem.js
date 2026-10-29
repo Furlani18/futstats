@@ -4,4 +4,6 @@
 window.FUTSTATS_NUVEM = {
   url: 'https://jlvvkomuwpjsenfmrrat.supabase.co',
   chave: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpsdnZrb211d3Bqc2VuZm1ycmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyODE3MTcsImV4cCI6MjEwODg1NzcxN30.YZce6h-IHtJdW9k8lkNWGazPcmcqEJ7z6bpJGH91ThA',
+  // Login com o Google: ligue (true) depois de configurar o provedor no Supabase (SUPABASE.md, passo 7).
+  google: false,
 };

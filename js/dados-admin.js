@@ -28,6 +28,7 @@ AdminUI.registrar('dados', () => {
   const statusNuvem = document.getElementById('nuvem-status');
   const btnEnviar = document.getElementById('btn-nuvem-enviar');
   const btnBaixar = document.getElementById('btn-nuvem-baixar');
+  const btnQuiz = document.getElementById('btn-nuvem-quiz');
   function pintarNuvem() {
     if (!document.body.contains(statusNuvem)) return;   // a seção foi trocada
     if (!nuvem) {
@@ -36,6 +37,7 @@ AdminUI.registrar('dados', () => {
     }
     const e = Nuvem.estado();
     btnEnviar.hidden = btnBaixar.hidden = !e.conectada;
+    btnQuiz.hidden = !e.admin;
     btnEnviar.disabled = !e.admin;
     if (!e.conectada) { statusNuvem.textContent = 'Conectando ao banco de dados…'; return; }
     statusNuvem.innerHTML = e.admin
@@ -54,6 +56,21 @@ AdminUI.registrar('dados', () => {
         const total = await Nuvem.enviarTudo(texto => avisar(texto));
         avisar(`${total} itens enviados para o banco de dados.`, 'ok');
       } catch (err) { avisar(`Falha ao enviar: ${err.message}`, 'erro'); } finally { pintarNuvem(); }
+    });
+    // Quiz valendo ranking: o jogador de cada dia fica só no banco.
+    const mostrarQuiz = async () => {
+      const ate = await Nuvem.quizPreparadoAte().catch(() => null);
+      if (ate && document.body.contains(btnQuiz)) btnQuiz.title = `Desafios prontos até ${DB.Util.formatarData(`${ate}T12:00`)}`;
+      return ate;
+    };
+    Nuvem.pronta.then(mostrarQuiz);
+    btnQuiz.addEventListener('click', async () => {
+      btnQuiz.disabled = true;
+      try {
+        const n = await Nuvem.prepararQuiz(60);
+        const ate = await mostrarQuiz();
+        avisar(`Quiz: ${n} desafio${n === 1 ? '' : 's'} novo${n === 1 ? '' : 's'}${ate ? `; prontos até ${DB.Util.formatarData(`${ate}T12:00`)}` : ''}. O painel também prepara sozinho ao abrir.`, 'ok');
+      } catch (err) { avisar(`Falha ao preparar o quiz: ${err.message}`, 'erro'); } finally { btnQuiz.disabled = false; }
     });
     btnBaixar.addEventListener('click', async () => {
       btnBaixar.disabled = true;

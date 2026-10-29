@@ -727,3 +727,8 @@ details.lances-box[open] > summary::after { content: '▴'; }
 .dados-nuvem { grid-column: 1 / -1; }
 .dados-nuvem-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
 .dados-nuvem code { font-size: 12px; }
+
+/* ---------- Login com o Google ---------- */
+.login-google { width: 100%; justify-content: center; gap: 10px; padding: 12px; margin-bottom: 4px; }
+.login-ou, .conta-ou { display: flex; align-items: center; gap: 10px; margin: 12px 0; color: var(--text-dim); font-size: 12px; }
+.login-ou::before, .login-ou::after, .conta-ou::before, .conta-ou::after { content: ''; flex: 1; height: 1px; background: var(--border); }
