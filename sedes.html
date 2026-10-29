@@ -31,15 +31,21 @@
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Sedes</span></div>
     <div class="section-eyebrow">16 estádios · 3 países</div>
     <h1 class="section-title">Sedes da Copa 2026</h1>
-    <p class="lead">Onde a bola rola: os 16 estádios dos Estados Unidos, do México e do Canadá. Clique numa sede para ver os jogos marcados para ela.</p>
+    <p class="lead">Onde a bola rola: os 16 estádios dos Estados Unidos, do México e do Canadá. Clique numa sede para ver os jogos dela, siga a viagem de cada seleção entre as cidades ou passe o torneio dia a dia.</p>
   </div>
 </section>
 
 <main class="page">
   <div class="sedes-layout">
     <section class="panel">
-      <div class="panel-header"><span class="panel-title">Mapa</span>
+      <div class="panel-header sedes-topo">
+        <div class="chips sedes-modos" id="sedes-modos" role="group" aria-label="O que mostrar no mapa">
+          <button type="button" class="chip active" data-modo="sedes" aria-pressed="true"><i data-icone="estadio"></i> Sedes</button>
+          <button type="button" class="chip" data-modo="viagem" aria-pressed="false"><i data-icone="pino"></i> Viagem de uma seleção</button>
+          <button type="button" class="chip" data-modo="dia" aria-pressed="false"><i data-icone="calendario"></i> Dia a dia</button>
+        </div>
         <span class="gl-legenda" style="padding:0;"><span><i style="background:var(--sede-us)"></i>EUA</span><span><i style="background:var(--sede-mx)"></i>México</span><span><i style="background:var(--sede-ca)"></i>Canadá</span></span></div>
+      <div class="sedes-controles" id="sedes-controles"></div>
       <div class="sedes-mapa" id="sedes-mapa"></div>
       <div class="chips sedes-lista" id="sedes-lista" role="group" aria-label="Escolher sede"></div>
     </section>

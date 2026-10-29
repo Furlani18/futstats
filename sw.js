@@ -2,7 +2,7 @@
 // Páginas e dados publicados: rede primeiro (sempre a versão mais nova quando há conexão).
 // CSS, scripts e imagens: cache primeiro, atualizado em segundo plano.
 // Ao mudar arquivos do site, aumente VERSAO para descartar o cache antigo.
-const VERSAO = 'futstats-v3';
+const VERSAO = 'futstats-v4';
 
 const PAGINAS = [
   './', 'index.html', 'partidas.html', 'jogo.html', 'grupos.html', 'chaveamento.html', 'estatisticas.html',
