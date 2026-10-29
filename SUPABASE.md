@@ -14,6 +14,7 @@ Sem configurar nada, o site continua funcionando como antes, com tudo guardado s
 1. Entre em <https://supabase.com>, crie uma conta e clique em **New project**.
 2. Escolha um nome (ex.: `futstats`) e uma senha para o banco (guarde-a). Em região, escolha **South America (São Paulo)**.
 3. Espere o projeto ficar pronto, cerca de 2 minutos.
+4. Furlani2005@ - Senha para guardar
 
 ## 2. Criar as tabelas
 
@@ -56,7 +57,7 @@ Por padrão, o Supabase pede que a pessoa confirme o e-mail antes de entrar. Par
 
 ```sql
 insert into public.admins (user_id)
-select id from auth.users where email = 'seu@email.com';
+select id from auth.users where email = 'furlanigabriel49@gmail.com';
 ```
 
 3. Abra `login.html`, que agora pede e-mail e senha, e entre com essa conta.
