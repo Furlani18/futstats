@@ -1,0 +1,22 @@
+{
+  "name": "FUTSTATS — Copa 2026 e campeonatos",
+  "short_name": "FUTSTATS",
+  "description": "Placar, tabela, estatísticas, bolão e simulador da Copa do Mundo 2026 e de campeonatos de clubes.",
+  "lang": "pt-BR",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070a12",
+  "theme_color": "#070a12",
+  "icons": [
+    { "src": "icons/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icone-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icone-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Partidas", "url": "partidas.html", "icons": [{ "src": "icons/icone-192.png", "sizes": "192x192" }] },
+    { "name": "Bolão", "url": "bolao.html", "icons": [{ "src": "icons/icone-192.png", "sizes": "192x192" }] },
+    { "name": "Quiz do dia", "url": "quiz.html", "icons": [{ "src": "icons/icone-192.png", "sizes": "192x192" }] }
+  ]
+}

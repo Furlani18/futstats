@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const esc = DB.Util.escapar;
   if (!DB.Contexto.ehCopa()) document.getElementById('titulo-premios').textContent = `Prêmios · ${DB.Contexto.get().curto}`;
   const { chuteira, luva, jovem } = DB.Estatisticas.premios();
+  const bola = DB.Estatisticas.bolaDeOuro();
 
   function lista(itens, valor, sub, vazio) {
     if (!itens.length) return UI.vazio(vazio, '');
@@ -20,6 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('')}</ol>`;
   }
 
+  document.getElementById('lista-bola').innerHTML = lista(bola.lista,
+    l => `${l.media.toFixed(2).replace('.', ',')}<small>nota média</small>`,
+    l => `${l.jogosComNota} jogo${l.jogosComNota === 1 ? '' : 's'} · ${l.gols}G ${l.assistencias}A`,
+    'Nenhuma nota ainda');
+  if (bola.minimo > 1) document.getElementById('crit-bola').textContent = `Maior nota média entre quem jogou ao menos ${bola.minimo} jogos (metade dos jogos do mais assíduo). Desempate: gols + assistências.`;
   document.getElementById('lista-chuteira').innerHTML = lista(chuteira,
     l => `${l.gols}<small>gols</small>`,
     l => `${l.assistencias} assist.${l.minutos ? ` · ${l.minutos} min` : ''}`,
@@ -70,8 +76,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const linhas = [...sel.linhas].reverse().map(l => l.map(item));
     document.getElementById('campo-rodada').innerHTML = vazia
       ? UI.vazio('Nenhum jogo encerrado nesta rodada', '')
-      : `<div class="lu-rodada">${UI.campoGoogle(linhas, `<div class="lu-topo"><span class="lu-time">Os melhores de ${esc(sel.rodada.label.toLowerCase())}</span><span class="lu-formacao">4-3-3</span></div>`)}</div>`;
+      : `<div class="lu-rodada">${UI.campoGoogle(linhas, `<div class="lu-topo"><span class="lu-time">Os melhores de ${esc(sel.rodada.label.toLowerCase())}</span><span class="lu-formacao">${sel.formacao}</span></div>`)}</div>`;
+    document.getElementById('btn-imagem-rodada').hidden = vazia;
+    selecaoAtual = sel;
   }
+
+  // Imagem da seleção da rodada (ataque em cima, goleiro embaixo).
+  let selecaoAtual = null;
+  document.getElementById('btn-imagem-rodada').addEventListener('click', async e => {
+    if (!selecaoAtual) return;
+    const botao = e.currentTarget;
+    botao.disabled = true;
+    const comp = DB.Contexto.get();
+    const fileiras = selecaoAtual.linhas.map(l => l.map(p => (p ? { nome: p.jogador.nome, numero: p.jogador.numero, timeId: p.jogador.timeId, nota: p.nota, gols: p.gols } : null)));
+    try {
+      await Compartilhar.campo({ eyebrow: `${comp.curto} ${comp.temporada}`, titulo: `Seleção da rodada · ${selecaoAtual.rodada.label}`, subtitulo: 'Os melhores pelas notas', formacao: selecaoAtual.formacao, linhas: fileiras },
+        `futstats-selecao-${selecaoAtual.rodada.id}.png`, `Seleção da rodada (${selecaoAtual.rodada.label}) — ${comp.curto} ${comp.temporada}`);
+    } finally { botao.disabled = false; }
+  });
 
   render();
   UI.montarFooter();

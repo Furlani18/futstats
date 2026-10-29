@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   DB.MataMata.sincronizar();
 
   const comp = DB.Contexto.get();
+  UI.botoesExportar(document.getElementById('exportar'), () => {
+    const nome = id => (DB.Times.get(id) || {}).nome || 'A definir';
+    const linhas = DB.Jogos.all().sort((a, b) => new Date(a.data) - new Date(b.data)).map(j => [
+      DB.Util.formatarData(j.data), DB.Util.formatarHora(j.data), UI.rotuloJogo(j), nome(j.mandanteId),
+      UI.temPlacar(j) ? j.golsMandante : '', UI.temPlacar(j) ? j.golsVisitante : '', nome(j.visitanteId), j.local || '', DB.Util.statusLabel(j.status)]);
+    UI.baixarCSV(`futstats-${comp.id}-partidas.csv`, [['Data', 'Hora (Brasília)', 'Fase', 'Mandante', 'Gols mandante', 'Gols visitante', 'Visitante', 'Estádio', 'Situação'], ...linhas]);
+  });
   const FASES = {
     copa_mundo: [['', 'Todas'], ['grupos', 'Fase de grupos'], ['r32', '32avos'], ['r16', 'Oitavas'], ['qf', 'Quartas'], ['sf', 'Semifinais'], ['finais', 'Finais']],
     liga: [],

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Recordes — Copa do Mundo FIFA 2026 — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Maiores goleadas, viradas, hat-tricks, gols mais rápidos, sequências e curiosidades da Copa 2026.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Recordes — Copa do Mundo FIFA 2026 — FUTSTATS">
+<meta property="og:description" content="Maiores goleadas, viradas, hat-tricks, gols mais rápidos, sequências e curiosidades da Copa 2026.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/recordes.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <a href="estatisticas.html">Estatísticas</a> / <span>Recordes</span></div>
+    <div class="section-eyebrow" id="eyebrow-recordes">Números que contam histórias</div>
+    <div class="titulo-acao"><h1 class="section-title">Recordes e curiosidades</h1></div>
+    <p class="lead">Tudo calculado a partir dos jogos encerrados: atualiza sozinho a cada partida cadastrada.</p>
+    <div class="kpi-strip" id="kpis" style="margin-top:18px;"></div>
+  </div>
+</section>
+
+<main class="page">
+  <div id="recordes"></div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
+<script src="js/competicoes.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/recordes.js"></script>
+</body>
+</html>

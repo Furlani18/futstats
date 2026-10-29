@@ -53,6 +53,12 @@ const UI = (() => {
     download: '<path d="M12 4v11M7 10l5 5 5-5M4 20h16"/>',
     upload: '<path d="M12 16V5M7 10l5-5 5 5M4 20h16"/>',
     pino: '<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    impressora: '<path d="M7 9V3h10v6M7 17H4v-7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v7h-3M7 14h10v7H7z"/>',
+    pergunta: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>',
+    medalha: '<circle cx="12" cy="15" r="6"/><path d="M8.5 10.2L6 3h4l2 4 2-4h4l-2.5 7.2M12 12.5v5"/>',
+    sino: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>',
+    raio: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
+    campo: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M9 4v3h6V4M9 20v-3h6v3"/><circle cx="12" cy="12" r="2.5"/>',
   };
   function icone(id, classe = '') {
     return `<svg class="ico${classe ? ` ${classe}` : ''}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES[id] || ''}</svg>`;
@@ -75,7 +81,8 @@ const UI = (() => {
     'selecoes.html': 'selecoes', 'time.html': 'selecoes',
     'premios.html': 'premios',
     'simulador.html': 'simulador',
-    'bolao.html': 'bolao',
+    'bolao.html': 'bolao', 'quiz.html': 'bolao', 'meu-time.html': 'bolao',
+    'recordes.html': 'estatisticas',
     'sedes.html': 'sedes',
   };
 
@@ -235,10 +242,27 @@ const UI = (() => {
     hidratarIcones();
     const principal = document.querySelector('main');
     if (principal && !principal.id) principal.id = 'conteudo';
+    registrarPWA();
+    agendarLembretes();
   }
 
   // ---------- Busca global (jogadores e seleções) ----------
   const normalizar = texto => String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  // Atalhos para as páginas (com palavras que também as encontram).
+  const PAGINAS_BUSCA = [
+    ['Partidas', 'partidas.html', 'jogos calendario tabela de jogos', 'partidas'],
+    ['Estatísticas', 'estatisticas.html', 'artilharia artilheiros assistencias numeros', 'estatisticas'],
+    ['Recordes e curiosidades', 'recordes.html', 'maior goleada hat-trick virada sequencia mais jovem', 'trofeu'],
+    ['Prêmios', 'premios.html', 'chuteira luva bola de ouro selecao da rodada melhor jovem', 'medalha'],
+    ['Comparar', 'comparar.html', 'comparar jogadores times confronto', 'balanca'],
+    ['Bolão', 'bolao.html', 'palpites amigos ranking', 'dado'],
+    ['Quiz do dia', 'quiz.html', 'adivinhe quem e o jogador jogo', 'pergunta'],
+    ['Monte seu time', 'meu-time.html', 'time ideal escalacao seleção dos sonhos', 'campo'],
+    ['Simulador', 'simulador.html', 'simular probabilidades chances', 'dado'],
+    ['Favoritos', 'favoritos.html', 'seguindo meus times lembretes notificacoes', 'estrela'],
+    ['Sobre o projeto', 'sobre.html', 'sobre instalar app ajuda', 'escudo'],
+  ];
 
   function buscar(termo) {
     const t = normalizar(termo).trim();
@@ -246,6 +270,26 @@ const UI = (() => {
     const times = DB.Times.todos();
     const porId = Object.fromEntries(times.map(x => [x.id, x]));
     const resultados = [];
+    PAGINAS_BUSCA.forEach(([titulo, href, chaves, ic]) => {
+      const alvo = normalizar(`${titulo} ${chaves}`);
+      if (alvo.includes(t)) resultados.push({ tipo: 'pagina', peso: normalizar(titulo).startsWith(t) ? 0.5 : 5, titulo, href, ic });
+    });
+    // Jogo: "bra x mar", "brasil marrocos" — cada time precisa casar com uma das palavras.
+    const palavras = t.split(/\s+(?:x|vs|contra)\s+|\s+/).filter(p => p.length >= 2 && !['x', 'vs'].includes(p));
+    if (palavras.length >= 2) {
+      const casa = (time, palavra) => time && normalizar(`${time.nome} ${time.codigo}`).split(/\s+/).some(x => x.startsWith(palavra));
+      DB.Jogos.all().forEach(jogo => {
+        const m = porId[jogo.mandanteId], v = porId[jogo.visitanteId];
+        if (!m || !v) return;
+        const ok = palavras.some(a => casa(m, a)) && palavras.some(b => casa(v, b)) && palavras.every(p => casa(m, p) || casa(v, p));
+        if (ok) resultados.push({ tipo: 'jogo', peso: -1, jogo, m, v });
+      });
+    }
+    // Estádios do campeonato aberto.
+    const locais = [...new Set(DB.Jogos.all().map(j => j.local).filter(Boolean))];
+    locais.forEach(local => {
+      if (normalizar(local).includes(t)) resultados.push({ tipo: 'local', peso: 3, local, jogos: DB.Jogos.all().filter(j => j.local === local).length });
+    });
     times.forEach(time => {
       const alvo = normalizar(`${time.nome} ${time.codigo}`);
       if (alvo.includes(t)) resultados.push({ tipo: 'time', peso: alvo.startsWith(t) ? 0 : 1, time });
@@ -262,6 +306,18 @@ const UI = (() => {
   }
 
   function itemBusca(r, i) {
+    if (r.tipo === 'pagina') {
+      return `<a class="busca-item" href="${r.href}" data-i="${i}"><span class="busca-ic">${icone(r.ic)}</span><span class="busca-txt"><b>${esc(r.titulo)}</b><small>Página</small></span></a>`;
+    }
+    if (r.tipo === 'jogo') {
+      const placar = temPlacar(r.jogo) ? `${r.jogo.golsMandante}–${r.jogo.golsVisitante}` : DB.Util.formatarData(r.jogo.data).slice(0, 5);
+      return `<a class="busca-item" href="jogo.html?id=${r.jogo.id}" data-i="${i}">${bandeira(r.m)}<span class="busca-txt"><b>${esc(r.m.nome)} ${placar} ${esc(r.v.nome)}</b>
+        <small>${esc(rotuloJogo(r.jogo))} · ${DB.Util.formatarData(r.jogo.data)}</small></span>${bandeira(r.v)}</a>`;
+    }
+    if (r.tipo === 'local') {
+      const href = DB.Contexto.ehCopa() ? 'sedes.html' : `partidas.html`;
+      return `<a class="busca-item" href="${href}" data-i="${i}"><span class="busca-ic">${icone('estadio')}</span><span class="busca-txt"><b>${esc(r.local)}</b><small>Estádio · ${r.jogos} jogo${r.jogos === 1 ? '' : 's'}</small></span></a>`;
+    }
     if (r.tipo === 'time') {
       return `<a class="busca-item" href="time.html?id=${r.time.id}" data-i="${i}">
         ${bandeira(r.time)}<span class="busca-txt"><b>${esc(r.time.nome)}</b><small>${r.time.tipo === 'clube'
@@ -282,8 +338,8 @@ const UI = (() => {
     overlay.className = 'busca-overlay';
     overlay.innerHTML = `
       <div class="busca-box" role="dialog" aria-modal="true" aria-label="Buscar">
-        <input type="search" id="busca-input" placeholder="Buscar jogador, seleção ou clube…" autocomplete="off" aria-label="Buscar jogador, seleção ou clube" aria-controls="busca-resultados">
-        <div class="busca-resultados" id="busca-resultados" aria-live="polite"><div class="busca-dica">Digite ao menos 2 letras. Ex.: <b>Vini</b>, <b>Japão</b>, <b>Real Madrid</b></div></div>
+        <input type="search" id="busca-input" placeholder="Buscar jogador, time, jogo, estádio ou página…" autocomplete="off" aria-label="Buscar jogador, time, jogo, estádio ou página" aria-controls="busca-resultados">
+        <div class="busca-resultados" id="busca-resultados" aria-live="polite"><div class="busca-dica">Digite ao menos 2 letras. Ex.: <b>Vini</b>, <b>Japão</b>, <b>bra x mar</b>, <b>MetLife</b>, <b>recordes</b></div></div>
       </div>`;
     document.body.appendChild(overlay);
     const input = document.getElementById('busca-input');
@@ -486,14 +542,19 @@ const UI = (() => {
             <a href="partidas.html">Partidas</a>
             <a href="estatisticas.html">Estatísticas</a>
             <a href="comparar.html">Comparar</a>
+            <a href="recordes.html">Recordes</a>
             <a href="bolao.html">Bolão</a>
+            <a href="quiz.html">Quiz do dia</a>
+            <a href="meu-time.html">Monte seu time</a>
             <a href="favoritos.html">Favoritos</a>
             <a href="sedes.html?c=copa2026">Sedes da Copa</a>
             <a href="sobre.html">Sobre o projeto</a>
             <a href="login.html">Painel administrativo</a>
+            <button type="button" class="footer-instalar" id="btn-instalar" ${pedidoInstalar ? '' : 'hidden'}>${icone('download')} Instalar o app</button>
           </nav>
         </div>
       </div>`;
+    document.getElementById('btn-instalar').addEventListener('click', instalarApp);
   }
 
   // ---------- Bandeiras e times ----------
@@ -1118,6 +1179,140 @@ const UI = (() => {
     return `<div class="empty"><strong>${titulo}</strong>${texto || ''}</div>`;
   }
 
+  // ---------- Confete (vitória do time seguido, acerto no quiz…) ----------
+  function confete({ cores, quantidade = 150 } = {}) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confete';
+    canvas.setAttribute('aria-hidden', 'true');
+    const W = window.innerWidth, H = window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const paleta = cores && cores.length ? cores : ['#f4c64e', '#33e08a', '#5b8cff', '#ff5470', '#ffffff'];
+    const pecas = Array.from({ length: quantidade }, (_, i) => ({
+      x: W / 2 + (Math.random() - 0.5) * W * 0.4, y: H * 0.4,
+      vx: (Math.random() - 0.5) * 16, vy: -Math.random() * 15 - 5,
+      r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+      w: 6 + Math.random() * 6, h: 9 + Math.random() * 8, cor: paleta[i % paleta.length],
+    }));
+    const DURACAO = 2800, inicio = performance.now();
+    const passo = agora => {
+      const t = agora - inicio;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalAlpha = Math.max(0, 1 - Math.max(0, t - DURACAO * 0.6) / (DURACAO * 0.4));
+      pecas.forEach(p => {
+        p.vy += 0.38; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.cor; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2)) + 1);
+        ctx.restore();
+      });
+      if (t < DURACAO) requestAnimationFrame(passo); else canvas.remove();
+    };
+    requestAnimationFrame(passo);
+  }
+
+  // ---------- Exportar: CSV (abre no Excel em português) e impressão ----------
+  function baixarCSV(nomeArquivo, linhas) {
+    const celula = v => {
+      const t = v == null ? '' : String(v);
+      return /[";\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+    };
+    const csv = `\ufeff${linhas.map(l => l.map(celula).join(';')).join('\r\n')}`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: nomeArquivo });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // Botões "Imprimir" e (se houver `aoCsv`) "CSV" dentro de `alvo`.
+  function botoesExportar(alvo, aoCsv) {
+    if (!alvo) return;
+    alvo.insertAdjacentHTML('beforeend', `<span class="exportar no-print">
+      <button type="button" class="btn btn-ghost btn-sm" data-imprimir title="Imprimir ou salvar em PDF">${icone('impressora')}<span>Imprimir</span></button>
+      ${aoCsv ? `<button type="button" class="btn btn-ghost btn-sm" data-csv title="Baixar planilha (CSV)">${icone('download')}<span>CSV</span></button>` : ''}</span>`);
+    alvo.querySelector('[data-imprimir]').addEventListener('click', () => window.print());
+    if (aoCsv) alvo.querySelector('[data-csv]').addEventListener('click', aoCsv);
+  }
+
+  // ---------- App instalável (PWA) ----------
+  // O navegador avisa quando o site pode ser instalado: o botão do rodapé aparece nessa hora.
+  let pedidoInstalar = null;
+  function registrarPWA() {
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+    navigator.serviceWorker.register('sw.js').catch(() => { /* sem service worker: segue online */ });
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      pedidoInstalar = e;
+      const botao = document.getElementById('btn-instalar');
+      if (botao) botao.hidden = false;
+    });
+  }
+  async function instalarApp() {
+    if (!pedidoInstalar) return;
+    pedidoInstalar.prompt();
+    await pedidoInstalar.userChoice.catch(() => null);
+    pedidoInstalar = null;
+    const botao = document.getElementById('btn-instalar');
+    if (botao) botao.hidden = true;
+  }
+
+  // ---------- Lembretes dos jogos dos times seguidos ----------
+  // Sem servidor não há notificação com o site fechado: com alguma página (ou o app) aberta,
+  // avisa 30 minutos antes de cada jogo dos times favoritos. Cada jogo avisa uma vez só.
+  const ANTECEDENCIA = 30 * 60000;
+  const inicioDoJogo = jogo => new Date(`${jogo.data.slice(0, 16)}:00-03:00`).getTime();
+  const lerAvisados = () => { try { return JSON.parse(localStorage.getItem('fs_lembretes_avisados')) || []; } catch (e) { return []; } };
+  const Lembretes = {
+    suportado: () => typeof Notification !== 'undefined',
+    ativos() {
+      try { return localStorage.getItem('fs_lembretes') === '1' && this.suportado() && Notification.permission === 'granted'; } catch (e) { return false; }
+    },
+    async ativar() {
+      if (!this.suportado()) return 'sem-suporte';
+      const permissao = await Notification.requestPermission();
+      if (permissao === 'granted') {
+        try { localStorage.setItem('fs_lembretes', '1'); } catch (e) { /* sem armazenamento */ }
+        agendarLembretes();
+      }
+      return permissao;
+    },
+    desativar() { try { localStorage.removeItem('fs_lembretes'); } catch (e) { /* idem */ } },
+    // Próximos jogos dos favoritos que ainda vão ser avisados.
+    pendentes() {
+      const favs = Favoritos.lista();
+      const avisados = lerAvisados();
+      return DB.Jogos.todos().filter(j => j.status === 'agendado' && j.data && (favs.includes(j.mandanteId) || favs.includes(j.visitanteId))
+        && !avisados.includes(j.id) && inicioDoJogo(j) > Date.now()).sort((a, b) => inicioDoJogo(a) - inicioDoJogo(b));
+    },
+  };
+  function agendarLembretes() {
+    if (!Lembretes.ativos()) return;
+    Lembretes.pendentes().forEach(jogo => {
+      const espera = inicioDoJogo(jogo) - ANTECEDENCIA - Date.now();
+      if (espera < 12 * 3600000) setTimeout(() => avisarJogo(jogo), Math.max(0, espera));
+    });
+  }
+  async function avisarJogo(jogo) {
+    const avisados = lerAvisados();
+    if (avisados.includes(jogo.id)) return;   // outra aba já avisou
+    try { localStorage.setItem('fs_lembretes_avisados', JSON.stringify([...avisados, jogo.id].slice(-300))); } catch (e) { /* idem */ }
+    const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
+    const titulo = `${m ? m.nome : '?'} x ${v ? v.nome : '?'}`;
+    const opcoes = { body: `Começa às ${DB.Util.formatarHora(jogo.data)}${jogo.local ? ` · ${jogo.local}` : ''}`, icon: 'apple-touch-icon.png', tag: jogo.id, data: { url: `jogo.html?id=${jogo.id}` } };
+    try {
+      const registro = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+      if (registro) { await registro.showNotification(titulo, opcoes); return; }
+    } catch (e) { /* cai para a notificação simples */ }
+    try {
+      const n = new Notification(titulo, opcoes);
+      n.onclick = () => { window.focus(); window.location.href = opcoes.data.url; };
+    } catch (e) { /* navegador recusou */ }
+  }
+
   return {
     montarTopbar, montarTicker, montarFooter,
     bandeira, bandeiraClube, bandeiraPais, nomePais, crestHtml, timeLink, avatar,
@@ -1127,5 +1322,6 @@ const UI = (() => {
     notaHtml, fotoJogador, jogadorNoCampo, campoGoogle, Favoritos, FavoritosJogadores, ligarBotaoFavorito, graficoLinha,
     graficoLinhas, graficoBarras, graficoRadar, corDoTime, escudoGerado, arquivoIcs, baixarIcs, proximosDoTime,
     icone, hidratarIcones, TemaTime, temaAtual, cartaJogador, destacarCaminhos,
+    confete, baixarCSV, botoesExportar, Lembretes,
   };
 })();

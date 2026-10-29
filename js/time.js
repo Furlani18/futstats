@@ -108,13 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- Campanha: posição na tabela rodada a rodada ----------
-  if (comp.tipo === 'liga' || comp.tipo === 'champions') {
+  // Na liga, a tabela inteira; nos grupos, a posição dentro do grupo.
+  {
     const evolucao = DB.Estatisticas.evolucaoPosicao(time.id);
     if (evolucao.length >= 2) {
       document.getElementById('painel-campanha').hidden = false;
-      const nTimes = DB.Times.all().length;
+      const nTimes = evolucao[0].total || DB.Times.all().length;
+      if (evolucao[0].grupo) document.querySelector('#painel-campanha .panel-title').textContent = `Campanha · posição no Grupo ${evolucao[0].grupo}`;
       const passo = nTimes > 20 ? 6 : 4;
-      const marcas = [1, ...Array.from({ length: Math.floor((nTimes - 1) / passo) }, (_, i) => 1 + (i + 1) * passo).filter(v => v < nTimes), nTimes];
+      const marcas = nTimes <= 6 ? Array.from({ length: nTimes }, (_, i) => i + 1) : [1, ...Array.from({ length: Math.floor((nTimes - 1) / passo) }, (_, i) => 1 + (i + 1) * passo).filter(v => v < nTimes), nTimes];
       // Cor do time que aparece no fundo do tema atual (branca some no claro, quase preta no escuro).
       const corLinha = UI.corDoTime(time);
       document.getElementById('grafico-campanha').innerHTML = UI.graficoLinha(

@@ -94,10 +94,77 @@ document.addEventListener('DOMContentLoaded', () => {
     </li>`;
   }
 
+  // ---------- Linha do tempo visual: quem esteve na frente e quando saíram os lances ----------
+  function linhaVisual() {
+    if (!mandante || !visitante || !UI.temPlacar(jogo)) return '';
+    const duracao = jogo.prorrogacao ? 120 : 90;
+    const subs = Object.entries(jogo.escalacoes || {}).flatMap(([timeId, e]) => (e.substituicoes || []).map(sub => ({ ...sub, timeId })));
+    const comMinuto = l => DB.Util.minutoNumero(l.minuto) < 999;
+    if (![...eventos, ...subs].some(comMinuto)) return '';
+    const minuto = l => Math.min(DB.Util.minutoNumero(l.minuto), duracao);
+    const x = l => `${((minuto(l) / duracao) * 100).toFixed(2)}%`;
+    const corM = UI.corDoTime(mandante), corV = UI.corDoTime(visitante, corM);
+
+    // Faixas do placar: quem estava na frente entre um gol e outro (gols sem minuto ficam de fora).
+    const faixas = [];
+    const naFrente = { m: 0, v: 0, e: 0 };
+    let [gm, gv] = [0, 0], inicio = 0;
+    const fechar = fim => {
+      if (fim <= inicio) return;
+      const lado = gm > gv ? 'm' : gv > gm ? 'v' : 'e';
+      naFrente[lado] += fim - inicio;
+      faixas.push(`<span class="tlv-faixa" style="left:${(inicio / duracao) * 100}%;width:${((fim - inicio) / duracao) * 100}%;background:${lado === 'm' ? corM : lado === 'v' ? corV : 'var(--text-faint)'}"></span>`);
+      inicio = fim;
+    };
+    gols.filter(comMinuto).forEach(g => {
+      fechar(Math.floor(minuto(g)));
+      if (g.timeId === jogo.mandanteId) gm++; else gv++;
+    });
+    fechar(duracao);
+
+    const nomeJ = id => { const j = DB.Jogadores.get(id); return j ? j.nome : ''; };
+    const marca = l => {
+      const titulo = l.evento === 'gol' ? `${nomeJ(l.jogadorId) || 'Gol'} ${l.minuto}'${l.tipo === 'contra' ? ' (contra)' : l.tipo === 'penalti' ? ' (pênalti)' : ''}`
+        : l.evento === 'cartao' ? `${NOME_CARTAO[l.tipo] || 'Cartão'}: ${nomeJ(l.jogadorId)} ${l.minuto}'`
+        : `${nomeJ(l.entraId)} no lugar de ${nomeJ(l.saiId)} ${l.minuto}'`;
+      const icone = l.evento === 'gol' ? UI.icone('bola') : l.evento === 'cartao' ? `<span class="card-icon${l.tipo === 'amarelo' ? '' : ' red'}"></span>` : UI.icone('trocar');
+      return `<span class="tlv-m tlv-${l.evento}" style="left:${x(l)}" title="${esc(titulo)}">${icone}</span>`;
+    };
+    const lances = [...eventos, ...subs.map(sub => ({ ...sub, evento: 'sub' }))].filter(comMinuto);
+    const ladoDe = l => (l.timeId === jogo.mandanteId ? 'home' : 'away');
+    const marcas = lado => lances.filter(l => ladoDe(l) === lado).map(marca).join('');
+    const min = n => `${Math.round(n)} min`;
+    const resumo = `${esc(mandante.nome)} na frente por ${min(naFrente.m)} · ${esc(visitante.nome)} por ${min(naFrente.v)} · empate por ${min(naFrente.e)}`;
+    return `<div class="tlv" role="img" aria-label="${resumo}">
+      <div class="tlv-time home">${UI.bandeira(mandante, 'sm')}<span>${esc(mandante.codigo)}</span></div>
+      <div class="tlv-lado home">${marcas('home')}</div>
+      <div class="tlv-trilho">${faixas.join('')}<span class="tlv-int" style="left:${(45 / duracao) * 100}%"></span>${jogo.prorrogacao ? `<span class="tlv-int" style="left:75%"></span>` : ''}</div>
+      <div class="tlv-time away">${UI.bandeira(visitante, 'sm')}<span>${esc(visitante.codigo)}</span></div>
+      <div class="tlv-lado away">${marcas('away')}</div>
+      <div class="tlv-escala"><span>0'</span><span style="left:${(45 / duracao) * 100}%">45'</span><span style="left:${(90 / duracao) * 100}%">90'</span>${jogo.prorrogacao ? `<span style="left:100%">120'</span>` : ''}</div>
+      <p class="tlv-resumo">${resumo}</p>
+    </div>`;
+  }
+
   document.getElementById('timeline').innerHTML = eventos.length
-    ? `<ul class="timeline">${eventos.map(itemLinha).join('')}</ul>`
+    ? `${linhaVisual()}<ul class="timeline">${eventos.map(itemLinha).join('')}</ul>`
     : UI.vazio(jogo.status === 'agendado' ? 'A partida ainda não começou' : 'Nenhum lance cadastrado',
       jogo.status === 'agendado' ? '' : 'Gols, assistências e cartões aparecem aqui quando forem lançados no painel.');
+
+  // ---------- Festa: vitória de um time seguido (uma vez por visita ao jogo) ----------
+  const seguidos = UI.Favoritos.lista();
+  const vencedorId = UI.temPlacar(jogo) && jogo.status === 'encerrado'
+    ? (jogo.golsMandante > jogo.golsVisitante ? jogo.mandanteId : jogo.golsVisitante > jogo.golsMandante ? jogo.visitanteId
+      : jogo.penaltisMandante != null && jogo.penaltisVisitante != null && jogo.penaltisMandante !== jogo.penaltisVisitante
+        ? (jogo.penaltisMandante > jogo.penaltisVisitante ? jogo.mandanteId : jogo.visitanteId) : null)
+    : null;
+  const coresDe = id => { const c = DB.Util.coresTime(DB.Times.get(id)); return [c.primaria, c.secundaria, '#f4c64e']; };
+  try {
+    if (vencedorId && seguidos.includes(vencedorId) && !sessionStorage.getItem(`fs_festa_${jogo.id}`)) {
+      sessionStorage.setItem(`fs_festa_${jogo.id}`, '1');
+      setTimeout(() => UI.confete({ cores: coresDe(vencedorId) }), 400);
+    }
+  } catch (e) { /* sem armazenamento: sem festa */ }
 
   // ---------- Escalações (campinho + banco, no estilo do Google) ----------
   const minutos = DB.Estatisticas.minutosNoJogo(jogo);
@@ -354,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (l.tipo === 'gol') {
           placar[l.e.timeId === jogo.mandanteId ? 0 : 1]++;
           desenharPlacar(true);
+          if (seguidos.includes(l.e.timeId)) UI.confete({ cores: coresDe(l.e.timeId), quantidade: 90 });
           html = html.replace('class="tl-item"', 'class="tl-item replay-gol"');
         }
       }

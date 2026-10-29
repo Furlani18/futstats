@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Seus times (favoritos deste campeonato) ----------
   montarFavoritos();
+  statusQuiz();
 
   // ---------- Partidas: rodada atual (com setas) quando o campeonato tem rodadas ----------
   const rodadasComJogos = DB.Estatisticas.rodadas
@@ -200,15 +201,37 @@ function montarDestaque() {
   const contagem = document.getElementById('contagem');
   if (contagem) {
     const alvo = new Date(jogo.data).getTime();
+    // Só o número que mudou é trocado, com uma virada curta (como placar de estádio).
+    contagem.innerHTML = ['dias', 'horas', 'min', 'seg'].map(l => `<div><b></b><span>${l}</span></div>`).join('');
+    const numeros = contagem.querySelectorAll('b');
     const tick = () => {
       const resta = Math.max(0, alvo - Date.now());
-      const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, mi = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
-      const bloco = (n, l) => `<div><b>${String(n).padStart(2, '0')}</b><span>${l}</span></div>`;
-      contagem.innerHTML = bloco(d, 'dias') + bloco(h, 'horas') + bloco(mi, 'min') + bloco(s, 'seg');
+      const valores = [Math.floor(resta / 864e5), Math.floor(resta / 36e5) % 24, Math.floor(resta / 6e4) % 60, Math.floor(resta / 1e3) % 60];
+      valores.forEach((n, i) => {
+        const texto = String(n).padStart(2, '0');
+        if (numeros[i].textContent === texto) return;
+        const primeira = !numeros[i].textContent;
+        numeros[i].textContent = texto;
+        if (!primeira) { numeros[i].classList.remove('virou'); void numeros[i].offsetWidth; numeros[i].classList.add('virou'); }
+      });
       if (resta > 0) setTimeout(tick, 1000);
     };
     tick();
   }
+}
+
+// Atalho do quiz: mostra se o desafio de hoje já foi jogado.
+function statusQuiz() {
+  const alvo = document.getElementById('atalho-quiz');
+  if (!alvo) return;
+  try {
+    const d = new Date();
+    const hoje = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const p = ((JSON.parse(localStorage.getItem('fs_quiz')) || {})[DB.Contexto.id()] || { dias: {} }).dias[hoje];
+    if (p && p.acertou) alvo.textContent = `Hoje: acertou em ${p.tentativas.length}! Volte amanhã`;
+    else if (p && p.tentativas.length >= 6) alvo.textContent = 'Hoje não deu. Volte amanhã';
+    else if (p && p.tentativas.length) alvo.textContent = `Em andamento: ${6 - p.tentativas.length} chances restantes`;
+  } catch (e) { /* sem armazenamento */ }
 }
 
 // Times seguidos (estrela na página do time) que estão neste campeonato: último resultado e próximo jogo.

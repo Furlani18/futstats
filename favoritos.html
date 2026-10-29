@@ -7,6 +7,7 @@
 <script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#070a12">
 <meta name="description" content="Times e jogadores que você segue, com os próximos jogos de todos os campeonatos.">
 <meta property="og:type" content="website">
@@ -49,6 +50,10 @@
       </div>
     </section>
     <aside class="stack">
+      <div class="panel" id="painel-lembretes">
+        <div class="panel-header"><span class="panel-title"><i data-icone="sino"></i> Lembretes de jogo</span></div>
+        <div class="lembretes" id="lembretes"></div>
+      </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Times</span><span class="campanha-resumo" id="fav-qtd-times"></span></div>
         <div id="fav-times"></div>

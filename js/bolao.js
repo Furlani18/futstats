@@ -62,6 +62,27 @@ const Bolao = (() => {
     return r;
   }
 
+  // Conquistas do participante: [{ id, titulo, descricao, icone, ok, progresso }].
+  // `lider`: está em 1º no ranking com ao menos um amigo.
+  function conquistas(palpites, jogos, { lider = false } = {}) {
+    const r = resumo(palpites, jogos);
+    // Maior sequência de jogos seguidos (por data) pontuando.
+    let seguidos = 0, melhor = 0;
+    [...jogos].filter(j => j.status === 'encerrado' && palpites[j.id] && pontos(palpites[j.id], j) != null)
+      .sort((a, b) => new Date(a.data) - new Date(b.data))
+      .forEach(j => { seguidos = pontos(palpites[j.id], j) > 0 ? seguidos + 1 : 0; melhor = Math.max(melhor, seguidos); });
+    const meta = (id, titulo, descricao, icone, valor, alvo) => ({ id, titulo, descricao, icone, ok: valor >= alvo, progresso: `${Math.min(valor, alvo)}/${alvo}` });
+    return [
+      meta('estreia', 'Estreia', 'Fazer o primeiro palpite', 'dado', r.palpitados, 1),
+      meta('palpiteiro', 'Palpiteiro', 'Palpitar 20 jogos', 'prancheta', r.palpitados, 20),
+      meta('mosca', 'Na mosca', 'Cravar um placar exato', 'assistencia', r.exatos, 1),
+      meta('vidente', 'Vidente', 'Cravar 5 placares exatos', 'estrela-cheia', r.exatos, 5),
+      meta('embalado', 'Embalado', 'Pontuar em 5 jogos seguidos', 'raio', melhor, 5),
+      meta('centenario', 'Centenário', 'Somar 100 pontos', 'trofeu', r.pontos, 100),
+      { id: 'lider', titulo: 'Líder', descricao: 'Ficar em 1º com amigos no ranking', icone: 'medalha', ok: lider, progresso: lider ? '1º' : '—' },
+    ];
+  }
+
   function lerTudo() {
     try { return JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { return {}; }
   }
@@ -77,7 +98,7 @@ const Bolao = (() => {
   const nome = () => { try { return localStorage.getItem(CHAVE_NOME) || ''; } catch (e) { return ''; } };
   const definirNome = n => { try { localStorage.setItem(CHAVE_NOME, n); } catch (e) { /* idem */ } };
 
-  return { pontos, codificar, decodificar, resumo, doCampeonato, salvarCampeonato, nome, definirNome };
+  return { pontos, codificar, decodificar, resumo, conquistas, doCampeonato, salvarCampeonato, nome, definirNome };
 })();
 
 if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => {
@@ -196,12 +217,26 @@ if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded
         <td>${p.voce ? '' : `<button type="button" class="bolao-remover" data-nome="${esc(p.nome)}" aria-label="Remover ${esc(p.nome)} do ranking" title="Remover">${UI.icone('fechar')}</button>`}</td>
       </tr>`).join('')}</tbody></table></div>
       ${dados.amigos.length ? '' : '<p class="grafico-nota" style="padding-top:12px;">Ninguém mais por aqui ainda: compartilhe o seu link e peça o dos amigos.</p>'}`;
+    renderConquistas(participantes[0].voce && participantes.length > 1 && participantes[0].pontos > 0);
     document.querySelectorAll('.bolao-remover').forEach(b => b.addEventListener('click', () => {
       if (!confirm(`Remover ${b.dataset.nome} do ranking?`)) return;
       dados.amigos = dados.amigos.filter(a => a.nome !== b.dataset.nome);
       salvar();
       renderRanking();
     }));
+  }
+
+  // ---------- Conquistas ----------
+  let jaTinha = null;   // para comemorar só a conquista nova (não as que já existiam ao abrir)
+  function renderConquistas(lider) {
+    const lista = Bolao.conquistas(completos(dados.palpites), jogos, { lider });
+    const feitas = lista.filter(c => c.ok).map(c => c.id);
+    if (jaTinha && feitas.some(id => !jaTinha.includes(id))) UI.confete({ quantidade: 100 });
+    jaTinha = feitas;
+    document.getElementById('bolao-conquistas-n').textContent = `${feitas.length}/${lista.length}`;
+    document.getElementById('bolao-conquistas').innerHTML = lista.map(c => `<li class="conquista${c.ok ? ' ok' : ''}" title="${esc(c.descricao)}">
+      <span class="conquista-ic">${UI.icone(c.icone)}</span><span class="conquista-txt"><b>${esc(c.titulo)}</b><small>${esc(c.descricao)}</small></span>
+      <span class="conquista-prog">${c.ok ? UI.icone('check') : c.progresso}</span></li>`).join('');
   }
 
   // ---------- Compartilhar ----------

@@ -1035,6 +1035,9 @@ const DB = (() => {
     { id: 'finais', label: 'Finais', filtro: j => j.fase === 'final' || j.fase === 'terceiro' },
   ];
 
+  // Formações testadas na seleção da rodada: [nome, defensores, meio-campistas, atacantes].
+  const FORMACOES_SELECAO = [['4-3-3', 4, 3, 3], ['4-4-2', 4, 4, 2], ['3-4-3', 3, 4, 3], ['3-5-2', 3, 5, 2], ['4-5-1', 4, 5, 1], ['5-3-2', 5, 3, 2], ['5-4-1', 5, 4, 1]];
+
   // Prêmio de melhor jovem da FIFA: nascidos a partir de 1º de janeiro de 2005.
   const NASCIMENTO_JOVEM = '2005-01-01';
 
@@ -1106,14 +1109,20 @@ const DB = (() => {
       return Object.fromEntries(Object.entries(soma).map(([id, s]) => [id, { media: Math.round((s.total / s.jogos) * 100) / 100, jogos: s.jogos }]));
     },
 
-    // Posição do time na tabela ao fim de cada rodada (ligas e fase de liga da Champions).
+    // Posição do time na tabela ao fim de cada rodada: na liga (pontos corridos e fase de liga
+    // da Champions) ou, sem ela, no grupo do time. `total` = times na tabela.
     evolucaoPosicao(timeId) {
-      const jogos = Jogos.all().filter(j => j.fase === 'liga' && j.status === 'encerrado' && j.rodada);
+      const liga = Jogos.all().filter(j => j.fase === 'liga' && j.status === 'encerrado' && j.rodada);
+      const letra = liga.length ? null : Grupos.deTime(timeId);
+      const jogos = liga.length ? liga : letra ? Jogos.porGrupo(letra).filter(j => j.status === 'encerrado' && j.rodada) : [];
       const rodadas = [...new Set(jogos.map(j => j.rodada))].sort((a, b) => a - b);
       return rodadas.map(r => {
-        const tabela = Classificacao.liga(jogos.filter(j => j.rodada <= r));
-        const linha = tabela.find(t => t.timeId === timeId);
-        return linha ? { rodada: r, posicao: linha.posicao, pontos: linha.P, jogos: linha.J } : null;
+        const ate = jogos.filter(j => j.rodada <= r);
+        const tabela = letra ? Classificacao.grupo(letra, ate) : Classificacao.liga(ate);
+        const i = tabela.findIndex(t => t.timeId === timeId);
+        if (i === -1) return null;
+        const linha = tabela[i];
+        return { rodada: r, posicao: linha.posicao || i + 1, pontos: linha.P, jogos: linha.J, total: tabela.length, grupo: letra };
       }).filter(Boolean);
     },
 
@@ -1244,9 +1253,140 @@ const DB = (() => {
         while (escolhidos.length < n) escolhidos.push(null);
         return escolhidos;
       };
+      // Testa as formações mais comuns e fica com a de maior soma de notas (vaga vazia vale 0;
+      // no empate, a que vem antes na lista).
+      const opcoes = FORMACOES_SELECAO.map(([nome, def, mei, ata]) => {
+        const linhas = [escolher('Atacante', ata), escolher('Meio-campo', mei), escolher('Defensor', def), escolher('Goleiro', 1)];
+        return { formacao: nome, linhas, soma: linhas.flat().reduce((t, p) => t + (p ? p.nota : 0), 0) };
+      });
+      const melhor = opcoes.reduce((a, b) => (b.soma > a.soma + 1e-9 ? b : a));
+      return { rodada, jogos: jogos.length, formacao: melhor.formacao, linhas: melhor.linhas };
+    },
+
+    // Bola de Ouro: maior nota média entre quem jogou ao menos metade dos jogos do mais assíduo
+    // (desempate: participações em gol, depois mais jogos).
+    bolaDeOuro(limite = 10) {
+      const notas = this.notasTemporada();
+      const maxJogos = Math.max(0, ...Object.values(notas).map(n => n.jogos));
+      const minimo = Math.max(1, Math.ceil(maxJogos / 2));
+      const lista = this.porJogador()
+        .filter(l => notas[l.jogador.id] && notas[l.jogador.id].jogos >= minimo)
+        .map(l => ({ ...l, media: notas[l.jogador.id].media, jogosComNota: notas[l.jogador.id].jogos }))
+        .sort((a, b) => b.media - a.media || b.participacoes - a.participacoes || b.jogosComNota - a.jogosComNota
+          || a.jogador.nome.localeCompare(b.jogador.nome));
+      return { minimo, lista: lista.slice(0, limite) };
+    },
+
+    // Recordes e curiosidades dos jogos encerrados do campeonato.
+    recordes() {
+      const jogos = Jogos.all()
+        .filter(j => j.status === 'encerrado' && j.golsMandante != null && j.golsVisitante != null)
+        .sort((a, b) => new Date(a.data) - new Date(b.data));
+      const total = j => j.golsMandante + j.golsVisitante;
+      const saldo = j => Math.abs(j.golsMandante - j.golsVisitante);
+      const top = (lista, valor, n = 3) => lista.filter(x => valor(x) > 0).sort((a, b) => valor(b) - valor(a)).slice(0, n);
+
+      const gols = jogos.flatMap(j => (j.gols || []).map(g => ({ ...g, jogo: j, min: minutoNumero(g.minuto) })));
+      const comMinuto = gols.filter(g => g.min < 999);
+      const golsDe = gols.filter(g => g.tipo !== 'contra');
+
+      // Três ou mais gols do mesmo jogador numa partida (gol contra não conta).
+      const hatTricks = [];
+      jogos.forEach(j => {
+        const conta = {};
+        (j.gols || []).forEach(g => { if (g.tipo !== 'contra' && g.jogadorId) conta[g.jogadorId] = (conta[g.jogadorId] || 0) + 1; });
+        Object.entries(conta).forEach(([id, n]) => {
+          const jogador = Jogadores.get(id);
+          if (n >= 3 && jogador) hatTricks.push({ jogador, jogo: j, gols: n });
+        });
+      });
+
+      // Viradas: quem venceu sofreu o primeiro gol (o timeId do gol é o time que ganhou o gol no placar).
+      const viradas = [];
+      jogos.forEach(j => {
+        if (j.golsMandante === j.golsVisitante) return;
+        const lances = [...(j.gols || [])].sort((a, b) => minutoNumero(a.minuto) - minutoNumero(b.minuto));
+        const vencedorId = j.golsMandante > j.golsVisitante ? j.mandanteId : j.visitanteId;
+        if (!lances.length || lances[0].timeId === vencedorId) return;
+        let pro = 0, contra = 0, atras = 0;
+        lances.forEach(g => { if (g.timeId === vencedorId) pro++; else contra++; atras = Math.max(atras, contra - pro); });
+        viradas.push({ jogo: j, vencedorId, atras });
+      });
+      viradas.sort((a, b) => b.atras - a.atras || new Date(b.jogo.data) - new Date(a.jogo.data));
+
+      // Sequências de cada time, jogo a jogo: a maior que já teve no campeonato.
+      const seq = {};
+      jogos.forEach(j => {
+        [[j.mandanteId, j.golsMandante, j.golsVisitante], [j.visitanteId, j.golsVisitante, j.golsMandante]].forEach(([id, pro, contra]) => {
+          const s = seq[id] || (seq[id] = { atual: {}, melhor: {} });
+          const regras = { invicto: pro >= contra, vitorias: pro > contra, semSofrer: contra === 0, marcando: pro > 0 };
+          Object.entries(regras).forEach(([k, ok]) => {
+            s.atual[k] = ok ? (s.atual[k] || 0) + 1 : 0;
+            s.melhor[k] = Math.max(s.melhor[k] || 0, s.atual[k]);
+          });
+        });
+      });
+      const sequencia = k => Object.entries(seq)
+        .map(([id, s]) => ({ time: Times.get(id), valor: s.melhor[k] || 0, atual: s.atual[k] || 0 }))
+        .filter(x => x.time && x.valor > 1)
+        .sort((a, b) => b.valor - a.valor || b.atual - a.atual || a.time.nome.localeCompare(b.time.nome)).slice(0, 3);
+
+      // Idade no dia do gol (anos e dias): o mais novo e o mais velho a marcar.
+      const idadeNoDia = (nascimento, data) => {
+        const nasc = new Date(`${nascimento}T12:00`), dia = new Date(data);
+        let anos = dia.getFullYear() - nasc.getFullYear();
+        const aniversario = ano => new Date(nasc.getFullYear() + ano, nasc.getMonth(), nasc.getDate(), 12);
+        if (aniversario(anos) > dia) anos--;
+        return { anos, dias: Math.floor((dia - aniversario(anos)) / 86400000), ms: dia - nasc };
+      };
+      const porMarcador = {};
+      golsDe.forEach(g => {
+        const jogador = Jogadores.get(g.jogadorId);
+        if (!jogador || !jogador.nascimento) return;
+        const idade = idadeNoDia(jogador.nascimento, g.jogo.data);
+        const r = porMarcador[jogador.id] || (porMarcador[jogador.id] = { jogador, novo: null, velho: null });
+        if (!r.novo || idade.ms < r.novo.idade.ms) r.novo = { idade, jogo: g.jogo };
+        if (!r.velho || idade.ms > r.velho.idade.ms) r.velho = { idade, jogo: g.jogo };
+      });
+      const marcadores = Object.values(porMarcador);
+      const maisJovens = [...marcadores].sort((a, b) => a.novo.idade.ms - b.novo.idade.ms).slice(0, 3).map(r => ({ jogador: r.jogador, ...r.novo }));
+      const maisVelhos = [...marcadores].sort((a, b) => b.velho.idade.ms - a.velho.idade.ms).slice(0, 3).map(r => ({ jogador: r.jogador, ...r.velho }));
+
+      const atuacoes = jogos.flatMap(j => [
+        { jogo: j, timeId: j.mandanteId, gols: j.golsMandante },
+        { jogo: j, timeId: j.visitanteId, gols: j.golsVisitante },
+      ]);
+      const golsNoTempo = (de, ate) => comMinuto.filter(g => g.min >= de && g.min < ate).length;
+
       return {
-        rodada, jogos: jogos.length,
-        linhas: [escolher('Atacante', 3), escolher('Meio-campo', 3), escolher('Defensor', 4), escolher('Goleiro', 1)],
+        jogos: jogos.length,
+        gols: jogos.reduce((t, j) => t + total(j), 0),
+        maioresGoleadas: top(jogos, j => saldo(j) * 100 + total(j)),
+        maisGols: top(jogos, j => total(j) * 100 + saldo(j)),
+        timeMaisGols: top(atuacoes, a => a.gols),
+        maisCartoes: top(jogos, j => (j.cartoes || []).length),
+        golsMaisRapidos: [...comMinuto].sort((a, b) => a.min - b.min).slice(0, 3),
+        golsMaisTardios: [...comMinuto].sort((a, b) => b.min - a.min).slice(0, 3),
+        hatTricks,
+        viradas,
+        invictos: sequencia('invicto'),
+        vitorias: sequencia('vitorias'),
+        semSofrer: sequencia('semSofrer'),
+        marcando: sequencia('marcando'),
+        maisJovens,
+        maisVelhos,
+        curiosidades: {
+          zeroAZero: jogos.filter(j => total(j) === 0).length,
+          empates: jogos.filter(j => j.golsMandante === j.golsVisitante).length,
+          penaltis: gols.filter(g => g.tipo === 'penalti').length,
+          golsContra: gols.filter(g => g.tipo === 'contra').length,
+          acrescimos: gols.filter(g => String(g.minuto || '').includes('+')).length,
+          primeiroTempo: golsNoTempo(0, 46),
+          segundoTempo: golsNoTempo(46, 91),
+          prorrogacao: golsNoTempo(91, 999),
+          vermelhos: jogos.reduce((t, j) => t + (j.cartoes || []).filter(c => c.tipo !== 'amarelo').length, 0),
+          disputasPenaltis: jogos.filter(j => j.penaltisMandante != null && j.penaltisVisitante != null).length,
+        },
       };
     },
 
@@ -1524,6 +1664,45 @@ const DB = (() => {
     sha256,
   };
 
+  // ==========================================================================
+  // Histórico de edições dos jogos feitas no painel: cada mudança guarda a versão
+  // anterior do jogo, para desfazer ou voltar a uma versão antiga. Só neste navegador.
+  // ==========================================================================
+  const HISTORICO_MAX = 80;
+  const Historico = {
+    todos() { return [...(ler('fs_historico') || [])]; },
+    // acao: 'criar' | 'editar' | 'excluir'. `antes` = o jogo antes da mudança (null ao criar).
+    registrar(acao, jogoId, antes, descricao = '') {
+      const itens = this.todos();
+      itens.push({
+        id: uid('h'), em: new Date().toISOString(), acao, jogoId, descricao,
+        competicaoId: (antes && antes.competicaoId) || (Jogos.get(jogoId) || {}).competicaoId || compAtual,
+        usuario: Auth.usuarioAtual(),
+        antes: antes ? JSON.parse(JSON.stringify(antes)) : null,
+      });
+      gravar('fs_historico', itens.slice(-HISTORICO_MAX));
+    },
+    // Do campeonato aberto, mais recentes primeiro.
+    recentes() { return this.todos().filter(h => h.competicaoId === compAtual).reverse(); },
+    doJogo(jogoId) { return this.todos().filter(h => h.jogoId === jogoId).reverse(); },
+    // Volta o jogo a como estava antes da mudança `id` (recria se foi excluído, apaga se foi criado)
+    // e descarta essa entrada e as posteriores do mesmo jogo.
+    desfazer(id) {
+      const itens = this.todos();
+      const indice = itens.findIndex(h => h.id === id);
+      if (indice === -1) return null;
+      const h = itens[indice];
+      const jogos = Jogos.todos();
+      const atual = jogos.findIndex(j => j.id === h.jogoId);
+      if (!h.antes) { if (atual !== -1) jogos.splice(atual, 1); }
+      else if (atual === -1) jogos.push(h.antes);
+      else jogos[atual] = h.antes;
+      gravar('fs_jogos', jogos);
+      gravar('fs_historico', itens.filter((x, i) => i < indice || x.jogoId !== h.jogoId));
+      return h;
+    },
+  };
+
   const CORES = ['#33e08a', '#ff8a3d', '#5b8cff', '#ff5470', '#c792ea', '#ffd166'];
 
   // Cores de cada seleção (camisa principal, detalhe) — usadas no topo da página
@@ -1593,5 +1772,5 @@ const DB = (() => {
     },
   };
 
-  return { Contexto, Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Util };
+  return { Contexto, Times, Jogadores, Jogos, Grupos, Classificacao, MataMata, Estatisticas, Dados, Torneio, Auth, Historico, Util };
 })();

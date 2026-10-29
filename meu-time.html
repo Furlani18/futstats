@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Monte seu time — FUTSTATS</title>
+<script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#070a12">
+<meta name="description" content="Escolha a formação e os 11 jogadores do seu time dos sonhos, veja as notas e compartilhe a imagem.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FUTSTATS">
+<meta property="og:title" content="Monte seu time — FUTSTATS">
+<meta property="og:description" content="Escolha a formação e os 11 jogadores do seu time dos sonhos, veja as notas e compartilhe a imagem.">
+<meta property="og:url" content="https://furlani18.github.io/futstats/meu-time.html">
+<meta property="og:image" content="https://furlani18.github.io/futstats/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="topbar-mount"></div>
+<div id="ticker-mount"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Início</a> / <span>Monte seu time</span></div>
+    <nav class="jogar-abas" aria-label="Jogos do site">
+      <a href="bolao.html"><i data-icone="dado"></i> Bolão</a>
+      <a href="quiz.html"><i data-icone="pergunta"></i> Quiz do dia</a>
+      <a href="meu-time.html" class="ativa" aria-current="page"><i data-icone="campo"></i> Monte seu time</a>
+    </nav>
+    <div class="section-eyebrow" id="eyebrow-time">Seu time dos sonhos</div>
+    <h1 class="section-title">Monte seu time</h1>
+    <p class="lead">Escolha a formação, toque numa posição e escolha o jogador. O time fica salvo neste navegador e pode ser compartilhado por link ou imagem.</p>
+  </div>
+</section>
+
+<main class="page">
+  <div class="mt-convite" id="mt-convite" hidden></div>
+  <div class="mt-layout">
+    <section class="panel">
+      <div class="panel-header mt-barra">
+        <label class="mt-form">Formação <select id="mt-formacao"></select></label>
+        <input type="text" id="mt-nome" class="mt-nome" maxlength="28" placeholder="Nome do time" aria-label="Nome do time">
+      </div>
+      <div class="mt-campo-caixa" id="mt-campo"></div>
+      <div class="mt-acoes">
+        <button type="button" class="btn btn-ghost" id="mt-auto"><i data-icone="raio"></i> Completar com os melhores</button>
+        <button type="button" class="btn btn-ghost" id="mt-limpar"><i data-icone="fechar"></i> Limpar</button>
+        <button type="button" class="btn btn-ghost" id="mt-link"><i data-icone="link"></i> Copiar link</button>
+        <button type="button" class="btn btn-primary" id="mt-imagem"><i data-icone="camera"></i> Compartilhar imagem</button>
+      </div>
+      <p class="kpi-note" id="mt-aviso" role="status" aria-live="polite"></p>
+    </section>
+    <aside class="stack">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Seu time em números</span></div>
+        <div id="mt-resumo"></div>
+      </div>
+      <div class="panel" id="mt-escolha-painel">
+        <div class="panel-header"><span class="panel-title" id="mt-escolha-titulo">Escolha uma posição</span></div>
+        <div class="mt-escolha" id="mt-escolha"><p class="grafico-nota" style="padding:14px 18px;">Toque numa posição do campo para ver os jogadores.</p></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+
+<script src="js/carregar-dados.js"></script>
+<script src="js/competicoes-clubes.js"></script>
+<script src="js/competicoes.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/compartilhar.js"></script>
+<script src="js/meu-time.js"></script>
+</body>
+</html>

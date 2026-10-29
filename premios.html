@@ -7,6 +7,7 @@
 <script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#070a12">
 <meta name="description" content="Chuteira de Ouro, Luva de Ouro, melhor jovem e seleção da rodada da Copa 2026.">
 <meta property="og:type" content="website">
@@ -35,7 +36,12 @@
 </section>
 
 <main class="page">
-  <div class="grid-3">
+  <div class="premios-grade">
+    <div class="panel">
+      <div class="panel-header"><span class="award-head"><span class="award-icon"><i data-icone="bola"></i></span><span class="panel-title">Bola de Ouro</span></span></div>
+      <div id="lista-bola"></div>
+      <div class="award-crit" id="crit-bola">Maior nota média entre quem jogou ao menos metade dos jogos do mais assíduo.</div>
+    </div>
     <div class="panel">
       <div class="panel-header"><span class="award-head"><span class="award-icon"><i data-icone="chuteira"></i></span><span class="panel-title">Chuteira de Ouro</span></span></div>
       <div id="lista-chuteira"></div>
@@ -55,9 +61,10 @@
 
   <div class="section-head" id="selecao-rodada">
     <div>
-      <div class="section-eyebrow">4-3-3 dos melhores</div>
+      <div class="section-eyebrow" id="eyebrow-rodada">Os melhores na melhor formação</div>
       <h2 class="section-title">Seleção da rodada</h2>
     </div>
+    <button type="button" class="btn btn-ghost" id="btn-imagem-rodada" hidden><i data-icone="camera"></i> Compartilhar imagem</button>
   </div>
   <div class="chips" id="chips-rodada"></div>
   <div class="grid-main">
@@ -78,7 +85,7 @@
         <li><span>Amarelo · 2º amarelo · vermelho</span><span>−0,3 · −1,2 · −1,5</span></li>
         <li><span>Gol contra</span><span>−1,0</span></li>
       </ul>
-      <div class="award-crit">Resultado e defesa pesam pelos minutos jogados. O painel pode substituir qualquer nota à mão. Entram os de maior nota em cada posição; quem jogou mais de uma vez na rodada fica com a média.</div>
+      <div class="award-crit">Resultado e defesa pesam pelos minutos jogados. O painel pode substituir qualquer nota à mão. Entram os de maior nota em cada posição; quem jogou mais de uma vez na rodada fica com a média. A formação (4-3-3, 4-4-2, 3-5-2…) é a que soma mais nota com os melhores da rodada.</div>
     </aside>
   </div>
 </main>
@@ -91,6 +98,7 @@
 <script src="js/dados.js"></script>
 <script src="js/db.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/compartilhar.js"></script>
 <script src="js/premios.js"></script>
 </body>
 </html>

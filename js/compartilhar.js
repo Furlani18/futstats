@@ -170,25 +170,105 @@ const Compartilhar = (() => {
       ctx.fillText(jogo.local, L / 2, 600);
     }
 
-    // Rodapé
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#f4c64e';
-    retanguloArredondado(ctx, 60, L - 120, 56, 56, 12); ctx.fill();
-    desenharBola(ctx, 88, L - 92, 36, '#1a1203');
-    ctx.textAlign = 'left'; ctx.font = `800 46px ${DISPLAY}`;
-    ctx.fillStyle = '#f1f4fa'; ctx.fillText('FUT', 132, L - 75);
-    const larguraFut = ctx.measureText('FUT').width;
-    ctx.fillStyle = '#f4c64e'; ctx.fillText('STATS', 132 + larguraFut + 4, L - 75);
-    ctx.textAlign = 'right'; ctx.fillStyle = '#5d667b'; ctx.font = `600 24px ${TEXTO}`;
-    ctx.fillText('Estatísticas de futebol', L - 60, L - 80);
-
+    rodape(ctx, L);
     return canvas;
   }
 
-  async function jogo(jogoObj) {
-    const canvas = await desenharJogo(jogoObj);
-    const m = DB.Times.get(jogoObj.mandanteId), v = DB.Times.get(jogoObj.visitanteId);
-    const nome = `futstats-${m.codigo}-${v.codigo}.png`.toLowerCase();
+  // Marca do FUTSTATS no pé da imagem (altura total `A`).
+  function rodape(ctx, A) {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f4c64e';
+    retanguloArredondado(ctx, 60, A - 120, 56, 56, 12); ctx.fill();
+    desenharBola(ctx, 88, A - 92, 36, '#1a1203');
+    ctx.textAlign = 'left'; ctx.font = `800 46px ${DISPLAY}`;
+    ctx.fillStyle = '#f1f4fa'; ctx.fillText('FUT', 132, A - 75);
+    const larguraFut = ctx.measureText('FUT').width;
+    ctx.fillStyle = '#f4c64e'; ctx.fillText('STATS', 132 + larguraFut + 4, A - 75);
+    ctx.textAlign = 'right'; ctx.fillStyle = '#5d667b'; ctx.font = `600 24px ${TEXTO}`;
+    ctx.fillText('Estatísticas de futebol', L - 60, A - 80);
+  }
+
+  // Campinho 1080×1350 (bom para o Instagram): `linhas` do ataque (topo) ao goleiro;
+  // cada jogador { nome, numero, timeId, nota, gols } ou null (vaga vazia).
+  async function desenharCampo({ eyebrow, titulo, subtitulo, formacao, linhas }) {
+    try { await document.fonts.load(`800 120px "Barlow Condensed"`); } catch (e) { /* segue com a fonte padrão */ }
+    const A = 1350;
+    const canvas = document.createElement('canvas');
+    canvas.width = L; canvas.height = A;
+    const ctx = canvas.getContext('2d');
+    const fundo = ctx.createLinearGradient(0, 0, 0, A);
+    fundo.addColorStop(0, '#0d1220'); fundo.addColorStop(1, '#05070d');
+    ctx.fillStyle = fundo; ctx.fillRect(0, 0, L, A);
+    [['#1fa463', 0], ['#2f6bff', 1], ['#e8344a', 2]].forEach(([cor, i]) => { ctx.fillStyle = cor; ctx.fillRect((L / 3) * i, 0, L / 3 + 1, 12); });
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#f4c64e'; ctx.font = `800 28px ${TEXTO}`;
+    ctx.fillText(String(eyebrow || '').toUpperCase(), L / 2, 72);
+    ctx.fillStyle = '#f1f4fa';
+    textoAjustado(ctx, String(titulo || '').toUpperCase(), L / 2, 140, L - 160, 68, DISPLAY);
+    ctx.fillStyle = '#8f98ad'; ctx.font = `700 28px ${TEXTO}`;
+    ctx.fillText([subtitulo, formacao].filter(Boolean).join(' · '), L / 2, 186);
+
+    // Gramado com listras, área, meio-campo
+    const x0 = 50, y0 = 220, w = L - 100, h = 980;
+    ctx.save();
+    retanguloArredondado(ctx, x0, y0, w, h, 24); ctx.clip();
+    for (let i = 0; i < 10; i++) { ctx.fillStyle = i % 2 ? '#3f7652' : '#48825b'; ctx.fillRect(x0, y0 + (h / 10) * i, w, h / 10 + 1); }
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3;
+    ctx.strokeRect(x0 + 20, y0 + 20, w - 40, h - 40);
+    ctx.beginPath(); ctx.moveTo(x0 + 20, y0 + h / 2); ctx.lineTo(x0 + w - 20, y0 + h / 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(L / 2, y0 + h / 2, 90, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeRect(L / 2 - 200, y0 + h - 20 - 160, 400, 160);
+    ctx.strokeRect(L / 2 - 200, y0 + 20, 400, 160);
+    ctx.restore();
+
+    const n = linhas.length;
+    linhas.forEach((linha, li) => {
+      const cy = y0 + 110 + ((h - 220) / Math.max(1, n - 1)) * li;
+      linha.forEach((p, i) => {
+        const cx = x0 + (w / (linha.length + 1)) * (i + 1);
+        const r = 46;
+        if (!p) {
+          ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+          return;
+        }
+        const c = DB.Util.coresTime(DB.Times.get(p.timeId));
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 6;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = c.primaria; ctx.fill();
+        ctx.restore();
+        ctx.lineWidth = 6; ctx.strokeStyle = c.secundaria; ctx.beginPath(); ctx.arc(cx, cy, r - 3, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = c.texto; ctx.font = `800 40px ${DISPLAY}`; ctx.textAlign = 'center';
+        ctx.fillText(p.numero != null ? String(p.numero) : DB.Util.iniciais(p.nome), cx, cy + 14);
+        // Nome com fundo escuro para ler sobre a grama
+        ctx.font = `800 25px ${TEXTO}`;
+        const nome = UI.nomeCurto(p.nome);
+        const larg = Math.min(w / (linha.length + 1) - 8, ctx.measureText(nome).width + 22);
+        ctx.fillStyle = 'rgba(5,7,13,.72)';
+        retanguloArredondado(ctx, cx - larg / 2, cy + r + 10, larg, 38, 10); ctx.fill();
+        ctx.fillStyle = '#f1f4fa';
+        textoAjustado(ctx, nome, cx, cy + r + 38, larg - 14, 25, TEXTO);
+        if (p.nota != null) {
+          const cor = p.nota >= 9 ? '#5b8cff' : p.nota >= 6.5 ? '#2fd98a' : p.nota >= 6 ? '#f4c64e' : '#ff8a3d';
+          ctx.fillStyle = cor; retanguloArredondado(ctx, cx + 22, cy - r - 6, 64, 34, 10); ctx.fill();
+          ctx.fillStyle = '#0b0f1a'; ctx.font = `800 24px ${TEXTO}`;
+          ctx.fillText(p.nota.toFixed(1).replace('.', ','), cx + 54, cy - r + 19);
+        }
+        if (p.gols) {
+          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx - r + 4, cy + r - 10, 19, 0, Math.PI * 2); ctx.fill();
+          desenharBola(ctx, cx - r + 4, cy + r - 10, 30, '#111111');
+          if (p.gols > 1) { ctx.fillStyle = '#ffffff'; ctx.font = `800 22px ${TEXTO}`; ctx.fillText(`${p.gols}`, cx - r - 24, cy + r - 2); }
+        }
+      });
+    });
+
+    rodape(ctx, A);
+    return canvas;
+  }
+
+  // Compartilha (celular) ou baixa (computador) o PNG.
+  async function entregar(canvas, nome, texto) {
     let blob;
     try {
       blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -197,9 +277,6 @@ const Compartilhar = (() => {
     }
     if (!blob) { alert('Não foi possível gerar a imagem neste navegador.'); return; }
     const arquivo = new File([blob], nome, { type: 'image/png' });
-    const texto = UI.temPlacar(jogoObj)
-      ? `${m.nome} ${jogoObj.golsMandante} x ${jogoObj.golsVisitante} ${v.nome} — Copa do Mundo 2026`
-      : `${m.nome} x ${v.nome} — Copa do Mundo 2026`;
     if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
       try {
         await navigator.share({ files: [arquivo], title: texto, text: `${texto}\n${location.href}` });
@@ -216,5 +293,19 @@ const Compartilhar = (() => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  return { jogo, desenharJogo };
+  async function jogo(jogoObj) {
+    const canvas = await desenharJogo(jogoObj);
+    const m = DB.Times.get(jogoObj.mandanteId), v = DB.Times.get(jogoObj.visitanteId);
+    const comp = DB.Contexto.get();
+    const texto = UI.temPlacar(jogoObj)
+      ? `${m.nome} ${jogoObj.golsMandante} x ${jogoObj.golsVisitante} ${v.nome} — ${comp.curto} ${comp.temporada}`
+      : `${m.nome} x ${v.nome} — ${comp.curto} ${comp.temporada}`;
+    await entregar(canvas, `futstats-${m.codigo}-${v.codigo}.png`.toLowerCase(), texto);
+  }
+
+  async function campo(opcoes, nomeArquivo, texto) {
+    await entregar(await desenharCampo(opcoes), nomeArquivo, texto);
+  }
+
+  return { jogo, desenharJogo, campo, desenharCampo };
 })();

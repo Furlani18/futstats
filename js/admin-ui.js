@@ -81,6 +81,7 @@ const AdminUI = (() => {
     fecharModal();
     const conteudo = document.getElementById('admin-content');
     conteudo.replaceChildren(document.getElementById(`tpl-${id}`).content.cloneNode(true));
+    UI.hidratarIcones(conteudo);
     document.getElementById('admin-titulo').textContent = `${SECOES[id]} · ${DB.Contexto.get().curto}`;
     document.title = `${SECOES[id]} — Painel Admin FUTSTATS`;
     document.querySelectorAll('.sidebar-link').forEach(link => link.classList.toggle('active', link.dataset.secao === id));

@@ -8,6 +8,7 @@
 <script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#070a12">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="FUTSTATS">
@@ -80,6 +81,15 @@
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Assistências</span><a href="estatisticas.html#assistencias">Ver tudo →</a></div>
         <div id="top-assistencias"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Para jogar</span></div>
+        <div class="atalhos-jogar" id="atalhos-jogar">
+          <a href="quiz.html"><span class="atalho-ic"><i data-icone="pergunta"></i></span><span><b>Quiz do dia</b><small id="atalho-quiz">Adivinhe o jogador em 6 chances</small></span></a>
+          <a href="meu-time.html"><span class="atalho-ic"><i data-icone="campo"></i></span><span><b>Monte seu time</b><small>Seu 11 ideal, com imagem para compartilhar</small></span></a>
+          <a href="bolao.html"><span class="atalho-ic"><i data-icone="dado"></i></span><span><b>Bolão</b><small>Palpites e ranking com os amigos</small></span></a>
+          <a href="recordes.html"><span class="atalho-ic"><i data-icone="trofeu"></i></span><span><b>Recordes</b><small>Goleadas, viradas, hat-tricks e mais</small></span></a>
+        </div>
       </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Melhores ataques</span><a href="estatisticas.html#selecoes">Ver tudo →</a></div>

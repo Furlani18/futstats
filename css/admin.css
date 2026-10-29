@@ -710,3 +710,15 @@ details.lances-box[open] > summary::after { content: '▴'; }
 }
 
 @media (max-width: 560px) { .esc-lado-txt { display: none; } }
+
+/* ---------- Histórico de edições dos jogos ---------- */
+.historico { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 60vh; overflow-y: auto; }
+.historico li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
+.historico-acao { font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+.historico-criar { background: rgba(51, 224, 138, .14); color: #33e08a; }
+.historico-editar { background: rgba(91, 140, 255, .14); color: #8fb0ff; }
+.historico-excluir { background: rgba(255, 84, 112, .14); color: #ff9aac; }
+.historico-txt { flex: 1; min-width: 0; }
+.historico-txt b { display: block; font-size: 13px; }
+.historico-txt small { color: var(--text-dim); font-size: 11.5px; }
+.historico .btn .ico, #btn-desfazer .ico, #btn-historico .ico { width: 15px; height: 15px; vertical-align: -3px; }

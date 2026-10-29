@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
   DB.MataMata.sincronizar();
 
   const comp = DB.Contexto.get();
+  // Imprimir a tabela e baixar em planilha (todos os grupos ou a tabela única).
+  UI.botoesExportar(document.getElementById('exportar'), () => {
+    const cab = ['Pos', 'Time', 'P', 'J', 'V', 'E', 'D', 'GP', 'GC', 'SG'];
+    const linha = (l, i) => [l.posicao || i + 1, (DB.Times.get(l.timeId) || {}).nome, l.P, l.J, l.V, l.E, l.D, l.GP, l.GC, l.SG];
+    const ehLiga = comp.tipo === 'liga' || comp.tipo === 'champions';
+    const linhas = ehLiga ? [cab, ...DB.Classificacao.liga().map(linha)]
+      : [['Grupo', ...cab], ...DB.Grupos.letras.flatMap(letra => DB.Classificacao.grupo(letra).map((l, i) => [letra, ...linha(l, i)]))];
+    UI.baixarCSV(`futstats-${comp.id}-classificacao.csv`, linhas);
+  });
   const texto = (id, valor) => { document.getElementById(id).textContent = valor; };
   if (comp.tipo === 'liga' || comp.tipo === 'champions') {
     // Tabela única: pontos corridos ou fase de liga da Champions.

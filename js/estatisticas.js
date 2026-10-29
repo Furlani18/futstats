@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
   UI.montarTopbar();
+  UI.botoesExportar(document.getElementById('exportar'), () => {
+    const comp = DB.Contexto.get();
+    const linhas = DB.Estatisticas.porJogador()
+      .sort((a, b) => b.gols - a.gols || b.assistencias - a.assistencias || a.jogador.nome.localeCompare(b.jogador.nome))
+      .map(l => [l.jogador.nome, (DB.Times.get(l.jogador.timeId) || {}).nome, l.jogador.posicao, l.jogos, l.minutos, l.gols, l.assistencias, l.penaltis, l.golsContra, l.amarelos, l.vermelhos]);
+    UI.baixarCSV(`futstats-${comp.id}-jogadores.csv`, [['Jogador', 'Time', 'Posição', 'Jogos', 'Minutos', 'Gols', 'Assistências', 'Pênaltis', 'Gols contra', 'Amarelos', 'Vermelhos'], ...linhas]);
+  });
   UI.montarTicker();
   DB.MataMata.sincronizar();
 

@@ -28,6 +28,29 @@ document.addEventListener('DOMContentLoaded', () => {
     ? proximos.slice(0, 20).map(comCampeonato).join('')
     : UI.vazio(times.length ? 'Nenhum jogo marcado' : 'Siga um time para ver os jogos dele aqui', '');
   document.getElementById('fav-ultimos').innerHTML = ultimos.length ? ultimos.map(comCampeonato).join('') : UI.vazio('Sem resultados ainda', '');
+
+  // ---------- Lembretes: aviso 30 minutos antes dos jogos dos times seguidos ----------
+  function renderLembretes() {
+    const caixa = document.getElementById('lembretes');
+    if (!UI.Lembretes.suportado()) {
+      caixa.innerHTML = '<p class="grafico-nota">Este navegador não mostra notificações. Use <b>Exportar para a agenda</b> para receber os avisos pelo calendário do celular.</p>';
+      return;
+    }
+    const negado = Notification.permission === 'denied';
+    const ativos = UI.Lembretes.ativos();
+    const pendentes = UI.Lembretes.pendentes();
+    const prox = pendentes[0];
+    caixa.innerHTML = `<p class="grafico-nota">${ativos
+      ? `Ligados: você recebe um aviso 30 minutos antes de cada jogo dos seus times enquanto o site (ou o app instalado) estiver aberto.${prox ? ` Próximo: <b>${esc((DB.Times.get(prox.mandanteId) || {}).nome || '')} x ${esc((DB.Times.get(prox.visitanteId) || {}).nome || '')}</b>, ${DB.Util.formatarDataHora(prox.data)}.` : ''}`
+      : negado ? 'As notificações estão bloqueadas para este site. Libere nas configurações do navegador (cadeado ao lado do endereço) e volte aqui.'
+      : 'Receba um aviso 30 minutos antes de cada jogo dos times que você segue. Sem servidor, o aviso chega com o site ou o app aberto; para avisos com tudo fechado, exporte para a agenda.'}</p>
+      <div class="bolao-acoes">${ativos
+        ? '<button type="button" class="btn btn-ghost" id="btn-lembretes-off">Desligar lembretes</button>'
+        : `<button type="button" class="btn btn-primary" id="btn-lembretes-on" ${negado || !times.length ? 'disabled' : ''}>${UI.icone('sino')} Ligar lembretes</button>`}</div>`;
+    document.getElementById('btn-lembretes-on')?.addEventListener('click', async () => { await UI.Lembretes.ativar(); renderLembretes(); });
+    document.getElementById('btn-lembretes-off')?.addEventListener('click', () => { UI.Lembretes.desativar(); renderLembretes(); });
+  }
+  renderLembretes();
   const botaoIcs = document.getElementById('btn-ics-favoritos');
   if (proximos.length) {
     botaoIcs.hidden = false;

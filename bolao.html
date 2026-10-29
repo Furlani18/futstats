@@ -7,6 +7,7 @@
 <script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#070a12">
 <meta name="description" content="Palpite os placares, compartilhe o link e dispute o ranking com os amigos.">
 <meta property="og:type" content="website">
@@ -28,6 +29,11 @@
 <section class="page-hero">
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Bolão</span></div>
+    <nav class="jogar-abas" aria-label="Jogos do site">
+      <a href="bolao.html" class="ativa" aria-current="page"><i data-icone="dado"></i> Bolão</a>
+      <a href="quiz.html"><i data-icone="pergunta"></i> Quiz do dia</a>
+      <a href="meu-time.html"><i data-icone="campo"></i> Monte seu time</a>
+    </nav>
     <div class="section-eyebrow" id="eyebrow-bolao">Palpites entre amigos</div>
     <h1 class="section-title">Bolão</h1>
     <p class="lead">Palpite o placar dos próximos jogos e dispute com os amigos. O site não tem servidor: você manda o link dos seus palpites, cada amigo manda o dele, e o ranking é montado neste navegador com os links que você abrir.</p>
@@ -65,6 +71,10 @@
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Ranking</span><span class="campanha-resumo" id="bolao-resumo"></span></div>
         <div id="bolao-ranking"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Conquistas</span><span class="campanha-resumo" id="bolao-conquistas-n"></span></div>
+        <ul class="conquistas" id="bolao-conquistas"></ul>
       </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">Pontuação</span></div>

@@ -7,6 +7,7 @@
 <script>try{var t=localStorage.getItem('fs_tema');if(t)document.documentElement.dataset.theme=t;var c=JSON.parse(localStorage.getItem('fs_cores')||'null');if(c)for(var k in c)document.documentElement.style.setProperty(k,c[k]);if(localStorage.getItem('fs_densidade')==='compacta')document.documentElement.dataset.densidade='compacta'}catch(e){}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#070a12">
 <meta name="description" content="Chaveamento do mata-mata da Copa 2026: 32avos, oitavas, quartas, semifinais e final.">
 <meta property="og:type" content="website">
@@ -29,7 +30,7 @@
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Início</a> / <span>Mata-mata</span></div>
     <div class="section-eyebrow" id="eyebrow">Pela primeira vez com 32avos de final</div>
-    <h1 class="section-title">Chaveamento</h1>
+    <div class="titulo-acao"><h1 class="section-title">Chaveamento</h1><span id="exportar"></span></div>
     <p class="lead" id="lead">Confrontos tracejados ainda são projeções pela classificação atual — viram definitivos quando a fase anterior termina.</p>
   </div>
 </section>

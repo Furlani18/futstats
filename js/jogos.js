@@ -1052,10 +1052,14 @@ AdminUI.registrar('jogos', () => {
           data: payload.data, local: payload.local,
         });
         DB.Jogos.update(criado.id, payload);
+        DB.Historico.registrar('criar', criado.id, null, descreverJogo(DB.Jogos.get(criado.id)));
       } else {
+        const antes = DB.Jogos.get(existente.id);
         DB.Jogos.update(existente.id, payload);
+        DB.Historico.registrar('editar', existente.id, antes, descreverMudanca(antes, DB.Jogos.get(existente.id)));
       }
       DB.MataMata.sincronizar();
+      renderDesfazer();
     }
   }
 
@@ -1064,11 +1068,81 @@ AdminUI.registrar('jogos', () => {
     if (!jogo) return;
     if (!confirm(`Excluir ${nomeTime(jogo.mandanteId)} x ${nomeTime(jogo.visitanteId)}? Gols e cartões deste jogo também serão apagados.`)) return;
     DB.Jogos.remove(id);
+    DB.Historico.registrar('excluir', id, jogo, descreverJogo(jogo));
     DB.MataMata.sincronizar();
     renderTabela();
+    renderDesfazer();
+  }
+
+  // ---------- Histórico e desfazer ----------
+  const placarTexto = j => (UI.temPlacar(j) ? `${j.golsMandante}–${j.golsVisitante}` : 'sem placar');
+  function descreverJogo(j) {
+    return `${nomeTime(j.mandanteId)} x ${nomeTime(j.visitanteId)} (${placarTexto(j)})`;
+  }
+  // O que mudou entre duas versões do jogo, em poucas palavras.
+  function descreverMudanca(a, b) {
+    const partes = [];
+    if (placarTexto(a) !== placarTexto(b)) partes.push(`placar ${placarTexto(a)} → ${placarTexto(b)}`);
+    if (a.status !== b.status) partes.push(`${LABELS_STATUS_JOGO[a.status] || a.status} → ${LABELS_STATUS_JOGO[b.status] || b.status}`);
+    const conta = (j, campo) => (j[campo] || []).length;
+    if (conta(a, 'gols') !== conta(b, 'gols')) partes.push(`gols lançados ${conta(a, 'gols')} → ${conta(b, 'gols')}`);
+    if (conta(a, 'cartoes') !== conta(b, 'cartoes')) partes.push(`cartões ${conta(a, 'cartoes')} → ${conta(b, 'cartoes')}`);
+    if (JSON.stringify(a.escalacoes || {}) !== JSON.stringify(b.escalacoes || {})) partes.push('escalações');
+    if (a.data !== b.data || a.local !== b.local) partes.push('data/local');
+    if (JSON.stringify(a.estatisticas || {}) !== JSON.stringify(b.estatisticas || {})) partes.push('estatísticas');
+    if (JSON.stringify(a.notas || {}) !== JSON.stringify(b.notas || {})) partes.push('notas');
+    return `${nomeTime(b.mandanteId)} x ${nomeTime(b.visitanteId)}: ${partes.join(' · ') || 'sem mudança visível'}`;
+  }
+  const ACOES = { criar: 'Criou', editar: 'Editou', excluir: 'Excluiu' };
+  const quando = iso => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+  function desfazer(h) {
+    const posteriores = DB.Historico.doJogo(h.jogoId).filter(x => x.em > h.em).length;
+    const aviso = posteriores ? `
+
+As ${posteriores} mudança(s) feitas depois neste mesmo jogo também serão desfeitas.` : '';
+    if (!confirm(`Desfazer: ${ACOES[h.acao].toLowerCase()} — ${h.descricao}?${aviso}`)) return false;
+    DB.Historico.desfazer(h.id);
+    DB.MataMata.sincronizar();
+    renderTabela();
+    renderDesfazer();
+    return true;
+  }
+
+  function renderDesfazer() {
+    const ultimo = DB.Historico.recentes()[0];
+    const botao = document.getElementById('btn-desfazer');
+    botao.disabled = !ultimo;
+    botao.title = ultimo ? `Desfazer: ${ACOES[ultimo.acao].toLowerCase()} — ${ultimo.descricao}` : 'Nada para desfazer';
+    document.getElementById('btn-historico').disabled = !ultimo;
+  }
+
+  function abrirHistorico() {
+    const itens = DB.Historico.recentes();
+    AdminUI.abrirModal({
+      titulo: `Histórico de edições · ${comp.curto}`,
+      corpoHtml: itens.length ? `<p class="admin-toolbar-hint" style="margin:0 0 12px;">As últimas mudanças feitas neste navegador. Desfazer volta o jogo a como estava antes daquela mudança.</p>
+        <ul class="historico">${itens.map(h => `<li>
+          <span class="historico-acao historico-${h.acao}">${ACOES[h.acao]}</span>
+          <span class="historico-txt"><b>${esc(h.descricao)}</b><small>${quando(h.em)}${h.usuario ? ` · ${esc(h.usuario)}` : ''}</small></span>
+          <button type="button" class="btn btn-ghost btn-sm" data-desfazer="${h.id}">${UI.icone('voltar')} Desfazer</button>
+        </li>`).join('')}</ul>` : '<p>Nenhuma edição registrada.</p>',
+      aoSalvar: () => AdminUI.fecharModal(),
+    });
+    document.querySelector('#modal-form .btn-primary').textContent = 'Fechar';
+    document.getElementById('modal-cancelar').hidden = true;
+    document.querySelectorAll('[data-desfazer]').forEach(b => b.addEventListener('click', () => {
+      const h = DB.Historico.recentes().find(x => x.id === b.dataset.desfazer);
+      if (h && desfazer(h)) abrirHistorico();
+    }));
   }
 
   document.getElementById('btn-novo').addEventListener('click', () => abrirFormulario(null));
+  document.getElementById('btn-desfazer').addEventListener('click', () => {
+    const ultimo = DB.Historico.recentes()[0];
+    if (ultimo) desfazer(ultimo);
+  });
+  document.getElementById('btn-historico').addEventListener('click', abrirHistorico);
   document.getElementById('btn-importar').addEventListener('click', () => {
     if (typeof CALENDARIO_GRUPOS_2026 === 'undefined') return;
     if (!confirm('Importar os 72 jogos da fase de grupos com datas, horários e estádios oficiais? Nenhum placar é importado, e confrontos já cadastrados são mantidos.')) return;
@@ -1101,4 +1175,5 @@ AdminUI.registrar('jogos', () => {
   filtroStatus.addEventListener('change', renderTabela);
 
   renderTabela();
+  renderDesfazer();
 });

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   UI.montarTopbar();
   UI.montarTicker();
+  UI.botoesExportar(document.getElementById('exportar'));
 
   if (!DB.Contexto.ehCopa()) { mataMataClubes(); UI.montarFooter(); return; }
   const chave = DB.MataMata.sincronizar();
