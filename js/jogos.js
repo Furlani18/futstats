@@ -6,17 +6,40 @@ const ESTATISTICAS_JOGO = [
   ['posse', 'Posse de bola (%)', 100], ['finalizacoes', 'Finalizações'], ['noAlvo', 'No alvo'],
   ['escanteios', 'Escanteios'], ['faltas', 'Faltas'], ['impedimentos', 'Impedimentos'], ['defesas', 'Defesas do goleiro'],
 ];
-// Formações (sem o goleiro): linhas da defesa ao ataque. "Meia ofensivo" é a linha de trás dos atacantes.
-const FORMACOES = {
-  '4-3-3': [['Defensor', 4], ['Meio-campo', 3], ['Atacante', 3]],
-  '4-4-2': [['Defensor', 4], ['Meio-campo', 4], ['Atacante', 2]],
-  '4-2-3-1': [['Defensor', 4], ['Meio-campo', 2], ['Meia ofensivo', 3], ['Atacante', 1]],
-  '4-1-4-1': [['Defensor', 4], ['Meio-campo', 1], ['Meia ofensivo', 4], ['Atacante', 1]],
-  '4-3-1-2': [['Defensor', 4], ['Meio-campo', 3], ['Meia ofensivo', 1], ['Atacante', 2]],
-  '3-5-2': [['Defensor', 3], ['Meio-campo', 5], ['Atacante', 2]],
-  '3-4-3': [['Defensor', 3], ['Meio-campo', 4], ['Atacante', 3]],
-  '5-3-2': [['Defensor', 5], ['Meio-campo', 3], ['Atacante', 2]],
-  '5-4-1': [['Defensor', 5], ['Meio-campo', 4], ['Atacante', 1]],
+// Formações (sem o goleiro): linhas da defesa ao ataque. "Meia ofensivo" é a linha de trás dos atacantes;
+// duas linhas de "Meio-campo" seguidas são o volante e os meias (ex.: o losango 4-1-2-1-2).
+const FORMACOES = (() => {
+  const D = n => ['Defensor', n], M = n => ['Meio-campo', n], MO = n => ['Meia ofensivo', n], A = n => ['Atacante', n];
+  return {
+    '4-3-3': [D(4), M(3), A(3)],
+    '4-4-2': [D(4), M(4), A(2)],
+    '4-2-3-1': [D(4), M(2), MO(3), A(1)],
+    '4-1-4-1': [D(4), M(1), MO(4), A(1)],
+    '4-3-1-2': [D(4), M(3), MO(1), A(2)],
+    '4-4-1-1': [D(4), M(4), MO(1), A(1)],
+    '4-3-2-1': [D(4), M(3), MO(2), A(1)],
+    '4-2-2-2': [D(4), M(2), MO(2), A(2)],
+    '4-1-2-1-2': [D(4), M(1), M(2), MO(1), A(2)],
+    '4-1-3-2': [D(4), M(1), M(3), A(2)],
+    '4-1-2-3': [D(4), M(1), M(2), A(3)],
+    '4-5-1': [D(4), M(5), A(1)],
+    '4-2-4': [D(4), M(2), A(4)],
+    '3-5-2': [D(3), M(5), A(2)],
+    '3-4-3': [D(3), M(4), A(3)],
+    '3-4-2-1': [D(3), M(4), MO(2), A(1)],
+    '3-4-1-2': [D(3), M(4), MO(1), A(2)],
+    '3-5-1-1': [D(3), M(5), MO(1), A(1)],
+    '3-1-4-2': [D(3), M(1), M(4), A(2)],
+    '5-3-2': [D(5), M(3), A(2)],
+    '5-4-1': [D(5), M(4), A(1)],
+    '5-2-3': [D(5), M(2), A(3)],
+    '5-2-1-2': [D(5), M(2), MO(1), A(2)],
+  };
+})();
+// Apelidos que aparecem no menu.
+const APELIDOS_FORMACAO = {
+  '4-1-2-1-2': 'losango', '4-3-2-1': 'árvore de Natal', '4-2-2-2': 'quadrado', '4-1-2-3': '4-3-3 com volante',
+  '4-2-4': 'ofensivo', '3-4-2-1': 'dois meias', '5-2-3': 'com alas', '4-4-1-1': 'segundo atacante',
 };
 const TIPOS_CARTAO = { amarelo: 'Amarelo', segundo_amarelo: '2º amarelo', vermelho: 'Vermelho direto' };
 
@@ -500,6 +523,7 @@ AdminUI.registrar('jogos', () => {
       esc.titulares = ed.ordem.filter(Boolean);
       esc.formacao = ed.formacao;
       esc.ordem = [...ed.ordem];
+      esc.linhas = linhasDe(ed.formacao).map(([pos, n]) => [pos, n]);   // desenho do campinho na página do jogo
       const posicoes = {};
       ed.ordem.forEach((id, i) => { const j = id && DB.Jogadores.get(id); if (j && j.posicao !== ed.vagas[i]) posicoes[id] = ed.vagas[i]; });
       if (Object.keys(posicoes).length) esc.posicoes = posicoes; else delete esc.posicoes;
@@ -656,8 +680,11 @@ AdminUI.registrar('jogos', () => {
       const entrou = quemEntrou(esc);
       const ultimo = ultimaEscalacao(timeId);
       const advUltimo = ultimo && DB.Times.get(ultimo.mandanteId === timeId ? ultimo.visitanteId : ultimo.mandanteId);
-      const opcoesFormacao = [...Object.keys(FORMACOES), ...(FORMACOES[ed.formacao] ? [] : [ed.formacao])]
-        .map(f => `<option value="${esc_(f)}" ${f === ed.formacao ? 'selected' : ''}>${esc_(nomeFormacao(f))}</option>`).join('');
+      // Menu agrupado pelo número de defensores; uma formação deduzida de escalação antiga entra no fim.
+      const opcao = f => `<option value="${esc_(f)}" ${f === ed.formacao ? 'selected' : ''}>${esc_(nomeFormacao(f))}${APELIDOS_FORMACAO[f] ? ` (${APELIDOS_FORMACAO[f]})` : ''}</option>`;
+      const grupo = n => Object.keys(FORMACOES).filter(f => f.startsWith(`${n}-`));
+      const opcoesFormacao = [4, 3, 5].map(n => `<optgroup label="${n} defensores">${grupo(n).map(opcao).join('')}</optgroup>`).join('')
+        + (FORMACOES[ed.formacao] ? '' : `<optgroup label="Desta escalação">${opcao(ed.formacao)}</optgroup>`);
 
       // Campinho: ataque em cima, goleiro embaixo; linhas na ordem da formação.
       let i0 = 0;

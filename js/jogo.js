@@ -194,7 +194,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Posição em que jogou nesta partida (definida no painel) ou a do cadastro.
     const posicaoNoJogo = j => (escTime.posicoes || {})[j.id] || j.posicao;
     const porLinha = pos => titulares.filter(j => posicaoNoJogo(j) === pos);
-    const formacao = ['Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'].map(pos => porLinha(pos).length).filter(Boolean).join('-');
+    // Escalação montada no editor de formações: linhas exatamente como lá (ex.: o losango 4-1-2-1-2).
+    // Antigas: agrupa os titulares por posição.
+    const linhasSalvas = Array.isArray(escTime.linhas) && Array.isArray(escTime.ordem)
+      && escTime.linhas.reduce((t, [, n]) => t + n, 0) === escTime.ordem.length ? escTime.linhas : null;
+    let linhasJogadores;
+    if (linhasSalvas) {
+      let i0 = 0;
+      linhasJogadores = linhasSalvas.map(([, n]) => { const ids = escTime.ordem.slice(i0, i0 + n); i0 += n; return ids.map(id => id && DB.Jogadores.get(id)).filter(Boolean); });
+    } else linhasJogadores = ORDEM_LINHAS.map(porLinha);
+    const formacao = linhasSalvas && escTime.formacao ? String(escTime.formacao).split('|')[0]
+      : ['Defensor', 'Meio-campo', 'Meia ofensivo', 'Atacante'].map(pos => porLinha(pos).length).filter(Boolean).join('-');
     const notasTime = titulares.map(j => notas[j.id]).filter(n => n != null);
     const media = notasTime.length ? notasTime.reduce((s, n) => s + n, 0) / notasTime.length : null;
     const topo = `<div class="lu-topo">${UI.bandeira(time, 'sm')}<span class="lu-time">${esc_(time.nome)}</span>
@@ -202,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ${formacao ? `<span class="lu-formacao">${formacao}</span>` : ''}</div>`;
     // Capitão (marcado no painel): selo "C" no alto da foto.
     const capitao = j => (escTime.capitaoId === j.id ? '<span class="lu-ic lu-capitao" title="Capitão">C</span>' : '');
-    return UI.campoGoogle(ORDEM_LINHAS.map(pos => porLinha(pos).map(j => UI.jogadorNoCampo(j, { cantos: cantos(j) + capitao(j), nota: notas[j.id] }))), topo);
+    return UI.campoGoogle(linhasJogadores.map(linha => linha.map(j => UI.jogadorNoCampo(j, { cantos: cantos(j) + capitao(j), nota: notas[j.id] }))), topo);
   }
 
   // Banco: quem entrou (com o minuto) e depois quem não saiu do banco.

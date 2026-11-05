@@ -7,9 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('eyebrow-time').textContent = `Seu time dos sonhos · ${comp.curto} ${comp.temporada}`;
 
   // Linhas da defesa ao ataque (o goleiro é a vaga 0). "Meio" aceita meio-campo e meia ofensivo.
-  const FORMACOES = {
-    '4-3-3': [4, 3, 3], '4-4-2': [4, 4, 2], '4-2-3-1': [4, 2, 3, 1], '4-1-4-1': [4, 1, 4, 1], '3-5-2': [3, 5, 2],
-    '3-4-3': [3, 4, 3], '5-3-2': [5, 3, 2], '5-4-1': [5, 4, 1], '4-5-1': [4, 5, 1],
+  // O nome já diz as linhas: "4-1-2-1-2" → [4, 1, 2, 1, 2].
+  const NOMES = [
+    '4-3-3', '4-4-2', '4-2-3-1', '4-1-4-1', '4-3-1-2', '4-4-1-1', '4-3-2-1', '4-2-2-2', '4-1-2-1-2', '4-1-3-2', '4-1-2-3', '4-5-1', '4-2-4',
+    '3-5-2', '3-4-3', '3-4-2-1', '3-4-1-2', '3-5-1-1', '3-1-4-2',
+    '5-3-2', '5-4-1', '5-2-3', '5-2-1-2',
+  ];
+  const FORMACOES = Object.fromEntries(NOMES.map(f => [f, f.split('-').map(Number)]));
+  const APELIDOS = {
+    '4-1-2-1-2': 'losango', '4-3-2-1': 'árvore de Natal', '4-2-2-2': 'quadrado', '4-1-2-3': '4-3-3 com volante',
+    '4-2-4': 'ofensivo', '3-4-2-1': 'dois meias', '5-2-3': 'com alas', '4-4-1-1': 'segundo atacante',
   };
   // Posição de cada linha: a primeira é a defesa, a última o ataque, as do meio são meio-campo.
   const posicoesDe = f => {
@@ -67,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Desenho ----------
   const selForm = document.getElementById('mt-formacao');
-  selForm.innerHTML = Object.keys(FORMACOES).map(f => `<option>${f}</option>`).join('');
+  selForm.innerHTML = [4, 3, 5].map(n => `<optgroup label="${n} defensores">${NOMES.filter(f => f.startsWith(`${n}-`))
+    .map(f => `<option value="${f}">${f}${APELIDOS[f] ? ` (${APELIDOS[f]})` : ''}</option>`).join('')}</optgroup>`).join('');
   const campoNome = document.getElementById('mt-nome');
 
   function vagaHtml(i, pos) {
