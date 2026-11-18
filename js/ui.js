@@ -113,8 +113,12 @@ const UI = (() => {
   }
 
   // ---------- Seletor de campeonato ----------
+  // Se o logo não carregar, mostra um troféu neutro (onerror=null evita loop se o padrão também falhar).
+  const LOGO_PADRAO = 'img/logos/padrao.svg';
+  const LOGO_FALLBACK = `this.onerror=null;this.src='${LOGO_PADRAO}'`;
+
   function iconeCampeonato(comp, tamanho = 'sm') {
-    if (comp.logo) return `<span class="logo-plate logo-plate-${tamanho}"><img src="${comp.logo}" alt="" loading="lazy" onerror="this.parentNode.remove()"></span>`;
+    if (comp.logo) return `<span class="logo-plate logo-plate-${tamanho}"><img src="${comp.logo}" alt="" loading="lazy" onerror="${LOGO_FALLBACK}"></span>`;
     if (comp.iso) return `<span class="flag flag-${tamanho}"><img src="${DB.Util.bandeiraUrl(comp.iso, 40)}" alt="" loading="lazy" onerror="this.remove()"></span>`;
     return `<span class="comp-icone" aria-hidden="true">${icone('trofeu')}</span>`;
   }
@@ -198,7 +202,7 @@ const UI = (() => {
     if (!comp.logo || !topo || ['time.html', 'jogador.html'].includes(paginaAtual())) return;
     topo.classList.add('page-hero-comp');
     const container = topo.querySelector('.container');
-    container.insertAdjacentHTML('beforeend', `<div class="page-hero-logo logo-plate logo-plate-lg" aria-hidden="true"><img src="${comp.logo}" alt=""></div>`);
+    container.insertAdjacentHTML('beforeend', `<div class="page-hero-logo logo-plate logo-plate-lg" aria-hidden="true"><img src="${comp.logo}" alt="" onerror="${LOGO_FALLBACK}"></div>`);
   }
 
   function montarTopbar() {
@@ -566,8 +570,9 @@ const UI = (() => {
       // Escudo gerado com as cores do clube: usado quando não há escudo
       // ou enquanto/se a imagem do escudo não carregar.
       const distintivo = escudoGerado(time, tamanho);
-      if (!time.escudo) return distintivo;
-      return `<span class="${classe} crest-img" title="${esc(time.nome)}"><img src="${esc(time.escudo)}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=this.parentNode.dataset.reserva" ></span>`
+      const escudo = DB.Util.escudoUrl(time);
+      if (!escudo) return distintivo;
+      return `<span class="${classe} crest-img" title="${esc(time.nome)}"><img src="${esc(escudo)}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=this.parentNode.dataset.reserva" ></span>`
         .replace('class="', `data-reserva="${esc(distintivo)}" class="`);
     }
     const largura = { sm: 40, '': 40, lg: 80, xl: 160 }[tamanho] || 40;

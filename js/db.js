@@ -247,7 +247,19 @@ const DB = (() => {
     cores: c.cores, tecnico: c.tecnico || '', estadio: c.estadio || '', escudo: c.escudo || null,
   }));
 
-  const JOGADORES_CLUBES_SEED = Object.entries(CLUBES).flatMap(([slug, c]) => c.jogadores.map((j, i) => ({
+  // Escudos guardados antes da cópia local (no navegador ou na nuvem) ainda apontam
+  // para a Wikipedia, que às vezes renomeia arquivos. Se houver cópia em img/escudos/,
+  // usa ela; um escudo personalizado de outro site fica como está.
+  const ESCUDO_LOCAL = Object.fromEntries(CLUBES_SEED
+    .filter(t => t.escudo && t.escudo.startsWith('img/'))
+    .map(t => [t.id, t.escudo]));
+  const ehWikimedia = url => /^https:\/\/[a-z.]*wikimedia\.org\//.test(url);
+  function escudoUrl(time) {
+    if (!time || !time.escudo) return null;
+    return ehWikimedia(time.escudo) && ESCUDO_LOCAL[time.id] ? ESCUDO_LOCAL[time.id] : time.escudo;
+  }
+
+  const JOGADORES_CLUBES_SEED =Object.entries(CLUBES).flatMap(([slug, c]) => c.jogadores.map((j, i) => ({
     id: `p_${idClube(slug)}_${i + 1}`, timeId: idClube(slug), numero: j.n, nome: j.nome, posicao: j.p,
     nacionalidade: j.nat || null, capitao: !!j.cap, status: 'ativo', idade: null,
   })));
@@ -1793,6 +1805,7 @@ const DB = (() => {
       return { primaria, secundaria, texto: luminancia(primaria) > 0.35 ? '#0b0f1a' : '#ffffff' };
     },
     minutoNumero,
+    escudoUrl,
     escapar(texto) {
       return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     },

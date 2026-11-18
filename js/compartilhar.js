@@ -69,9 +69,9 @@ const Compartilhar = (() => {
   async function desenharJogo(jogo) {
     const m = DB.Times.get(jogo.mandanteId), v = DB.Times.get(jogo.visitanteId);
     try { await document.fonts.load(`800 120px "Barlow Condensed"`); } catch (e) { /* segue com a fonte padrão */ }
-    // Seleção: bandeira; clube: escudo (versão de 250 px da mesma miniatura).
+    // Seleção: bandeira; clube: escudo (cópia local já tem 250 px; URL da Wikipedia passa para 250 px).
     const imagemDe = t => (t.tipo === 'clube'
-      ? (t.escudo ? t.escudo.replace('/120px-', '/250px-') : null)
+      ? (DB.Util.escudoUrl(t) || '').replace('/120px-', '/250px-') || null
       : DB.Util.bandeiraUrl(t.iso, 320));
     const [bandM, bandV] = await Promise.all([carregarImagem(imagemDe(m)), carregarImagem(imagemDe(v))]);
 

@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     topo.style.setProperty('--time-1', c.primaria);
     topo.style.setProperty('--time-2', c.secundaria);
     // Escudo (ou bandeira) gigante e apagado ao fundo.
-    const marca = ehClube ? time.escudo : DB.Util.bandeiraUrl(time.iso, 640);
+    const marca = ehClube ? DB.Util.escudoUrl(time) :DB.Util.bandeiraUrl(time.iso, 640);
     if (marca) {
       topo.insertAdjacentHTML('afterbegin', `<img class="hero-marca time-marca${ehClube ? '' : ' bandeira'}" src="${esc(marca)}" alt="" aria-hidden="true" onerror="this.remove()">`);
     }

@@ -177,7 +177,7 @@ function montarDestaque() {
   const lado = t => `<span class="featured-team">${UI.bandeira(t, 'xl')}<span class="nome">${DB.Util.escapar(t.nome)}</span></span>`;
   // Capa de revista: as bandeiras/escudos dos dois lados, gigantes e desfocados ao fundo.
   const fundo = t => {
-    const img = t.tipo === 'clube' ? t.escudo : DB.Util.bandeiraUrl(t.iso, 320);
+    const img = t.tipo === 'clube' ? DB.Util.escudoUrl(t) :DB.Util.bandeiraUrl(t.iso, 320);
     const c = DB.Util.coresTime(t);
     return `<span style="background:linear-gradient(135deg, ${c.primaria}, ${c.secundaria})">${img ? `<img src="${DB.Util.escapar(img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>`;
   };
@@ -287,8 +287,10 @@ function montarTopoCampeonato(comp, nTimes) {
   if (comp.logo) {
     const placa = document.getElementById('hero-logo');
     placa.innerHTML = `<img src="${comp.logo}" alt="${esc(comp.nome)}">`;
+    placa.querySelector('img').onerror = function () { this.onerror = null; this.src = 'img/logos/padrao.svg'; };
     placa.hidden = false;
     const marca = document.getElementById('hero-marca');
+    marca.onerror = () => { marca.hidden = true; };   // marca-d'água: sem logo, só some
     marca.src = comp.logo;
     marca.hidden = false;
     document.querySelector('.hero').classList.add('com-marca');

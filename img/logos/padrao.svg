@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="250" height="250" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Logo padrão: troféu neutro, usado quando o logo do campeonato não carrega. -->
+  <path d="M20 10h24v14a12 12 0 0 1-24 0z"/>
+  <path d="M20 14h-6a6 6 0 0 0 6 10"/>
+  <path d="M44 14h6a6 6 0 0 1-6 10"/>
+  <path d="M32 36v10"/>
+  <path d="M24 54h16"/>
+  <path d="M26 46h12v8H26z"/>
+</svg>

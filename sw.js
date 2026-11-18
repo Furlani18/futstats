@@ -2,7 +2,7 @@
 // Páginas e dados publicados: rede primeiro (sempre a versão mais nova quando há conexão).
 // CSS, scripts e imagens: cache primeiro, atualizado em segundo plano.
 // Ao mudar arquivos do site, aumente VERSAO para descartar o cache antigo.
-const VERSAO = 'futstats-v5';
+const VERSAO = 'futstats-v6';
 
 const PAGINAS = [
   './', 'index.html', 'partidas.html', 'jogo.html', 'grupos.html', 'chaveamento.html', 'estatisticas.html',
@@ -10,7 +10,7 @@ const PAGINAS = [
   'selecoes.html', 'time.html', 'jogador.html', 'comparar.html', 'favoritos.html', 'sedes.html', 'sobre.html',
 ];
 const ARQUIVOS = [
-  'css/styles.css', 'favicon.svg', 'manifest.webmanifest', 'icons/icone-192.png',
+  'css/styles.css', 'favicon.svg', 'manifest.webmanifest', 'icons/icone-192.png', 'img/logos/padrao.svg',
   'js/carregar-dados.js', 'js/config-nuvem.js', 'js/nuvem.js', 'js/competicoes-clubes.js', 'js/competicoes.js', 'js/dados.js', 'js/db.js', 'js/ui.js',
   'js/elencos.js', 'js/clubes.js', 'js/calendario.js', 'js/main.js', 'js/partidas.js', 'js/jogo.js', 'js/grupos.js',
   'js/chaveamento.js', 'js/estatisticas.js', 'js/recordes.js', 'js/premios.js', 'js/simulador.js', 'js/probabilidades.js',
